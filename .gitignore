@@ -52,13 +52,10 @@ pnpm-debug.log*
 # Testing
 coverage/
 
-# Java / Gradle
-apps/api/.gradle/
-apps/api/build/
-apps/api/bin/
+# Java / Maven
+apps/api/target/
 *.class
 *.jar
-!apps/api/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 hs_err_pid*

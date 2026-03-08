@@ -1,0 +1,24 @@
+# Build output
+.next/
+out/
+
+# Dependencies (installed inside container)
+node_modules/
+
+# Turborepo
+.turbo/
+
+# IDE
+.idea/
+.vscode/
+
+# Test coverage
+coverage/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
