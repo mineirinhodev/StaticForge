@@ -1,0 +1,9 @@
+.gradle/
+build/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
