@@ -1,0 +1,11 @@
+{
+  "name": "@ffxiv-planner/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "gradlew bootRun",
+    "build": "gradlew bootJar",
+    "test": "gradlew test",
+    "clean": "gradlew clean"
+  }
+}
