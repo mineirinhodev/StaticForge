@@ -1,0 +1,22 @@
+# Build output
+target/
+
+# Maven wrapper downloads (JAR is in .mvn/wrapper/)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Compiled classes & logs
+*.class
+*.log
+
+# Docker
+Dockerfile
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

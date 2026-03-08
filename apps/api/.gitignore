@@ -1,7 +1,7 @@
-.gradle/
-build/
-bin/
-!gradle/wrapper/gradle-wrapper.jar
+# Maven build output
+target/
+
+# IDE
 *.class
 *.jar
 *.war
