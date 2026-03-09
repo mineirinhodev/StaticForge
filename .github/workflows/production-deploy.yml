@@ -1,11 +1,14 @@
 # =============================================================
-# Production Deploy — build versioned images & release
+# Production Deploy — validate, deploy & release
 # =============================================================
 # Triggers on:
 #   - Tag push: v*.*.* (e.g., v1.0.0, v1.2.3-rc.1)
 #   - Manual dispatch (with optional skip-tests for emergencies)
 #
-# Flow: validate → build 3 images → deploy (with approval) → release
+# Flow: validate (GitHub) → deploy (self-hosted) → release (GitHub)
+#
+# Requires self-hosted runner on your machine.
+# See staging-deploy.yml header for setup instructions.
 # =============================================================
 
 name: Production Deploy
@@ -30,12 +33,8 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/staticforge
-
 jobs:
-  # ── Validate (skippable for emergency hotfixes) ────────
+  # ── Validate (runs on GitHub, skippable for emergencies) ──
   validate:
     name: Validate
     runs-on: ubuntu-latest
@@ -137,136 +136,95 @@ jobs:
           fi
           echo "Resolved tag: ${TAG}"
 
-  # ── Build & push production Docker images ──────────────
-  build-api:
-    name: Build API image (prod)
-    runs-on: ubuntu-latest
-    needs: [validate, version]
-    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push API image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./apps/api
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:${{ needs.version.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  build-web:
-    name: Build Web image (prod)
-    runs-on: ubuntu-latest
-    needs: [validate, version]
-    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Web image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/web/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:${{ needs.version.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            NEXT_PUBLIC_API_URL=/api/v1
-            NEXT_PUBLIC_WS_URL=/ws
-
-  build-nginx:
-    name: Build Nginx image (prod)
-    runs-on: ubuntu-latest
-    needs: [validate, version]
-    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Nginx image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./nginx
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ needs.version.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ── Deploy to production (requires environment approval) ──
+  # ── Deploy on your machine (self-hosted runner) ────────
   deploy:
     name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [version, build-api, build-web, build-nginx]
-    timeout-minutes: 10
+    runs-on: self-hosted
+    needs: [validate, version]
+    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
+    timeout-minutes: 20
     environment: production
 
     steps:
-      - name: Deploy placeholder
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify .env exists
+        shell: bash
         run: |
-          echo "========================================="
-          echo "  Production images (${{ needs.version.outputs.tag }}):"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:${{ needs.version.outputs.tag }}"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:${{ needs.version.outputs.tag }}"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ needs.version.outputs.tag }}"
-          echo "========================================="
+          if [ ! -f .env ]; then
+            echo "❌ ERROR: .env file not found!"
+            echo "Copy .env.example to .env and fill in the required values."
+            exit 1
+          fi
+          echo "✅ .env file found"
+
+      - name: Verify Docker is running
+        shell: bash
+        run: |
+          if ! docker info > /dev/null 2>&1; then
+            echo "❌ ERROR: Docker is not running!"
+            echo "Start Docker Desktop and try again."
+            exit 1
+          fi
+          echo "✅ Docker is running"
+
+      - name: Stop existing containers
+        shell: bash
+        run: docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
+      - name: Build and start all services
+        shell: bash
+        run: docker compose -f docker-compose.prod.yml up --build -d
+
+      - name: Wait and verify deployment
+        shell: bash
+        run: |
+          echo "Waiting for services to start..."
+          sleep 20
+
           echo ""
-          echo "To deploy manually via SSH:"
-          echo "  ssh user@prod-server 'cd /app && docker compose pull && docker compose up -d'"
+          echo "========================================="
+          echo "  Production Deploy: ${{ needs.version.outputs.tag }}"
+          echo "========================================="
+          docker compose -f docker-compose.prod.yml ps
+          echo ""
+
+          FAILED=0
+
+          if docker compose -f docker-compose.prod.yml ps postgres | grep -q "healthy"; then
+            echo "✅ PostgreSQL: healthy"
+          else
+            echo "⚠️  PostgreSQL: starting"
+          fi
+
+          if docker compose -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+            echo "✅ Redis: healthy"
+          else
+            echo "⚠️  Redis: starting"
+          fi
+
+          for svc in api web nginx; do
+            if docker compose -f docker-compose.prod.yml ps $svc | grep -q "Up"; then
+              echo "✅ $svc: running"
+            else
+              echo "❌ $svc: not running"
+              FAILED=1
+            fi
+          done
+
+          echo ""
+          if [ $FAILED -eq 0 ]; then
+            echo "✅ Production deploy complete! → http://localhost"
+          else
+            echo "⚠️  Some services may still be starting."
+            echo "Check: docker compose -f docker-compose.prod.yml logs -f"
+          fi
+
+      - name: Show logs on failure
+        if: failure()
+        shell: bash
+        run: docker compose -f docker-compose.prod.yml logs --tail 50
 
   # ── Create GitHub Release (only for version tags) ──────
   release:
@@ -287,7 +245,6 @@ jobs:
       - name: Generate release notes
         id: notes
         run: |
-          # Get commits since last tag
           PREV_TAG=$(git tag --sort=-version:refname | head -2 | tail -1)
           if [ -n "$PREV_TAG" ]; then
             COMMITS=$(git log --oneline ${PREV_TAG}..HEAD --no-merges)
@@ -295,15 +252,8 @@ jobs:
             COMMITS=$(git log --oneline HEAD~10..HEAD --no-merges)
           fi
 
-          # Write to file for multi-line output
-          cat > /tmp/release-notes.md << 'NOTES_EOF'
-          ## Docker Images
-
-          ```
-          ghcr.io/${{ env.IMAGE_PREFIX }}-api:${{ needs.version.outputs.tag }}
-          ghcr.io/${{ env.IMAGE_PREFIX }}-web:${{ needs.version.outputs.tag }}
-          ghcr.io/${{ env.IMAGE_PREFIX }}-nginx:${{ needs.version.outputs.tag }}
-          ```
+          cat > /tmp/release-notes.md << NOTES_EOF
+          ## Version ${{ needs.version.outputs.tag }}
 
           ## Changes
 
