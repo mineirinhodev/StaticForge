@@ -4,6 +4,7 @@
 
 ### 1.1 Stack Tecnologico
 
+
 | Camada | Tecnologia | Versao |
 |--------|-----------|--------|
 | **Frontend** | Next.js (App Router) | 15.x |
