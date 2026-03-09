@@ -22,7 +22,7 @@ on:
       skip_tests:
         description: "Skip tests (emergency hotfix only)"
         required: false
-        default: "false"
+        default: false
         type: boolean
       tag:
         description: "Version tag (e.g., v1.2.3). If empty, uses latest commit SHA."
@@ -149,15 +149,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify .env exists
+      - name: Generate .env from GitHub Secrets
         shell: bash
         run: |
-          if [ ! -f .env ]; then
-            echo "❌ ERROR: .env file not found!"
-            echo "Copy .env.example to .env and fill in the required values."
-            exit 1
-          fi
-          echo "✅ .env file found"
+          cat > .env << EOF
+          POSTGRES_DB=ffxiv_planner
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_URL=jdbc:postgresql://postgres:5432/ffxiv_planner
+          DATABASE_USERNAME=postgres
+          DATABASE_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_ACCESS_EXPIRATION=900000
+          JWT_REFRESH_EXPIRATION=2592000000
+          NEXT_PUBLIC_API_URL=/api/v1
+          NEXT_PUBLIC_WS_URL=/ws
+          EOF
+          sed -i 's/^          //' .env
+          echo "✅ .env generated from GitHub Secrets"
 
       - name: Verify Docker is running
         shell: bash

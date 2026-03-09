@@ -6,10 +6,10 @@ O modulo de Calendario gerencia os eventos de raid das statics e eventos publico
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN24, RN25, RN26, RN27, RN28, RN29 |
-| **Casos de Uso** | UC15 (Criar Evento de Raid), UC16 (Confirmar Presenca), UC17 (Criar Evento PUG), UC18 (Inscrever-se em PUG), UC19 (Exportar Calendario) |
+| Tipo                  | IDs                                                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Regras de Negocio** | RN24, RN25, RN26, RN27, RN28, RN29                                                                                                      |
+| **Casos de Uso**      | UC15 (Criar Evento de Raid), UC16 (Confirmar Presenca), UC17 (Criar Evento PUG), UC18 (Inscrever-se em PUG), UC19 (Exportar Calendario) |
 
 ---
 
@@ -473,20 +473,20 @@ public class ICalService {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `EventCreatedEvent` | `EventService.createStaticEvent` | eventId, staticId | `NotificationService` (notifica membros) |
-| `EventCanceledEvent` | `EventService.cancelEvent` | eventId, staticId | `NotificationService` |
-| `PugEventCreatedEvent` | `EventService.createPugEvent` | eventId, dataCenter | `NotificationService` |
+| Evento                   | Publicado por                        | Dados                        | Consumido por                            |
+| ------------------------ | ------------------------------------ | ---------------------------- | ---------------------------------------- |
+| `EventCreatedEvent`      | `EventService.createStaticEvent`     | eventId, staticId            | `NotificationService` (notifica membros) |
+| `EventCanceledEvent`     | `EventService.cancelEvent`           | eventId, staticId            | `NotificationService`                    |
+| `PugEventCreatedEvent`   | `EventService.createPugEvent`        | eventId, dataCenter          | `NotificationService`                    |
 | `AttendanceUpdatedEvent` | `AttendanceService.updateAttendance` | eventId, characterId, status | `NotificationService` (RN29: se ausente) |
 
 #### Eventos Consumidos
 
-| Evento | Origem | Acao |
-|--------|--------|------|
-| `StaticDissolvedEvent` | `StaticService` | Cancela todos os eventos futuros da static |
-| `MemberJoinedEvent` | `StaticService` | Cria Attendance TENTATIVE para eventos futuros |
-| `MemberLeftEvent` | `StaticService` | Remove attendances de eventos futuros |
+| Evento                 | Origem          | Acao                                           |
+| ---------------------- | --------------- | ---------------------------------------------- |
+| `StaticDissolvedEvent` | `StaticService` | Cancela todos os eventos futuros da static     |
+| `MemberJoinedEvent`    | `StaticService` | Cria Attendance TENTATIVE para eventos futuros |
+| `MemberLeftEvent`      | `StaticService` | Remove attendances de eventos futuros          |
 
 ### 2.5 Controller
 
@@ -497,19 +497,19 @@ public class ICalService {
 @RequestMapping("/api/v1")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| GET | `/statics/{id}/events` | Eventos da static | Sim (Member) | 200 |
-| POST | `/statics/{id}/events` | Criar evento | Sim (Leader) | 201 |
-| PUT | `/events/{eventId}` | Atualizar evento | Sim (Leader/Creator) | 200 |
-| DELETE | `/events/{eventId}` | Cancelar evento | Sim (Leader/Creator) | 204 |
-| GET | `/events/public` | Eventos PUG | Nao | 200 |
-| POST | `/events/public` | Criar evento PUG | Sim (Premium) | 201 |
-| PUT | `/events/{eventId}/attendance` | Confirmar presenca | Sim | 200 |
-| POST | `/events/{eventId}/register` | Inscrever-se em PUG | Sim | 201 |
-| DELETE | `/events/{eventId}/register` | Cancelar inscricao PUG | Sim | 204 |
-| GET | `/calendar/me` | Meu calendario consolidado | Sim | 200 |
-| GET | `/calendar/me/ical` | Exportar iCal | Sim (Premium) | 200 |
+| Metodo | Path                           | Descricao                  | Auth                 | Status |
+| ------ | ------------------------------ | -------------------------- | -------------------- | ------ |
+| GET    | `/statics/{id}/events`         | Eventos da static          | Sim (Member)         | 200    |
+| POST   | `/statics/{id}/events`         | Criar evento               | Sim (Leader)         | 201    |
+| PUT    | `/events/{eventId}`            | Atualizar evento           | Sim (Leader/Creator) | 200    |
+| DELETE | `/events/{eventId}`            | Cancelar evento            | Sim (Leader/Creator) | 204    |
+| GET    | `/events/public`               | Eventos PUG                | Nao                  | 200    |
+| POST   | `/events/public`               | Criar evento PUG           | Sim (Premium)        | 201    |
+| PUT    | `/events/{eventId}/attendance` | Confirmar presenca         | Sim                  | 200    |
+| POST   | `/events/{eventId}/register`   | Inscrever-se em PUG        | Sim                  | 201    |
+| DELETE | `/events/{eventId}/register`   | Cancelar inscricao PUG     | Sim                  | 204    |
+| GET    | `/calendar/me`                 | Meu calendario consolidado | Sim                  | 200    |
+| GET    | `/calendar/me/ical`            | Exportar iCal              | Sim (Premium)        | 200    |
 
 **Exemplos de Request/Response:**
 
@@ -586,30 +586,30 @@ public class ICalService {
 
 ### 2.7 Validacoes
 
-| Campo | Regra | Contexto |
-|-------|-------|----------|
-| `title` | Obrigatorio, max 200 chars | CreateEventRequest |
-| `startTime` | Obrigatorio, deve ser no futuro | CreateEventRequest |
-| `endTime` | Obrigatorio, deve ser apos startTime | CreateEventRequest |
-| `timezone` | Timezone valido (IANA) | CreateEventRequest |
-| `recurrenceRule` | Formato RRULE valido (se isRecurring) | CreateEventRequest |
-| `maxParticipants` | Obrigatorio e positivo para PUG | CreateEventRequest |
-| `dataCenter` | Obrigatorio para PUG | CreateEventRequest |
-| `status` (attendance) | Enum valido | UpdateAttendanceRequest |
-| PUG vagas | currentParticipants <= maxParticipants | AttendanceService |
+| Campo                 | Regra                                  | Contexto                |
+| --------------------- | -------------------------------------- | ----------------------- |
+| `title`               | Obrigatorio, max 200 chars             | CreateEventRequest      |
+| `startTime`           | Obrigatorio, deve ser no futuro        | CreateEventRequest      |
+| `endTime`             | Obrigatorio, deve ser apos startTime   | CreateEventRequest      |
+| `timezone`            | Timezone valido (IANA)                 | CreateEventRequest      |
+| `recurrenceRule`      | Formato RRULE valido (se isRecurring)  | CreateEventRequest      |
+| `maxParticipants`     | Obrigatorio e positivo para PUG        | CreateEventRequest      |
+| `dataCenter`          | Obrigatorio para PUG                   | CreateEventRequest      |
+| `status` (attendance) | Enum valido                            | UpdateAttendanceRequest |
+| PUG vagas             | currentParticipants <= maxParticipants | AttendanceService       |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
+| Chave                              | Tipo          | TTL   | Descricao                          | Invalidacao                           |
+| ---------------------------------- | ------------- | ----- | ---------------------------------- | ------------------------------------- |
 | `events:static:{staticId}:{month}` | String (JSON) | 5 min | Cache de eventos do mes por static | Criacao/edicao/cancelamento de evento |
-| `events:public:{dc}` | String (JSON) | 2 min | Cache de eventos PUG por DC | Criacao de novo PUG |
-| `calendar:{userId}:{month}` | String (JSON) | 2 min | Calendario consolidado do usuario | Qualquer mudanca de evento |
+| `events:public:{dc}`               | String (JSON) | 2 min | Cache de eventos PUG por DC        | Criacao de novo PUG                   |
+| `calendar:{userId}:{month}`        | String (JSON) | 2 min | Calendario consolidado do usuario  | Qualquer mudanca de evento            |
 
 ### 2.9 Jobs Agendados
 
-| Job | Frequencia | Descricao |
-|-----|-----------|-----------|
+| Job                 | Frequencia      | Descricao                                                                                                            |
+| ------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ReminderScheduler` | Cada 15 minutos | Envia lembretes 24h e 1h antes dos eventos. Verifica preferencias de lembrete premium (RN28). Evita envio duplicado. |
 
 ---
@@ -618,12 +618,12 @@ public class ICalService {
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(main)/calendar` | CSR | Calendario consolidado do usuario |
-| `/[locale]/(main)/calendar/events/[id]` | CSR | Detalhe do evento com presencas |
-| `/[locale]/(main)/calendar/events/create` | CSR | Criar evento (static ou PUG) |
-| `/[locale]/(main)/calendar/public` | CSR | Eventos PUG publicos |
+| Rota                                      | Renderizacao | Descricao                         |
+| ----------------------------------------- | ------------ | --------------------------------- |
+| `/[locale]/(main)/calendar`               | CSR          | Calendario consolidado do usuario |
+| `/[locale]/(main)/calendar/events/[id]`   | CSR          | Detalhe do evento com presencas   |
+| `/[locale]/(main)/calendar/events/create` | CSR          | Criar evento (static ou PUG)      |
+| `/[locale]/(main)/calendar/public`        | CSR          | Eventos PUG publicos              |
 
 ### 3.2 Componentes React
 
@@ -686,28 +686,28 @@ calendar/public/page.tsx             -- Client Component
 
 function useStaticEvents(staticId: string, start: string, end: string) {
   return useQuery({
-    queryKey: ['events', 'static', staticId, start, end],
+    queryKey: ["events", "static", staticId, start, end],
     queryFn: () => api.get(`/statics/${staticId}/events`, { params: { start, end } }),
   });
 }
 
 function useMyCalendar(start: string, end: string) {
   return useQuery({
-    queryKey: ['calendar', 'me', start, end],
-    queryFn: () => api.get('/calendar/me', { params: { start, end } }),
+    queryKey: ["calendar", "me", start, end],
+    queryFn: () => api.get("/calendar/me", { params: { start, end } }),
   });
 }
 
 function usePublicEvents(dataCenter: string, page: number = 0) {
   return useQuery({
-    queryKey: ['events', 'public', dataCenter, page],
-    queryFn: () => api.get('/events/public', { params: { dataCenter, page } }),
+    queryKey: ["events", "public", dataCenter, page],
+    queryFn: () => api.get("/events/public", { params: { dataCenter, page } }),
   });
 }
 
 function useEvent(eventId: string) {
   return useQuery({
-    queryKey: ['events', eventId],
+    queryKey: ["events", eventId],
     queryFn: () => api.get(`/events/${eventId}`),
   });
 }
@@ -715,12 +715,10 @@ function useEvent(eventId: string) {
 function useCreateEvent() {
   return useMutation({
     mutationFn: ({ staticId, data }: { staticId?: string; data: CreateEventRequest }) =>
-      staticId
-        ? api.post(`/statics/${staticId}/events`, data)
-        : api.post('/events/public', data),
+      staticId ? api.post(`/statics/${staticId}/events`, data) : api.post("/events/public", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
 }
@@ -730,8 +728,8 @@ function useUpdateAttendance() {
     mutationFn: ({ eventId, data }: { eventId: string; data: UpdateAttendanceRequest }) =>
       api.put(`/events/${eventId}/attendance`, data),
     onSuccess: (_, { eventId }) => {
-      queryClient.invalidateQueries({ queryKey: ['events', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      queryClient.invalidateQueries({ queryKey: ["events", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
 }
@@ -740,22 +738,22 @@ function useRegisterPug() {
   return useMutation({
     mutationFn: (eventId: string) => api.post(`/events/${eventId}/register`),
     onSuccess: (_, eventId) => {
-      queryClient.invalidateQueries({ queryKey: ['events', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['events', 'public'] });
+      queryClient.invalidateQueries({ queryKey: ["events", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["events", "public"] });
     },
   });
 }
 
 function useExportIcal() {
   return useMutation({
-    mutationFn: () => api.get('/calendar/me/ical', { responseType: 'blob' }),
+    mutationFn: () => api.get("/calendar/me/ical", { responseType: "blob" }),
     onSuccess: (data) => {
       // Trigger download do arquivo .ics
-      const blob = new Blob([data], { type: 'text/calendar' });
+      const blob = new Blob([data], { type: "text/calendar" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'ffxiv-calendar.ics';
+      a.download = "ffxiv-calendar.ics";
       a.click();
     },
   });
@@ -768,10 +766,13 @@ function useExportIcal() {
 // Atualizacoes de eventos via canal da static
 stompClient.subscribe(`/topic/static.${staticId}`, (message) => {
   const data = JSON.parse(message.body);
-  if (data.type === 'EVENT_CREATED' || data.type === 'EVENT_UPDATED' ||
-      data.type === 'ATTENDANCE_UPDATED') {
-    queryClient.invalidateQueries({ queryKey: ['events'] });
-    queryClient.invalidateQueries({ queryKey: ['calendar'] });
+  if (
+    data.type === "EVENT_CREATED" ||
+    data.type === "EVENT_UPDATED" ||
+    data.type === "ATTENDANCE_UPDATED"
+  ) {
+    queryClient.invalidateQueries({ queryKey: ["events"] });
+    queryClient.invalidateQueries({ queryKey: ["calendar"] });
   }
 });
 ```
@@ -780,55 +781,58 @@ stompClient.subscribe(`/topic/static.${staticId}`, (message) => {
 
 ```typescript
 // schemas/event.ts
-import { z } from 'zod';
+import { z } from "zod";
 
-export const createEventSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200),
-  description: z.string().max(2000).optional(),
-  contentType: z.enum(['SAVAGE', 'ULTIMATE', 'EXTREME', 'CRITERION']).optional(),
-  encounter: z.string().max(100).optional(),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
-  timezone: z.string().min(1, 'Timezone is required'),
-  isRecurring: z.boolean().default(false),
-  recurrenceRule: z.string().max(200).optional(),
-  recurrenceEnd: z.string().datetime().optional(),
-  isPublic: z.boolean().default(false),
-  maxParticipants: z.number().int().positive().optional(),
-  dataCenter: z.string().optional(),
-}).refine(data => new Date(data.endTime) > new Date(data.startTime), {
-  message: 'End time must be after start time',
-  path: ['endTime'],
-}).refine(data => !data.isPublic || (data.maxParticipants && data.dataCenter), {
-  message: 'PUG events require max participants and data center',
-  path: ['maxParticipants'],
-});
+export const createEventSchema = z
+  .object({
+    title: z.string().min(1, "Title is required").max(200),
+    description: z.string().max(2000).optional(),
+    contentType: z.enum(["SAVAGE", "ULTIMATE", "EXTREME", "CRITERION"]).optional(),
+    encounter: z.string().max(100).optional(),
+    startTime: z.string().datetime(),
+    endTime: z.string().datetime(),
+    timezone: z.string().min(1, "Timezone is required"),
+    isRecurring: z.boolean().default(false),
+    recurrenceRule: z.string().max(200).optional(),
+    recurrenceEnd: z.string().datetime().optional(),
+    isPublic: z.boolean().default(false),
+    maxParticipants: z.number().int().positive().optional(),
+    dataCenter: z.string().optional(),
+  })
+  .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  })
+  .refine((data) => !data.isPublic || (data.maxParticipants && data.dataCenter), {
+    message: "PUG events require max participants and data center",
+    path: ["maxParticipants"],
+  });
 
 export const updateAttendanceSchema = z.object({
-  status: z.enum(['CONFIRMED', 'TENTATIVE', 'ABSENT']),
+  status: z.enum(["CONFIRMED", "TENTATIVE", "ABSENT"]),
   note: z.string().max(500).optional(),
 });
 ```
 
 ### 3.5 WebSocket
 
-| Destination | Tipo | Descricao |
-|-------------|------|-----------|
+| Destination                | Tipo      | Descricao                                     |
+| -------------------------- | --------- | --------------------------------------------- |
 | `/topic/static.{staticId}` | SUBSCRIBE | Atualizacoes de eventos e presencas da static |
 
 ### 3.6 Internacionalizacao
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `calendar.*` | Pagina de calendario |
-| `event.*` | Criar/editar/ver eventos |
-| `event.contentType.*` | Tipos de conteudo |
-| `attendance.*` | Status de presenca |
-| `attendance.status.*` | Labels de status |
-| `pug.*` | Eventos PUG |
-| `reminder.*` | Lembretes |
+| Namespace             | Uso                      |
+| --------------------- | ------------------------ |
+| `calendar.*`          | Pagina de calendario     |
+| `event.*`             | Criar/editar/ver eventos |
+| `event.contentType.*` | Tipos de conteudo        |
+| `attendance.*`        | Status de presenca       |
+| `attendance.status.*` | Labels de status         |
+| `pug.*`               | Eventos PUG              |
+| `reminder.*`          | Lembretes                |
 
 ---
 
@@ -884,14 +888,14 @@ CREATE INDEX idx_attendances_character ON attendances(character_id);
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `raid_events` | `static_id, start_time` | BTREE (partial) | Eventos futuros da static |
-| `raid_events` | `is_public, data_center, start_time` | BTREE (partial) | PUGs publicos por DC |
-| `raid_events` | `start_time` | BTREE (partial) | Busca de lembretes |
-| `attendances` | `event_id, character_id` | UNIQUE | Uma presenca por evento/character |
-| `attendances` | `event_id` | BTREE | Presencas do evento |
-| `attendances` | `character_id` | BTREE | Eventos do jogador |
+| Tabela        | Indice                               | Tipo            | Justificativa                     |
+| ------------- | ------------------------------------ | --------------- | --------------------------------- |
+| `raid_events` | `static_id, start_time`              | BTREE (partial) | Eventos futuros da static         |
+| `raid_events` | `is_public, data_center, start_time` | BTREE (partial) | PUGs publicos por DC              |
+| `raid_events` | `start_time`                         | BTREE (partial) | Busca de lembretes                |
+| `attendances` | `event_id, character_id`             | UNIQUE          | Uma presenca por evento/character |
+| `attendances` | `event_id`                           | BTREE           | Presencas do evento               |
+| `attendances` | `character_id`                       | BTREE           | Eventos do jogador                |
 
 ---
 
@@ -917,15 +921,15 @@ calendar
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos |
-| 400 | `/errors/invalid-time-range` | endTime anterior a startTime |
-| 400 | `/errors/invalid-recurrence` | Regra de recorrencia invalida |
-| 403 | `/errors/not-leader` | Nao e lider da static |
-| 403 | `/errors/not-member` | Nao e membro da static |
-| 403 | `/errors/premium-required` | Criacao de PUG ou exportacao iCal requer premium |
-| 404 | `/errors/event-not-found` | Evento nao encontrado |
-| 409 | `/errors/event-canceled` | Evento ja cancelado |
-| 409 | `/errors/event-full` | Evento PUG lotado (RN27) |
-| 409 | `/errors/already-registered` | Ja inscrito no PUG |
+| HTTP | Tipo RFC 7807                | Cenario                                          |
+| ---- | ---------------------------- | ------------------------------------------------ |
+| 400  | `/errors/validation`         | Campos invalidos                                 |
+| 400  | `/errors/invalid-time-range` | endTime anterior a startTime                     |
+| 400  | `/errors/invalid-recurrence` | Regra de recorrencia invalida                    |
+| 403  | `/errors/not-leader`         | Nao e lider da static                            |
+| 403  | `/errors/not-member`         | Nao e membro da static                           |
+| 403  | `/errors/premium-required`   | Criacao de PUG ou exportacao iCal requer premium |
+| 404  | `/errors/event-not-found`    | Evento nao encontrado                            |
+| 409  | `/errors/event-canceled`     | Evento ja cancelado                              |
+| 409  | `/errors/event-full`         | Evento PUG lotado (RN27)                         |
+| 409  | `/errors/already-registered` | Ja inscrito no PUG                               |

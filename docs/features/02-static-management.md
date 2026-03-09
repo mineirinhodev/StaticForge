@@ -6,10 +6,10 @@ O modulo de Gestao de Statics e o core do sistema. Ele abrange todo o ciclo de v
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN06, RN07, RN08, RN09, RN10, RN11, RN12, RN13, RN14, RN15, RN16, RN17, RN18 |
-| **Casos de Uso** | UC05 (Criar Static), UC06 (Gerenciar Static), UC07 (Publicar Vaga), UC08 (Candidatar-se a Vaga), UC09 (Convidar Jogador), UC10 (Buscar Statics), UC11 (Buscar Jogadores) |
+| Tipo                  | IDs                                                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Regras de Negocio** | RN06, RN07, RN08, RN09, RN10, RN11, RN12, RN13, RN14, RN15, RN16, RN17, RN18                                                                                             |
+| **Casos de Uso**      | UC05 (Criar Static), UC06 (Gerenciar Static), UC07 (Publicar Vaga), UC08 (Candidatar-se a Vaga), UC09 (Convidar Jogador), UC10 (Buscar Statics), UC11 (Buscar Jogadores) |
 
 ---
 
@@ -879,18 +879,18 @@ public class SearchService {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `StaticCreatedEvent` | `StaticService.createStatic` | staticId, leaderUserId | `ChatService` (cria chat room), `NotificationService` |
-| `StaticDissolvedEvent` | `StaticService.dissolveStatic` | staticId, memberUserIds | `ChatService` (desativa chat), `NotificationService` (notifica membros), `CalendarService` (cancela eventos futuros) |
-| `MemberJoinedEvent` | `ApplicationService` / `InvitationService` | staticId, characterId, userId | `ChatService` (adiciona ao chat), `NotificationService`, `CalendarService` (sincroniza calendario) |
-| `MemberLeftEvent` | `StaticService.removeMember/leave` | staticId, characterId, userId | `ChatService` (remove do chat), `NotificationService` |
-| `ApplicationCreatedEvent` | `ApplicationService.apply` | applicationId, staticId | `NotificationService` (notifica lider) |
-| `ApplicationAcceptedEvent` | `ApplicationService.accept` | applicationId, characterId | `NotificationService` (notifica candidato) |
-| `InvitationCreatedEvent` | `InvitationService.invite` | invitationId, characterId | `NotificationService` (notifica jogador) |
-| `InvitationAcceptedEvent` | `InvitationService.accept` | invitationId, staticId | `NotificationService` (notifica lider) |
-| `VacancyCreatedEvent` | `VacancyService.create` | vacancyId, staticId | `MatchingService` (recalcular matches) |
-| `LeadershipTransferredEvent` | `StaticService.transferLeadership` | staticId, oldLeaderId, newLeaderId | `NotificationService` |
+| Evento                       | Publicado por                              | Dados                              | Consumido por                                                                                                        |
+| ---------------------------- | ------------------------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `StaticCreatedEvent`         | `StaticService.createStatic`               | staticId, leaderUserId             | `ChatService` (cria chat room), `NotificationService`                                                                |
+| `StaticDissolvedEvent`       | `StaticService.dissolveStatic`             | staticId, memberUserIds            | `ChatService` (desativa chat), `NotificationService` (notifica membros), `CalendarService` (cancela eventos futuros) |
+| `MemberJoinedEvent`          | `ApplicationService` / `InvitationService` | staticId, characterId, userId      | `ChatService` (adiciona ao chat), `NotificationService`, `CalendarService` (sincroniza calendario)                   |
+| `MemberLeftEvent`            | `StaticService.removeMember/leave`         | staticId, characterId, userId      | `ChatService` (remove do chat), `NotificationService`                                                                |
+| `ApplicationCreatedEvent`    | `ApplicationService.apply`                 | applicationId, staticId            | `NotificationService` (notifica lider)                                                                               |
+| `ApplicationAcceptedEvent`   | `ApplicationService.accept`                | applicationId, characterId         | `NotificationService` (notifica candidato)                                                                           |
+| `InvitationCreatedEvent`     | `InvitationService.invite`                 | invitationId, characterId          | `NotificationService` (notifica jogador)                                                                             |
+| `InvitationAcceptedEvent`    | `InvitationService.accept`                 | invitationId, staticId             | `NotificationService` (notifica lider)                                                                               |
+| `VacancyCreatedEvent`        | `VacancyService.create`                    | vacancyId, staticId                | `MatchingService` (recalcular matches)                                                                               |
+| `LeadershipTransferredEvent` | `StaticService.transferLeadership`         | staticId, oldLeaderId, newLeaderId | `NotificationService`                                                                                                |
 
 ### 2.5 Controller
 
@@ -901,17 +901,17 @@ public class SearchService {
 @RequestMapping("/api/v1/statics")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| POST | `/` | Criar static | Sim | 201 |
-| GET | `/{id}` | Ver static | Nao | 200 |
-| PUT | `/{id}` | Atualizar static | Sim (Leader) | 200 |
-| DELETE | `/{id}` | Dissolver static | Sim (Leader) | 204 |
-| GET | `/{id}/members` | Listar membros | Nao | 200 |
-| PUT | `/{id}/members/{memberId}` | Alterar membro | Sim (Leader) | 200 |
-| DELETE | `/{id}/members/{memberId}` | Remover membro | Sim (Leader) | 204 |
-| POST | `/{id}/transfer-leadership` | Transferir lideranca | Sim (Leader) | 200 |
-| POST | `/{id}/leave` | Sair da static | Sim (Member) | 204 |
+| Metodo | Path                        | Descricao            | Auth         | Status |
+| ------ | --------------------------- | -------------------- | ------------ | ------ |
+| POST   | `/`                         | Criar static         | Sim          | 201    |
+| GET    | `/{id}`                     | Ver static           | Nao          | 200    |
+| PUT    | `/{id}`                     | Atualizar static     | Sim (Leader) | 200    |
+| DELETE | `/{id}`                     | Dissolver static     | Sim (Leader) | 204    |
+| GET    | `/{id}/members`             | Listar membros       | Nao          | 200    |
+| PUT    | `/{id}/members/{memberId}`  | Alterar membro       | Sim (Leader) | 200    |
+| DELETE | `/{id}/members/{memberId}`  | Remover membro       | Sim (Leader) | 204    |
+| POST   | `/{id}/transfer-leadership` | Transferir lideranca | Sim (Leader) | 200    |
+| POST   | `/{id}/leave`               | Sair da static       | Sim (Member) | 204    |
 
 #### VacancyController
 
@@ -920,12 +920,12 @@ public class SearchService {
 @RequestMapping("/api/v1/statics/{staticId}/vacancies")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| POST | `/` | Criar vaga | Sim (Leader) | 201 |
-| PUT | `/{vacId}` | Atualizar vaga | Sim (Leader) | 200 |
-| DELETE | `/{vacId}` | Fechar vaga | Sim (Leader) | 204 |
-| GET | `/` | Listar vagas | Nao | 200 |
+| Metodo | Path       | Descricao      | Auth         | Status |
+| ------ | ---------- | -------------- | ------------ | ------ |
+| POST   | `/`        | Criar vaga     | Sim (Leader) | 201    |
+| PUT    | `/{vacId}` | Atualizar vaga | Sim (Leader) | 200    |
+| DELETE | `/{vacId}` | Fechar vaga    | Sim (Leader) | 204    |
+| GET    | `/`        | Listar vagas   | Nao          | 200    |
 
 #### ApplicationController
 
@@ -934,14 +934,14 @@ public class SearchService {
 @RequestMapping("/api/v1")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| POST | `/vacancies/{vacId}/applications` | Candidatar-se | Sim | 201 |
-| GET | `/statics/{id}/applications` | Listar candidaturas | Sim (Leader) | 200 |
-| GET | `/profile/me/applications` | Minhas candidaturas | Sim | 200 |
-| PUT | `/applications/{appId}/accept` | Aceitar candidatura | Sim (Leader) | 200 |
-| PUT | `/applications/{appId}/reject` | Recusar candidatura | Sim (Leader) | 200 |
-| DELETE | `/applications/{appId}` | Cancelar candidatura | Sim (Applicant) | 204 |
+| Metodo | Path                              | Descricao            | Auth            | Status |
+| ------ | --------------------------------- | -------------------- | --------------- | ------ |
+| POST   | `/vacancies/{vacId}/applications` | Candidatar-se        | Sim             | 201    |
+| GET    | `/statics/{id}/applications`      | Listar candidaturas  | Sim (Leader)    | 200    |
+| GET    | `/profile/me/applications`        | Minhas candidaturas  | Sim             | 200    |
+| PUT    | `/applications/{appId}/accept`    | Aceitar candidatura  | Sim (Leader)    | 200    |
+| PUT    | `/applications/{appId}/reject`    | Recusar candidatura  | Sim (Leader)    | 200    |
+| DELETE | `/applications/{appId}`           | Cancelar candidatura | Sim (Applicant) | 204    |
 
 #### InvitationController
 
@@ -950,13 +950,13 @@ public class SearchService {
 @RequestMapping("/api/v1")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| POST | `/statics/{id}/invitations` | Convidar jogador | Sim (Leader) | 201 |
-| GET | `/profile/me/invitations` | Meus convites | Sim | 200 |
-| PUT | `/invitations/{invId}/accept` | Aceitar convite | Sim | 200 |
-| PUT | `/invitations/{invId}/reject` | Recusar convite | Sim | 200 |
-| DELETE | `/invitations/{invId}` | Cancelar convite | Sim (Leader) | 204 |
+| Metodo | Path                          | Descricao        | Auth         | Status |
+| ------ | ----------------------------- | ---------------- | ------------ | ------ |
+| POST   | `/statics/{id}/invitations`   | Convidar jogador | Sim (Leader) | 201    |
+| GET    | `/profile/me/invitations`     | Meus convites    | Sim          | 200    |
+| PUT    | `/invitations/{invId}/accept` | Aceitar convite  | Sim          | 200    |
+| PUT    | `/invitations/{invId}/reject` | Recusar convite  | Sim          | 200    |
+| DELETE | `/invitations/{invId}`        | Cancelar convite | Sim (Leader) | 204    |
 
 #### SearchController
 
@@ -965,10 +965,10 @@ public class SearchService {
 @RequestMapping("/api/v1/search")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| GET | `/statics` | Buscar statics | Sim | 200 |
-| GET | `/players` | Buscar jogadores | Sim | 200 |
+| Metodo | Path       | Descricao        | Auth | Status |
+| ------ | ---------- | ---------------- | ---- | ------ |
+| GET    | `/statics` | Buscar statics   | Sim  | 200    |
+| GET    | `/players` | Buscar jogadores | Sim  | 200    |
 
 **Exemplos de Request/Response:**
 
@@ -1049,29 +1049,29 @@ public StaticResponse updateStatic(@PathVariable UUID id, @RequestBody @Valid Cr
 
 ### 2.7 Validacoes
 
-| Campo | Regra | Contexto |
-|-------|-------|----------|
-| `name` (static) | Obrigatorio, max 100 chars, unico por lider | CreateStaticRequest |
-| `maxMembers` | Entre 2 e 8 (RN06) | CreateStaticRequest |
-| `contentScope` | Lista de valores validos (SAVAGE, ULTIMATE, EXTREME, CRITERION) | CreateStaticRequest |
-| `roleNeeded` | Enum TANK/HEALER/DPS | CreateVacancyRequest |
-| `message` (application) | Max 1000 chars | CreateApplicationRequest |
-| `characterId` | Deve ser verificado, deve pertencer ao usuario | CreateApplicationRequest |
-| Candidatura duplicada | Nao pode se candidatar a mesma vaga duas vezes | ApplicationService |
-| Auto-candidatura | Nao pode se candidatar a propria static | ApplicationService |
-| Espaco na static | currentMembers < maxMembers para aceitar/convidar | ApplicationService, InvitationService |
+| Campo                   | Regra                                                           | Contexto                              |
+| ----------------------- | --------------------------------------------------------------- | ------------------------------------- |
+| `name` (static)         | Obrigatorio, max 100 chars, unico por lider                     | CreateStaticRequest                   |
+| `maxMembers`            | Entre 2 e 8 (RN06)                                              | CreateStaticRequest                   |
+| `contentScope`          | Lista de valores validos (SAVAGE, ULTIMATE, EXTREME, CRITERION) | CreateStaticRequest                   |
+| `roleNeeded`            | Enum TANK/HEALER/DPS                                            | CreateVacancyRequest                  |
+| `message` (application) | Max 1000 chars                                                  | CreateApplicationRequest              |
+| `characterId`           | Deve ser verificado, deve pertencer ao usuario                  | CreateApplicationRequest              |
+| Candidatura duplicada   | Nao pode se candidatar a mesma vaga duas vezes                  | ApplicationService                    |
+| Auto-candidatura        | Nao pode se candidatar a propria static                         | ApplicationService                    |
+| Espaco na static        | currentMembers < maxMembers para aceitar/convidar               | ApplicationService, InvitationService |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `static:{staticId}` | String (JSON) | 5 min | Cache do perfil publico da static | Qualquer atualizacao na static |
-| `static:members:{staticId}` | String (JSON) | 2 min | Cache dos membros da static | Membro adicionado/removido |
+| Chave                       | Tipo          | TTL   | Descricao                         | Invalidacao                    |
+| --------------------------- | ------------- | ----- | --------------------------------- | ------------------------------ |
+| `static:{staticId}`         | String (JSON) | 5 min | Cache do perfil publico da static | Qualquer atualizacao na static |
+| `static:members:{staticId}` | String (JSON) | 2 min | Cache dos membros da static       | Membro adicionado/removido     |
 
 ### 2.9 Jobs Agendados
 
-| Job | Frequencia | Descricao |
-|-----|-----------|-----------|
+| Job             | Frequencia         | Descricao                                                                                                                                                                   |
+| --------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ExpirationJob` | Diario (00:00 UTC) | Expira candidaturas com mais de 14 dias sem resposta (RN17). Expira convites com mais de 7 dias sem resposta (RN18). Atualiza status para EXPIRED e notifica os envolvidos. |
 
 ---
@@ -1080,15 +1080,15 @@ public StaticResponse updateStatic(@PathVariable UUID id, @RequestBody @Valid Cr
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(main)/statics` | CSR | Listar minhas statics (como membro/lider) |
-| `/[locale]/(main)/statics/create` | CSR | Criar nova static |
-| `/[locale]/(main)/statics/[id]` | SSR + ISR (60s) | Pagina publica da static |
-| `/[locale]/(main)/statics/[id]/manage` | CSR | Gerenciar static (lider) |
-| `/[locale]/(main)/statics/[id]/applications` | CSR | Candidaturas recebidas (lider) |
-| `/[locale]/(main)/search/statics` | CSR | Buscar statics com filtros |
-| `/[locale]/(main)/search/players` | CSR | Buscar jogadores com filtros |
+| Rota                                         | Renderizacao    | Descricao                                 |
+| -------------------------------------------- | --------------- | ----------------------------------------- |
+| `/[locale]/(main)/statics`                   | CSR             | Listar minhas statics (como membro/lider) |
+| `/[locale]/(main)/statics/create`            | CSR             | Criar nova static                         |
+| `/[locale]/(main)/statics/[id]`              | SSR + ISR (60s) | Pagina publica da static                  |
+| `/[locale]/(main)/statics/[id]/manage`       | CSR             | Gerenciar static (lider)                  |
+| `/[locale]/(main)/statics/[id]/applications` | CSR             | Candidaturas recebidas (lider)            |
+| `/[locale]/(main)/search/statics`            | CSR             | Buscar statics com filtros                |
+| `/[locale]/(main)/search/players`            | CSR             | Buscar jogadores com filtros              |
 
 ### 3.2 Componentes React
 
@@ -1165,14 +1165,14 @@ search/players/page.tsx             -- Client Component
 // hooks/use-statics.ts
 function useMyStatics() {
   return useQuery({
-    queryKey: ['statics', 'mine'],
-    queryFn: () => api.get('/statics/mine'),
+    queryKey: ["statics", "mine"],
+    queryFn: () => api.get("/statics/mine"),
   });
 }
 
 function useStatic(id: string) {
   return useQuery({
-    queryKey: ['statics', id],
+    queryKey: ["statics", id],
     queryFn: () => api.get(`/statics/${id}`),
     staleTime: 60_000,
   });
@@ -1180,9 +1180,9 @@ function useStatic(id: string) {
 
 function useCreateStatic() {
   return useMutation({
-    mutationFn: (data: CreateStaticRequest) => api.post('/statics', data),
+    mutationFn: (data: CreateStaticRequest) => api.post("/statics", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['statics', 'mine'] });
+      queryClient.invalidateQueries({ queryKey: ["statics", "mine"] });
     },
   });
 }
@@ -1191,7 +1191,7 @@ function useDissolveStatic() {
   return useMutation({
     mutationFn: (id: string) => api.delete(`/statics/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['statics'] });
+      queryClient.invalidateQueries({ queryKey: ["statics"] });
     },
   });
 }
@@ -1202,14 +1202,14 @@ function useApply() {
     mutationFn: ({ vacancyId, data }: { vacancyId: string; data: CreateApplicationRequest }) =>
       api.post(`/vacancies/${vacancyId}/applications`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['applications', 'mine'] });
+      queryClient.invalidateQueries({ queryKey: ["applications", "mine"] });
     },
   });
 }
 
 function useMyApplications(page: number = 0) {
   return useQuery({
-    queryKey: ['applications', 'mine', page],
+    queryKey: ["applications", "mine", page],
     queryFn: () => api.get(`/profile/me/applications?page=${page}`),
   });
 }
@@ -1219,8 +1219,8 @@ function useAcceptApplication() {
     mutationFn: ({ appId, data }: { appId: string; data?: RespondApplicationRequest }) =>
       api.put(`/applications/${appId}/accept`, data),
     onSuccess: (_, { appId }) => {
-      queryClient.invalidateQueries({ queryKey: ['statics'] });
-      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      queryClient.invalidateQueries({ queryKey: ["statics"] });
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
   });
 }
@@ -1228,8 +1228,8 @@ function useAcceptApplication() {
 // hooks/use-invitations.ts
 function useMyInvitations() {
   return useQuery({
-    queryKey: ['invitations', 'mine'],
-    queryFn: () => api.get('/profile/me/invitations'),
+    queryKey: ["invitations", "mine"],
+    queryFn: () => api.get("/profile/me/invitations"),
   });
 }
 
@@ -1252,8 +1252,8 @@ function useSearchStatics() {
   });
 
   return useQuery({
-    queryKey: ['search', 'statics', filters],
-    queryFn: () => api.get('/search/statics', { params: filters }),
+    queryKey: ["search", "statics", filters],
+    queryFn: () => api.get("/search/statics", { params: filters }),
   });
 }
 
@@ -1267,8 +1267,8 @@ function useSearchPlayers() {
   });
 
   return useQuery({
-    queryKey: ['search', 'players', filters],
-    queryFn: () => api.get('/search/players', { params: filters }),
+    queryKey: ["search", "players", filters],
+    queryFn: () => api.get("/search/players", { params: filters }),
   });
 }
 ```
@@ -1277,23 +1277,25 @@ function useSearchPlayers() {
 
 ```typescript
 // schemas/static.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createStaticSchema = z.object({
-  name: z.string().min(1, 'Static name is required').max(100),
+  name: z.string().min(1, "Static name is required").max(100),
   description: z.string().max(2000).optional(),
-  contentScope: z.array(z.enum(['SAVAGE', 'ULTIMATE', 'EXTREME', 'CRITERION'])).min(1, 'Select at least one content type'),
+  contentScope: z
+    .array(z.enum(["SAVAGE", "ULTIMATE", "EXTREME", "CRITERION"]))
+    .min(1, "Select at least one content type"),
   lootRules: z.string().max(500).optional(),
-  language: z.enum(['en', 'ja', 'de', 'fr', 'pt']),
+  language: z.enum(["en", "ja", "de", "fr", "pt"]),
   maxMembers: z.number().int().min(2).max(8).default(8),
-  dataCenter: z.string().min(1, 'Data Center is required'),
+  dataCenter: z.string().min(1, "Data Center is required"),
   server: z.string().optional(),
   schedule: z.any().optional(),
 });
 
 // schemas/vacancy.ts
 export const createVacancySchema = z.object({
-  roleNeeded: z.enum(['TANK', 'HEALER', 'DPS']),
+  roleNeeded: z.enum(["TANK", "HEALER", "DPS"]),
   jobPreferences: z.array(z.string().max(3)).optional(),
   requirements: z.any().optional(),
   description: z.string().max(500).optional(),
@@ -1324,18 +1326,18 @@ Atualizacoes de static (novos membros, candidaturas) sao enviadas via:
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `static.*` | Paginas de static (criar, ver, gerenciar) |
-| `static.status.*` | Labels de status |
-| `vacancy.*` | Vagas e requisitos |
-| `application.*` | Candidaturas |
-| `invitation.*` | Convites |
-| `search.*` | Paginas de busca |
-| `search.filters.*` | Labels de filtros |
-| `member.*` | Gestao de membros |
+| Namespace              | Uso                                        |
+| ---------------------- | ------------------------------------------ |
+| `static.*`             | Paginas de static (criar, ver, gerenciar)  |
+| `static.status.*`      | Labels de status                           |
+| `vacancy.*`            | Vagas e requisitos                         |
+| `application.*`        | Candidaturas                               |
+| `invitation.*`         | Convites                                   |
+| `search.*`             | Paginas de busca                           |
+| `search.filters.*`     | Labels de filtros                          |
+| `member.*`             | Gestao de membros                          |
 | `ffxiv.contentScope.*` | Tipos de conteudo (Savage, Ultimate, etc.) |
-| `ffxiv.lootRules.*` | Regras de loot comuns |
+| `ffxiv.lootRules.*`    | Regras de loot comuns                      |
 
 ---
 
@@ -1433,19 +1435,19 @@ CREATE INDEX idx_invitations_sent_at ON invitations(sent_at) WHERE status = 'PEN
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `statics` | `status, data_center` | BTREE (partial) | Busca de statics ativas por DC |
-| `statics` | `name` | GIN (trigram) | Busca textual por nome |
-| `static_memberships` | `static_id, character_id` | UNIQUE | Evitar membro duplicado |
-| `static_memberships` | `static_id` (partial) | BTREE | Membros ativos da static |
-| `static_memberships` | `character_id` (partial) | BTREE | Statics ativas do jogador |
-| `static_vacancies` | `static_id, is_open` | BTREE | Vagas abertas por static |
-| `applications` | `vacancy_id, status` | BTREE | Candidaturas pendentes |
-| `applications` | `character_id, status` | BTREE | Minhas candidaturas |
-| `applications` | `applied_at` (partial) | BTREE | Expirar candidaturas antigas |
-| `invitations` | `character_id, status` | BTREE | Convites recebidos |
-| `invitations` | `sent_at` (partial) | BTREE | Expirar convites antigos |
+| Tabela               | Indice                    | Tipo            | Justificativa                  |
+| -------------------- | ------------------------- | --------------- | ------------------------------ |
+| `statics`            | `status, data_center`     | BTREE (partial) | Busca de statics ativas por DC |
+| `statics`            | `name`                    | GIN (trigram)   | Busca textual por nome         |
+| `static_memberships` | `static_id, character_id` | UNIQUE          | Evitar membro duplicado        |
+| `static_memberships` | `static_id` (partial)     | BTREE           | Membros ativos da static       |
+| `static_memberships` | `character_id` (partial)  | BTREE           | Statics ativas do jogador      |
+| `static_vacancies`   | `static_id, is_open`      | BTREE           | Vagas abertas por static       |
+| `applications`       | `vacancy_id, status`      | BTREE           | Candidaturas pendentes         |
+| `applications`       | `character_id, status`    | BTREE           | Minhas candidaturas            |
+| `applications`       | `applied_at` (partial)    | BTREE           | Expirar candidaturas antigas   |
+| `invitations`        | `character_id, status`    | BTREE           | Convites recebidos             |
+| `invitations`        | `sent_at` (partial)       | BTREE           | Expirar convites antigos       |
 
 ---
 
@@ -1473,37 +1475,37 @@ static-management
 
 ### 5.2 Eventos Publicados e Consumidos
 
-| Direcao | Evento | Consumidor | Acao |
-|---------|--------|-----------|------|
-| Saida | `StaticCreatedEvent` | `ChatService` | Cria chat room da static |
-| Saida | `StaticDissolvedEvent` | `ChatService`, `CalendarService` | Desativa chat, cancela eventos |
-| Saida | `MemberJoinedEvent` | `ChatService`, `ReputationService` | Adiciona ao chat, inicia timer de coexistencia |
-| Saida | `MemberLeftEvent` | `ChatService` | Remove do chat room |
-| Saida | `VacancyCreatedEvent` | `MatchingService` | Recalcula sugestoes de match |
-| Entrada | `SubscriptionExpiredEvent` | `StaticService` | Statics extras em read-only (RN44) |
+| Direcao | Evento                     | Consumidor                         | Acao                                           |
+| ------- | -------------------------- | ---------------------------------- | ---------------------------------------------- |
+| Saida   | `StaticCreatedEvent`       | `ChatService`                      | Cria chat room da static                       |
+| Saida   | `StaticDissolvedEvent`     | `ChatService`, `CalendarService`   | Desativa chat, cancela eventos                 |
+| Saida   | `MemberJoinedEvent`        | `ChatService`, `ReputationService` | Adiciona ao chat, inicia timer de coexistencia |
+| Saida   | `MemberLeftEvent`          | `ChatService`                      | Remove do chat room                            |
+| Saida   | `VacancyCreatedEvent`      | `MatchingService`                  | Recalcula sugestoes de match                   |
+| Entrada | `SubscriptionExpiredEvent` | `StaticService`                    | Statics extras em read-only (RN44)             |
 
 ---
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos |
-| 400 | `/errors/invalid-max-members` | maxMembers fora de 2-8 (RN06) |
-| 403 | `/errors/not-leader` | Usuario nao e lider da static |
-| 403 | `/errors/premium-required` | Limite de criacao de statics atingido (RN10) |
-| 403 | `/errors/character-not-verified` | Character nao verificado |
-| 404 | `/errors/static-not-found` | Static nao encontrada |
-| 404 | `/errors/vacancy-not-found` | Vaga nao encontrada |
-| 404 | `/errors/application-not-found` | Candidatura nao encontrada |
-| 404 | `/errors/invitation-not-found` | Convite nao encontrado |
-| 404 | `/errors/membership-not-found` | Membro nao encontrado |
-| 409 | `/errors/already-applied` | Ja se candidatou a esta vaga |
-| 409 | `/errors/already-member` | Ja e membro da static |
-| 409 | `/errors/already-invited` | Convite pendente ja existe |
-| 409 | `/errors/vacancy-closed` | Vaga ja esta fechada |
-| 409 | `/errors/static-full` | Static ja tem o maximo de membros (RN06) |
-| 409 | `/errors/cannot-remove-self` | Lider nao pode se remover (deve transferir ou sair) |
-| 409 | `/errors/leader-cannot-leave` | Lider deve transferir lideranca antes de sair |
-| 422 | `/errors/application-not-pending` | Candidatura nao esta mais pendente |
-| 422 | `/errors/invitation-not-pending` | Convite nao esta mais pendente |
+| HTTP | Tipo RFC 7807                     | Cenario                                             |
+| ---- | --------------------------------- | --------------------------------------------------- |
+| 400  | `/errors/validation`              | Campos invalidos                                    |
+| 400  | `/errors/invalid-max-members`     | maxMembers fora de 2-8 (RN06)                       |
+| 403  | `/errors/not-leader`              | Usuario nao e lider da static                       |
+| 403  | `/errors/premium-required`        | Limite de criacao de statics atingido (RN10)        |
+| 403  | `/errors/character-not-verified`  | Character nao verificado                            |
+| 404  | `/errors/static-not-found`        | Static nao encontrada                               |
+| 404  | `/errors/vacancy-not-found`       | Vaga nao encontrada                                 |
+| 404  | `/errors/application-not-found`   | Candidatura nao encontrada                          |
+| 404  | `/errors/invitation-not-found`    | Convite nao encontrado                              |
+| 404  | `/errors/membership-not-found`    | Membro nao encontrado                               |
+| 409  | `/errors/already-applied`         | Ja se candidatou a esta vaga                        |
+| 409  | `/errors/already-member`          | Ja e membro da static                               |
+| 409  | `/errors/already-invited`         | Convite pendente ja existe                          |
+| 409  | `/errors/vacancy-closed`          | Vaga ja esta fechada                                |
+| 409  | `/errors/static-full`             | Static ja tem o maximo de membros (RN06)            |
+| 409  | `/errors/cannot-remove-self`      | Lider nao pode se remover (deve transferir ou sair) |
+| 409  | `/errors/leader-cannot-leave`     | Lider deve transferir lideranca antes de sair       |
+| 422  | `/errors/application-not-pending` | Candidatura nao esta mais pendente                  |
+| 422  | `/errors/invitation-not-pending`  | Convite nao esta mais pendente                      |

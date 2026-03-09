@@ -27,11 +27,13 @@ O sistema de build do backend foi migrado de Gradle (Kotlin DSL) para Maven dura
 O Maven funciona sem nenhum desses problemas: o wrapper (`mvnw`) é convertido com `tr -d '\r'` para um arquivo local (`mvnw_lf`), roda como processo único via `spring-boot:run`, e o cache `.m2` é persistido em volume nomeado.
 
 ### Arquivos removidos (Gradle)
+
 - `build.gradle.kts`, `settings.gradle.kts`
 - `gradle/` (diretório do wrapper)
 - `gradlew`, `gradlew.bat`
 
 ### Arquivos criados (Maven)
+
 - `pom.xml` — todas as dependências migradas do `build.gradle.kts`
 - `mvnw`, `mvnw.cmd` — Maven Wrapper 3.3.4
 - `.mvn/wrapper/maven-wrapper.jar` e `maven-wrapper.properties`
@@ -44,14 +46,15 @@ O Maven funciona sem nenhum desses problemas: o wrapper (`mvnw`) é convertido c
 
 Quatro serviços com hot reload:
 
-| Serviço | Imagem | Portas | Finalidade |
-|---------|--------|--------|------------|
-| `postgres` | postgres:16-alpine | 5432 | Banco com volume `pgdata`, healthcheck `pg_isready` |
-| `redis` | redis:7-alpine | 6379 | Cache com volume `redisdata`, healthcheck `redis-cli ping` |
-| `api` | eclipse-temurin:21-jdk-alpine | 8080, 5005 | Spring Boot dev + debug remoto via `spring-boot:run` com JDWP |
-| `web` | node:22-alpine | 3000 | Next.js Turbopack com WATCHPACK_POLLING |
+| Serviço    | Imagem                        | Portas     | Finalidade                                                    |
+| ---------- | ----------------------------- | ---------- | ------------------------------------------------------------- |
+| `postgres` | postgres:16-alpine            | 5432       | Banco com volume `pgdata`, healthcheck `pg_isready`           |
+| `redis`    | redis:7-alpine                | 6379       | Cache com volume `redisdata`, healthcheck `redis-cli ping`    |
+| `api`      | eclipse-temurin:21-jdk-alpine | 8080, 5005 | Spring Boot dev + debug remoto via `spring-boot:run` com JDWP |
+| `web`      | node:22-alpine                | 3000       | Next.js Turbopack com WATCHPACK_POLLING                       |
 
 Decisões de design:
+
 - **Sem Dockerfiles para dev** — containers usam imagens base com source bind-mounted.
 - **CRLF handling** — `tr -d '\r' < mvnw > mvnw_lf` cria uma cópia limpa no mesmo diretório (necessário em Windows).
 - **Debug JVM** — JDWP é passado via `-Dspring-boot.run.jvmArguments` (só afeta o processo Spring Boot, não o Maven).
@@ -63,15 +66,16 @@ Decisões de design:
 
 Cinco serviços com Nginx reverse proxy como ponto de entrada único:
 
-| Serviço | Build/Imagem | Porta | Notas |
-|---------|-------------|-------|-------|
-| `postgres` | postgres:16-alpine | interna 5432 | Não exposta ao host; acesso via `docker exec` |
-| `redis` | redis:7-alpine | interna 6379 | Protegido com senha (`REDIS_PASSWORD`); não exposta ao host |
-| `api` | `apps/api/Dockerfile` (JDK 21 → JRE 21, non-root) | interna 8080 | Acessível apenas via Nginx |
-| `web` | `apps/web/Dockerfile` (deps → build → standalone, non-root) | interna 3000 | Acessível apenas via Nginx; filesystem read-only |
-| `nginx` | `nginx/Dockerfile` (nginx:1.27-alpine, non-root) | **host 80** → 8080 | Ponto de entrada único; filesystem read-only |
+| Serviço    | Build/Imagem                                                | Porta              | Notas                                                       |
+| ---------- | ----------------------------------------------------------- | ------------------ | ----------------------------------------------------------- |
+| `postgres` | postgres:16-alpine                                          | interna 5432       | Não exposta ao host; acesso via `docker exec`               |
+| `redis`    | redis:7-alpine                                              | interna 6379       | Protegido com senha (`REDIS_PASSWORD`); não exposta ao host |
+| `api`      | `apps/api/Dockerfile` (JDK 21 → JRE 21, non-root)           | interna 8080       | Acessível apenas via Nginx                                  |
+| `web`      | `apps/web/Dockerfile` (deps → build → standalone, non-root) | interna 3000       | Acessível apenas via Nginx; filesystem read-only            |
+| `nginx`    | `nginx/Dockerfile` (nginx:1.27-alpine, non-root)            | **host 80** → 8080 | Ponto de entrada único; filesystem read-only                |
 
 Variáveis obrigatórias (`.env`):
+
 - `POSTGRES_PASSWORD` — senha forte para PostgreSQL
 - `JWT_SECRET` — mínimo 32 caracteres para HS256
 - `REDIS_PASSWORD` — senha para autenticação Redis
@@ -86,28 +90,28 @@ Configuração baseada na spec de `docs/architecture.md` (seção 17.4), hardene
 
 #### Roteamento
 
-| Location | Upstream | Rate Limit | Body Limit | Notas |
-|----------|----------|------------|------------|-------|
-| `/` | `web:3000` | 10r/s (burst 20) | 1m (global) | Frontend Next.js |
-| `/api/v1/auth/` | `api:8080` | 5r/s (burst 10) | 64k | Auth — rate limit mais restritivo |
-| `/api/v1/webhooks/stripe` | `api:8080` | — (sem limite) | 1m | Stripe controla o fluxo |
-| `/api/` | `api:8080` | 30r/s (burst 60) | 10m | API geral com upload |
-| `/ws/` | `api:8080` | — | — | WebSocket (upgrade headers, timeout 24h) |
-| `/actuator/` | `api:8080` | — | — | Restrito a redes Docker internas |
+| Location                  | Upstream   | Rate Limit       | Body Limit  | Notas                                    |
+| ------------------------- | ---------- | ---------------- | ----------- | ---------------------------------------- |
+| `/`                       | `web:3000` | 10r/s (burst 20) | 1m (global) | Frontend Next.js                         |
+| `/api/v1/auth/`           | `api:8080` | 5r/s (burst 10)  | 64k         | Auth — rate limit mais restritivo        |
+| `/api/v1/webhooks/stripe` | `api:8080` | — (sem limite)   | 1m          | Stripe controla o fluxo                  |
+| `/api/`                   | `api:8080` | 30r/s (burst 60) | 10m         | API geral com upload                     |
+| `/ws/`                    | `api:8080` | —                | —           | WebSocket (upgrade headers, timeout 24h) |
+| `/actuator/`              | `api:8080` | —                | —           | Restrito a redes Docker internas         |
 
 A ordem importa: Nginx usa "longest prefix match", então `/api/v1/auth/` e `/api/v1/webhooks/stripe` são avaliados antes de `/api/`.
 
 #### Headers de segurança
 
-| Header | Valor |
-|--------|-------|
-| `X-Frame-Options` | `SAMEORIGIN` |
-| `X-Content-Type-Options` | `nosniff` |
-| `X-XSS-Protection` | `0` (recomendação moderna — delega ao CSP) |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `X-Permitted-Cross-Domain-Policies` | `none` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()` |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';` |
+| Header                              | Valor                                                                                                                                                                                                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `X-Frame-Options`                   | `SAMEORIGIN`                                                                                                                                                                                                                                           |
+| `X-Content-Type-Options`            | `nosniff`                                                                                                                                                                                                                                              |
+| `X-XSS-Protection`                  | `0` (recomendação moderna — delega ao CSP)                                                                                                                                                                                                             |
+| `Referrer-Policy`                   | `strict-origin-when-cross-origin`                                                                                                                                                                                                                      |
+| `X-Permitted-Cross-Domain-Policies` | `none`                                                                                                                                                                                                                                                 |
+| `Permissions-Policy`                | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()`                                                                                                                                        |
+| `Content-Security-Policy`           | `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';` |
 
 #### Proteções adicionais
 
@@ -129,6 +133,7 @@ FROM nginx:1.27-alpine
 ```
 
 Hardening:
+
 - **Non-root** — roda como usuário `nginx` (não requer `CAP_NET_BIND_SERVICE`)
 - **Porta 8080** interna (não-privilegiada) — compose mapeia `80:8080`
 - **Default config removido** — `default.conf` e `/usr/share/nginx/html/*` apagados
@@ -140,13 +145,13 @@ Hardening:
 
 ### Isolamento de rede
 
-| Serviço | Antes | Depois |
-|---------|-------|--------|
-| `postgres` | `ports: "5432:5432"` (exposto ao host) | `expose: "5432"` (interno apenas) |
-| `redis` | `ports: "6379:6379"` (exposto ao host, sem auth) | `expose: "6379"` + `--requirepass` |
-| `api` | `ports: "8080:8080"` | `expose: "8080"` (já estava) |
-| `web` | `ports: "3000:3000"` | `expose: "3000"` (já estava) |
-| `nginx` | — (não existia) | `ports: "80:8080"` (único ponto de entrada) |
+| Serviço    | Antes                                            | Depois                                      |
+| ---------- | ------------------------------------------------ | ------------------------------------------- |
+| `postgres` | `ports: "5432:5432"` (exposto ao host)           | `expose: "5432"` (interno apenas)           |
+| `redis`    | `ports: "6379:6379"` (exposto ao host, sem auth) | `expose: "6379"` + `--requirepass`          |
+| `api`      | `ports: "8080:8080"`                             | `expose: "8080"` (já estava)                |
+| `web`      | `ports: "3000:3000"`                             | `expose: "3000"` (já estava)                |
+| `nginx`    | — (não existia)                                  | `ports: "80:8080"` (único ponto de entrada) |
 
 ### Redis — autenticação e hardening
 
@@ -168,29 +173,29 @@ Comandos perigosos (`FLUSHALL`, `FLUSHDB`, `DEBUG`, `CONFIG`) são desabilitados
 
 Aplicado a **todos** os 5 serviços:
 
-| Medida | Valor | Finalidade |
-|--------|-------|------------|
-| `restart` | `unless-stopped` | Auto-recuperação de crashes |
-| `security_opt` | `no-new-privileges:true` | Impede escalação de privilégios |
-| `deploy.resources.limits` | CPU + memória por serviço | Previne DoS por esgotamento de recursos |
-| `deploy.resources.reservations` | CPU + memória mínima | Garante recursos mínimos |
+| Medida                          | Valor                     | Finalidade                              |
+| ------------------------------- | ------------------------- | --------------------------------------- |
+| `restart`                       | `unless-stopped`          | Auto-recuperação de crashes             |
+| `security_opt`                  | `no-new-privileges:true`  | Impede escalação de privilégios         |
+| `deploy.resources.limits`       | CPU + memória por serviço | Previne DoS por esgotamento de recursos |
+| `deploy.resources.reservations` | CPU + memória mínima      | Garante recursos mínimos                |
 
 Limites de recursos por serviço:
 
-| Serviço | CPU Limit | Memory Limit | CPU Reservation | Memory Reservation |
-|---------|-----------|-------------|-----------------|-------------------|
-| `postgres` | 1.0 | 512M | 0.25 | 256M |
-| `redis` | 0.5 | 300M | 0.1 | 64M |
-| `api` | 2.0 | 1G | 0.5 | 512M |
-| `web` | 1.0 | 512M | 0.25 | 256M |
-| `nginx` | 0.5 | 128M | 0.1 | 32M |
+| Serviço    | CPU Limit | Memory Limit | CPU Reservation | Memory Reservation |
+| ---------- | --------- | ------------ | --------------- | ------------------ |
+| `postgres` | 1.0       | 512M         | 0.25            | 256M               |
+| `redis`    | 0.5       | 300M         | 0.1             | 64M                |
+| `api`      | 2.0       | 1G           | 0.5             | 512M               |
+| `web`      | 1.0       | 512M         | 0.25            | 256M               |
+| `nginx`    | 0.5       | 128M         | 0.1             | 32M                |
 
 ### Filesystem read-only
 
-| Serviço | `read_only` | `tmpfs` |
-|---------|-------------|---------|
-| `web` | ✅ `true` | `/tmp` |
-| `nginx` | ✅ `true` | `/tmp`, `/var/cache/nginx`, `/var/run` |
+| Serviço | `read_only` | `tmpfs`                                |
+| ------- | ----------- | -------------------------------------- |
+| `web`   | ✅ `true`   | `/tmp`                                 |
+| `nginx` | ✅ `true`   | `/tmp`, `/var/cache/nginx`, `/var/run` |
 
 ---
 
@@ -198,27 +203,27 @@ Limites de recursos por serviço:
 
 ### `application.yml` (base)
 
-| Configuração | Valor | Finalidade |
-|-------------|-------|------------|
-| `jackson.deserialization.fail-on-unknown-properties` | `true` | Rejeita campos JSON desconhecidos (previne mass-assignment) |
-| `jpa.open-in-view` | `false` | Evita queries N+1 e lazy loading acidental |
-| `jpa.hibernate.ddl-auto` | `validate` | Schema gerenciado exclusivamente pelo Flyway |
+| Configuração                                         | Valor      | Finalidade                                                  |
+| ---------------------------------------------------- | ---------- | ----------------------------------------------------------- |
+| `jackson.deserialization.fail-on-unknown-properties` | `true`     | Rejeita campos JSON desconhecidos (previne mass-assignment) |
+| `jpa.open-in-view`                                   | `false`    | Evita queries N+1 e lazy loading acidental                  |
+| `jpa.hibernate.ddl-auto`                             | `validate` | Schema gerenciado exclusivamente pelo Flyway                |
 
 ### `application-prod.yml`
 
-| Configuração | Valor | Finalidade |
-|-------------|-------|------------|
-| `spring.data.redis.password` | `${REDIS_PASSWORD}` | Autenticação com Redis protegido |
-| `server.forward-headers-strategy` | `native` | Confia nos headers do Nginx (`X-Forwarded-For`, `X-Forwarded-Proto`) |
-| `server.error.include-stacktrace` | `never` | Não expõe stack traces ao cliente |
-| `server.error.include-message` | `never` | Não expõe mensagens de exceção |
-| `server.error.include-binding-errors` | `never` | Não expõe erros de validação internos |
-| `server.error.include-exception` | `false` | Não expõe nome da classe de exceção |
-| `management.endpoints.web.exposure.include` | `health,info,prometheus` | Apenas 3 actuator endpoints expostos |
-| `management.endpoint.env.enabled` | `false` | Desabilita endpoint `/actuator/env` |
-| `management.endpoint.beans.enabled` | `false` | Desabilita endpoint `/actuator/beans` |
-| `management.endpoint.mappings.enabled` | `false` | Desabilita endpoint `/actuator/mappings` |
-| `management.endpoint.health.show-details` | `when-authorized` | Detalhes de saúde apenas para autenticados |
+| Configuração                                | Valor                    | Finalidade                                                           |
+| ------------------------------------------- | ------------------------ | -------------------------------------------------------------------- |
+| `spring.data.redis.password`                | `${REDIS_PASSWORD}`      | Autenticação com Redis protegido                                     |
+| `server.forward-headers-strategy`           | `native`                 | Confia nos headers do Nginx (`X-Forwarded-For`, `X-Forwarded-Proto`) |
+| `server.error.include-stacktrace`           | `never`                  | Não expõe stack traces ao cliente                                    |
+| `server.error.include-message`              | `never`                  | Não expõe mensagens de exceção                                       |
+| `server.error.include-binding-errors`       | `never`                  | Não expõe erros de validação internos                                |
+| `server.error.include-exception`            | `false`                  | Não expõe nome da classe de exceção                                  |
+| `management.endpoints.web.exposure.include` | `health,info,prometheus` | Apenas 3 actuator endpoints expostos                                 |
+| `management.endpoint.env.enabled`           | `false`                  | Desabilita endpoint `/actuator/env`                                  |
+| `management.endpoint.beans.enabled`         | `false`                  | Desabilita endpoint `/actuator/beans`                                |
+| `management.endpoint.mappings.enabled`      | `false`                  | Desabilita endpoint `/actuator/mappings`                             |
+| `management.endpoint.health.show-details`   | `when-authorized`        | Detalhes de saúde apenas para autenticados                           |
 
 ---
 
@@ -241,6 +246,7 @@ O HTTPS está preparado mas comentado no `nginx.conf`. Para ativar:
 4. Substituir `ffxiv-planner.com` pelo domínio real
 
 Configuração TLS pré-definida (Mozilla Modern):
+
 - Protocolos: TLSv1.2, TLSv1.3
 - Ciphers: ECDHE-ECDSA/RSA com AES128/256-GCM-SHA256/384
 - OCSP Stapling ativo
@@ -253,38 +259,39 @@ Configuração TLS pré-definida (Mozilla Modern):
 
 ### Arquivos novos (criados nesta iteração)
 
-| # | Arquivo | Descrição |
-|---|---------|-----------|
-| 1 | `nginx/nginx.conf` | Reverse proxy com rate limiting, security headers, CSP, proteção contra scanners |
-| 2 | `nginx/Dockerfile` | Imagem hardened — non-root, sem configs default, healthcheck |
+| #   | Arquivo            | Descrição                                                                        |
+| --- | ------------------ | -------------------------------------------------------------------------------- |
+| 1   | `nginx/nginx.conf` | Reverse proxy com rate limiting, security headers, CSP, proteção contra scanners |
+| 2   | `nginx/Dockerfile` | Imagem hardened — non-root, sem configs default, healthcheck                     |
 
 ### Arquivos modificados (nesta iteração)
 
-| # | Arquivo | Mudanças |
-|---|---------|----------|
-| 3 | `docker-compose.prod.yml` | +nginx service, postgres/redis internos, Redis auth, resource limits, restart policies, read-only, no-new-privileges |
-| 4 | `apps/api/src/main/resources/application.yml` | `fail-on-unknown-properties: true` |
-| 5 | `apps/api/src/main/resources/application-prod.yml` | +Redis password, +forward-headers-strategy, +error suppression, +actuator restrictions |
-| 6 | `.env.example` | +`REDIS_PASSWORD`, notas de geração de secrets, URLs atualizadas |
-| 7 | `CLAUDE.md` | Seção Production atualizada com 5 serviços, security hardening summary |
+| #   | Arquivo                                            | Mudanças                                                                                                             |
+| --- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 3   | `docker-compose.prod.yml`                          | +nginx service, postgres/redis internos, Redis auth, resource limits, restart policies, read-only, no-new-privileges |
+| 4   | `apps/api/src/main/resources/application.yml`      | `fail-on-unknown-properties: true`                                                                                   |
+| 5   | `apps/api/src/main/resources/application-prod.yml` | +Redis password, +forward-headers-strategy, +error suppression, +actuator restrictions                               |
+| 6   | `.env.example`                                     | +`REDIS_PASSWORD`, notas de geração de secrets, URLs atualizadas                                                     |
+| 7   | `CLAUDE.md`                                        | Seção Production atualizada com 5 serviços, security hardening summary                                               |
 
 ### Arquivos criados anteriormente (relatório original)
 
-| # | Arquivo | Descrição |
-|---|---------|-----------|
-| 8 | `apps/api/pom.xml` | Dependências Maven (migração de Gradle) |
-| 9 | `apps/api/.dockerignore` | Exclui `target/`, IDE, Docker |
-| 10 | `apps/web/.dockerignore` | Exclui `.next/`, `node_modules/`, `.turbo/` |
-| 11 | `apps/api/Dockerfile` | Multi-stage: JDK 21 build → JRE 21 runtime, non-root |
-| 12 | `apps/web/Dockerfile` | Multi-stage: deps → build → standalone Node.js, non-root |
-| 13 | `docker-compose.yml` | Dev: 4 serviços com hot reload |
-| 14 | Maven Wrapper | `mvnw`, `.mvn/` — Maven Wrapper 3.3.4 |
+| #   | Arquivo                  | Descrição                                                |
+| --- | ------------------------ | -------------------------------------------------------- |
+| 8   | `apps/api/pom.xml`       | Dependências Maven (migração de Gradle)                  |
+| 9   | `apps/api/.dockerignore` | Exclui `target/`, IDE, Docker                            |
+| 10  | `apps/web/.dockerignore` | Exclui `.next/`, `node_modules/`, `.turbo/`              |
+| 11  | `apps/api/Dockerfile`    | Multi-stage: JDK 21 build → JRE 21 runtime, non-root     |
+| 12  | `apps/web/Dockerfile`    | Multi-stage: deps → build → standalone Node.js, non-root |
+| 13  | `docker-compose.yml`     | Dev: 4 serviços com hot reload                           |
+| 14  | Maven Wrapper            | `mvnw`, `.mvn/` — Maven Wrapper 3.3.4                    |
 
 ---
 
 ## Verificação
 
 ### Desenvolvimento
+
 ```
 $ docker compose ps
 NAME           STATUS                    PORTS
@@ -301,6 +308,7 @@ $ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
 ```
 
 ### Produção
+
 ```
 $ POSTGRES_PASSWORD=xxx JWT_SECRET=xxx REDIS_PASSWORD=xxx \
   docker compose -f docker-compose.prod.yml config

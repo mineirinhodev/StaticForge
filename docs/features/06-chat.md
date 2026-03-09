@@ -6,10 +6,10 @@ O modulo de Chat implementa a comunicacao em tempo real entre usuarios da plataf
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN37, RN38, RN39, RN40, RN41 |
-| **Casos de Uso** | UC23 (Enviar Mensagem Direta), UC24 (Chat de Static), UC25 (Reportar Mensagem) |
+| Tipo                  | IDs                                                                            |
+| --------------------- | ------------------------------------------------------------------------------ |
+| **Regras de Negocio** | RN37, RN38, RN39, RN40, RN41                                                   |
+| **Casos de Uso**      | UC23 (Enviar Mensagem Direta), UC24 (Chat de Static), UC25 (Reportar Mensagem) |
 
 ---
 
@@ -541,13 +541,13 @@ public class ChatRedisSubscriber implements MessageListener {
 
 #### Eventos Consumidos
 
-| Evento | Origem | Acao |
-|--------|--------|------|
-| `StaticCreatedEvent` | `StaticService` | Cria chat room para a static (RN38) |
-| `MemberJoinedEvent` | `StaticService` | Adiciona membro ao chat da static |
-| `MemberLeftEvent` | `StaticService` | Remove membro do chat da static |
-| `StaticDissolvedEvent` | `StaticService` | Desativa chat da static |
-| `UserBlockedEvent` | `UserService` | Desativa DM entre bloqueador e bloqueado |
+| Evento                 | Origem          | Acao                                     |
+| ---------------------- | --------------- | ---------------------------------------- |
+| `StaticCreatedEvent`   | `StaticService` | Cria chat room para a static (RN38)      |
+| `MemberJoinedEvent`    | `StaticService` | Adiciona membro ao chat da static        |
+| `MemberLeftEvent`      | `StaticService` | Remove membro do chat da static          |
+| `StaticDissolvedEvent` | `StaticService` | Desativa chat da static                  |
+| `UserBlockedEvent`     | `UserService`   | Desativa DM entre bloqueador e bloqueado |
 
 ### 2.5 Controller
 
@@ -558,20 +558,20 @@ public class ChatRedisSubscriber implements MessageListener {
 @RequestMapping("/api/v1/chats")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| GET | `/` | Listar minhas conversas | Sim | 200 |
-| POST | `/dm` | Iniciar conversa direta | Sim | 201 |
-| GET | `/{id}/messages` | Historico de mensagens | Sim | 200 |
-| POST | `/{id}/messages` | Enviar mensagem (REST) | Sim | 201 |
+| Metodo | Path             | Descricao               | Auth | Status |
+| ------ | ---------------- | ----------------------- | ---- | ------ |
+| GET    | `/`              | Listar minhas conversas | Sim  | 200    |
+| POST   | `/dm`            | Iniciar conversa direta | Sim  | 201    |
+| GET    | `/{id}/messages` | Historico de mensagens  | Sim  | 200    |
+| POST   | `/{id}/messages` | Enviar mensagem (REST)  | Sim  | 201    |
 
 #### WebSocket Endpoints (STOMP)
 
-| Destination | Tipo | Descricao |
-|-------------|------|-----------|
-| `/app/chat.send` | SEND | Enviar mensagem |
-| `/app/chat.typing` | SEND | Indicador de digitacao |
-| `/app/chat.read` | SEND | Marcar como lido |
+| Destination            | Tipo      | Descricao                                |
+| ---------------------- | --------- | ---------------------------------------- |
+| `/app/chat.send`       | SEND      | Enviar mensagem                          |
+| `/app/chat.typing`     | SEND      | Indicador de digitacao                   |
+| `/app/chat.read`       | SEND      | Marcar como lido                         |
 | `/topic/chat.{roomId}` | SUBSCRIBE | Receber mensagens, typing, reads do room |
 
 **Exemplos de Request/Response:**
@@ -675,24 +675,24 @@ public class ChatRedisSubscriber implements MessageListener {
 
 ### 2.7 Validacoes
 
-| Campo | Regra | Contexto |
-|-------|-------|----------|
-| `content` | Obrigatorio, max 4000 chars, sanitizado contra XSS | SendMessageRequest, ChatMessageDto |
-| `targetUserId` | Deve existir, nao pode ser o proprio usuario | CreateDmRequest |
-| Bloqueio | Target nao bloqueou o sender (RN41) | ChatService.createDm |
-| Limite DMs | Max 20 ativas para free (RN39) | ChatService.createDm |
-| Membership | Remetente deve ser membro ativo do chat room | MessageService |
-| Chat ativo | Chat room deve estar ativo | MessageService |
+| Campo          | Regra                                              | Contexto                           |
+| -------------- | -------------------------------------------------- | ---------------------------------- |
+| `content`      | Obrigatorio, max 4000 chars, sanitizado contra XSS | SendMessageRequest, ChatMessageDto |
+| `targetUserId` | Deve existir, nao pode ser o proprio usuario       | CreateDmRequest                    |
+| Bloqueio       | Target nao bloqueou o sender (RN41)                | ChatService.createDm               |
+| Limite DMs     | Max 20 ativas para free (RN39)                     | ChatService.createDm               |
+| Membership     | Remetente deve ser membro ativo do chat room       | MessageService                     |
+| Chat ativo     | Chat room deve estar ativo                         | MessageService                     |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `ws:chat:{roomId}` | Pub/Sub | - | Canal de pub/sub para mensagens em tempo real | - (streaming) |
-| `ws:presence:{userId}` | String | 5 min | Status online (heartbeat) | Disconnect, timeout |
-| `count:chats:{userId}` | Counter | - | Contagem de DMs ativas (limite free - RN39) | Criacao/desativacao de DM |
-| `chat:rooms:{userId}` | String (JSON) | 1 min | Cache da lista de chat rooms | Nova mensagem, novo chat |
-| `chat:unread:{userId}:{roomId}` | Counter | - | Contagem de nao lidas por room | markAsRead |
+| Chave                           | Tipo          | TTL   | Descricao                                     | Invalidacao               |
+| ------------------------------- | ------------- | ----- | --------------------------------------------- | ------------------------- |
+| `ws:chat:{roomId}`              | Pub/Sub       | -     | Canal de pub/sub para mensagens em tempo real | - (streaming)             |
+| `ws:presence:{userId}`          | String        | 5 min | Status online (heartbeat)                     | Disconnect, timeout       |
+| `count:chats:{userId}`          | Counter       | -     | Contagem de DMs ativas (limite free - RN39)   | Criacao/desativacao de DM |
+| `chat:rooms:{userId}`           | String (JSON) | 1 min | Cache da lista de chat rooms                  | Nova mensagem, novo chat  |
+| `chat:unread:{userId}:{roomId}` | Counter       | -     | Contagem de nao lidas por room                | markAsRead                |
 
 ### 2.9 Jobs Agendados
 
@@ -704,10 +704,10 @@ Nao ha jobs especificos para este modulo. A limpeza de mensagens antigas poderia
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(main)/chat` | CSR | Lista de conversas |
-| `/[locale]/(main)/chat/[id]` | CSR | Conversa ativa com mensagens |
+| Rota                         | Renderizacao | Descricao                    |
+| ---------------------------- | ------------ | ---------------------------- |
+| `/[locale]/(main)/chat`      | CSR          | Lista de conversas           |
+| `/[locale]/(main)/chat/[id]` | CSR          | Conversa ativa com mensagens |
 
 ### 3.2 Componentes React
 
@@ -767,8 +767,8 @@ interface ChatState {
 
 function useChatRooms() {
   return useQuery({
-    queryKey: ['chats'],
-    queryFn: () => api.get('/chats'),
+    queryKey: ["chats"],
+    queryFn: () => api.get("/chats"),
     enabled: authStore.isAuthenticated,
     refetchInterval: 30_000, // refetch a cada 30s como fallback
   });
@@ -776,11 +776,9 @@ function useChatRooms() {
 
 function useChatMessages(roomId: string, page: number = 0) {
   return useInfiniteQuery({
-    queryKey: ['chats', roomId, 'messages'],
-    queryFn: ({ pageParam }) =>
-      api.get(`/chats/${roomId}/messages?page=${pageParam}&size=50`),
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNext ? lastPage.page + 1 : undefined,
+    queryKey: ["chats", roomId, "messages"],
+    queryFn: ({ pageParam }) => api.get(`/chats/${roomId}/messages?page=${pageParam}&size=50`),
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
     initialPageParam: 0,
     enabled: !!roomId,
   });
@@ -788,9 +786,9 @@ function useChatMessages(roomId: string, page: number = 0) {
 
 function useCreateDm() {
   return useMutation({
-    mutationFn: (data: CreateDmRequest) => api.post('/chats/dm', data),
+    mutationFn: (data: CreateDmRequest) => api.post("/chats/dm", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
     },
   });
 }
@@ -800,8 +798,8 @@ function useSendMessage() {
     mutationFn: ({ roomId, data }: { roomId: string; data: SendMessageRequest }) =>
       api.post(`/chats/${roomId}/messages`, data),
     onSuccess: (_, { roomId }) => {
-      queryClient.invalidateQueries({ queryKey: ['chats', roomId, 'messages'] });
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
+      queryClient.invalidateQueries({ queryKey: ["chats", roomId, "messages"] });
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
     },
   });
 }
@@ -822,7 +820,7 @@ function useWebSocket() {
       webSocketFactory: () => new SockJS(`${WS_URL}?token=${accessToken}`),
       onConnect: () => {
         // Subscribe to personal notifications
-        client.subscribe('/user/queue/notifications', handleNotification);
+        client.subscribe("/user/queue/notifications", handleNotification);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
@@ -845,24 +843,24 @@ function useChatWebSocket(roomId: string) {
       const data = JSON.parse(message.body);
 
       switch (data.type) {
-        case 'MESSAGE':
+        case "MESSAGE":
           // Adiciona mensagem ao cache do TanStack Query
-          queryClient.setQueryData(['chats', roomId, 'messages'], (old) => ({
+          queryClient.setQueryData(["chats", roomId, "messages"], (old) => ({
             ...old,
             pages: old.pages.map((page, i) =>
-              i === 0 ? { ...page, content: [data.data, ...page.content] } : page
+              i === 0 ? { ...page, content: [data.data, ...page.content] } : page,
             ),
           }));
           break;
-        case 'TYPING':
+        case "TYPING":
           if (data.isTyping) {
             chatStore.addTypingUser(roomId, data.userId);
           } else {
             chatStore.removeTypingUser(roomId, data.userId);
           }
           break;
-        case 'READ':
-          queryClient.invalidateQueries({ queryKey: ['chats', roomId, 'messages'] });
+        case "READ":
+          queryClient.invalidateQueries({ queryKey: ["chats", roomId, "messages"] });
           break;
       }
     });
@@ -872,21 +870,21 @@ function useChatWebSocket(roomId: string) {
 
   const sendMessage = (content: string) => {
     stompClient?.publish({
-      destination: '/app/chat.send',
+      destination: "/app/chat.send",
       body: JSON.stringify({ chatRoomId: roomId, content }),
     });
   };
 
   const sendTyping = (isTyping: boolean) => {
     stompClient?.publish({
-      destination: '/app/chat.typing',
+      destination: "/app/chat.typing",
       body: JSON.stringify({ chatRoomId: roomId, isTyping }),
     });
   };
 
   const markRead = (lastReadMessageId: string) => {
     stompClient?.publish({
-      destination: '/app/chat.read',
+      destination: "/app/chat.read",
       body: JSON.stringify({ chatRoomId: roomId, lastReadMessageId }),
     });
   };
@@ -903,7 +901,7 @@ function usePresence() {
   // Heartbeat a cada 2 minutos para manter presenca
   useEffect(() => {
     const interval = setInterval(() => {
-      api.post('/presence/heartbeat');
+      api.post("/presence/heartbeat");
     }, 120_000);
     return () => clearInterval(interval);
   }, []);
@@ -914,10 +912,10 @@ function usePresence() {
 
 ```typescript
 // schemas/chat.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const sendMessageSchema = z.object({
-  content: z.string().min(1, 'Message cannot be empty').max(4000),
+  content: z.string().min(1, "Message cannot be empty").max(4000),
 });
 
 export const createDmSchema = z.object({
@@ -927,25 +925,25 @@ export const createDmSchema = z.object({
 
 ### 3.5 WebSocket
 
-| Destination | Tipo | Descricao |
-|-------------|------|-----------|
-| `/app/chat.send` | SEND | Enviar mensagem no chat room |
-| `/app/chat.typing` | SEND | Enviar indicador de digitacao |
-| `/app/chat.read` | SEND | Marcar mensagens como lidas |
+| Destination            | Tipo      | Descricao                                               |
+| ---------------------- | --------- | ------------------------------------------------------- |
+| `/app/chat.send`       | SEND      | Enviar mensagem no chat room                            |
+| `/app/chat.typing`     | SEND      | Enviar indicador de digitacao                           |
+| `/app/chat.read`       | SEND      | Marcar mensagens como lidas                             |
 | `/topic/chat.{roomId}` | SUBSCRIBE | Receber eventos do chat room (mensagens, typing, reads) |
 
 ### 3.6 Internacionalizacao
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `chat.*` | Pagina de chat |
-| `chat.dm.*` | Mensagens diretas |
-| `chat.static.*` | Chat de static |
-| `chat.typing.*` | Indicadores de digitacao |
-| `chat.empty.*` | Estados vazios |
-| `chat.limit.*` | Mensagens de limite (free) |
+| Namespace       | Uso                        |
+| --------------- | -------------------------- |
+| `chat.*`        | Pagina de chat             |
+| `chat.dm.*`     | Mensagens diretas          |
+| `chat.static.*` | Chat de static             |
+| `chat.typing.*` | Indicadores de digitacao   |
+| `chat.empty.*`  | Estados vazios             |
+| `chat.limit.*`  | Mensagens de limite (free) |
 
 ---
 
@@ -1012,14 +1010,14 @@ CREATE INDEX idx_message_reads_user ON message_reads(user_id);
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `chat_rooms` | `static_id` | BTREE (partial) | Chat da static |
-| `chat_room_members` | `chat_room_id` | BTREE (partial) | Membros ativos do chat |
-| `chat_room_members` | `user_id` | BTREE (partial) | Chats do usuario |
-| `chat_room_members` | `chat_room_id, user_id` | UNIQUE | Um membro por chat |
-| `messages` | `chat_room_id, sent_at` | BTREE DESC (partial) | Historico de mensagens |
-| `message_reads` | `message_id, user_id` | UNIQUE | Uma leitura por mensagem/usuario |
+| Tabela              | Indice                  | Tipo                 | Justificativa                    |
+| ------------------- | ----------------------- | -------------------- | -------------------------------- |
+| `chat_rooms`        | `static_id`             | BTREE (partial)      | Chat da static                   |
+| `chat_room_members` | `chat_room_id`          | BTREE (partial)      | Membros ativos do chat           |
+| `chat_room_members` | `user_id`               | BTREE (partial)      | Chats do usuario                 |
+| `chat_room_members` | `chat_room_id, user_id` | UNIQUE               | Um membro por chat               |
+| `messages`          | `chat_room_id, sent_at` | BTREE DESC (partial) | Historico de mensagens           |
+| `message_reads`     | `message_id, user_id`   | UNIQUE               | Uma leitura por mensagem/usuario |
 
 ---
 
@@ -1043,15 +1041,15 @@ chat
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos |
-| 400 | `/errors/empty-message` | Mensagem vazia |
-| 403 | `/errors/not-chat-member` | Nao e membro do chat room |
-| 403 | `/errors/user-blocked` | Usuario bloqueado (RN41) |
-| 403 | `/errors/premium-required` | Limite de DMs atingido (RN39) |
-| 404 | `/errors/chat-room-not-found` | Chat room nao encontrado |
-| 404 | `/errors/user-not-found` | Usuario alvo nao encontrado |
-| 409 | `/errors/dm-already-exists` | DM ja existe entre os usuarios |
-| 409 | `/errors/chat-room-inactive` | Chat room esta desativado |
-| 409 | `/errors/self-dm` | Nao pode enviar DM para si mesmo |
+| HTTP | Tipo RFC 7807                 | Cenario                          |
+| ---- | ----------------------------- | -------------------------------- |
+| 400  | `/errors/validation`          | Campos invalidos                 |
+| 400  | `/errors/empty-message`       | Mensagem vazia                   |
+| 403  | `/errors/not-chat-member`     | Nao e membro do chat room        |
+| 403  | `/errors/user-blocked`        | Usuario bloqueado (RN41)         |
+| 403  | `/errors/premium-required`    | Limite de DMs atingido (RN39)    |
+| 404  | `/errors/chat-room-not-found` | Chat room nao encontrado         |
+| 404  | `/errors/user-not-found`      | Usuario alvo nao encontrado      |
+| 409  | `/errors/dm-already-exists`   | DM ja existe entre os usuarios   |
+| 409  | `/errors/chat-room-inactive`  | Chat room esta desativado        |
+| 409  | `/errors/self-dm`             | Nao pode enviar DM para si mesmo |
