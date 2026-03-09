@@ -51,8 +51,8 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=build /app/apps/web/.next/standalone ./
 # Copy static assets
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
-# Copy public directory
-COPY --from=build /app/apps/web/public ./apps/web/public
+# Copy public directory (if it exists)
+COPY --from=build /app/apps/web/public* ./apps/web/public/
 
 # Switch to non-root user
 USER appuser
