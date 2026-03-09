@@ -1,8 +1,16 @@
 # =============================================================
-# Staging Deploy — build Docker images & push to GHCR
+# Staging Deploy — build & deploy to self-hosted machine
 # =============================================================
 # Triggers on push to master (after PR merge).
-# Builds api, web, and nginx images and pushes to ghcr.io.
+# 1. Validates backend compilation on GitHub runners
+# 2. Deploys directly on your machine via self-hosted runner
+#
+# Setup (one-time):
+#   1. GitHub → Settings → Actions → Runners → New self-hosted runner
+#   2. Follow the install instructions for Windows
+#   3. Install as a Windows service so it starts automatically
+#   4. Make sure Docker Desktop is running on the machine
+#   5. Create a .env file in the repo root (copy from .env.example)
 # =============================================================
 
 name: Staging Deploy
@@ -10,17 +18,14 @@ name: Staging Deploy
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
 concurrency:
   group: staging-deploy
   cancel-in-progress: true
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/staticforge
-
 jobs:
-  # ── Quick validation before building images ─────────────
+  # ── Quick validation (runs on GitHub) ──────────────────
   validate:
     name: Validate
     runs-on: ubuntu-latest
@@ -43,159 +48,114 @@ jobs:
           chmod +x ./mvnw
           ./mvnw compile -B
 
-  # ── Build & push Docker images ─────────────────────────
-  build-api:
-    name: Build API image
-    runs-on: ubuntu-latest
-    needs: validate
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api
-          tags: |
-            type=sha,prefix=staging-
-            type=raw,value=staging-latest
-
-      - name: Build and push API image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./apps/api
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  build-web:
-    name: Build Web image
-    runs-on: ubuntu-latest
-    needs: validate
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web
-          tags: |
-            type=sha,prefix=staging-
-            type=raw,value=staging-latest
-
-      - name: Build and push Web image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/web/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            NEXT_PUBLIC_API_URL=/api/v1
-            NEXT_PUBLIC_WS_URL=/ws
-
-  build-nginx:
-    name: Build Nginx image
-    runs-on: ubuntu-latest
-    needs: validate
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx
-          tags: |
-            type=sha,prefix=staging-
-            type=raw,value=staging-latest
-
-      - name: Build and push Nginx image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./nginx
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ── Deploy to staging (placeholder) ────────────────────
+  # ── Deploy on your machine (self-hosted runner) ────────
   deploy:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: [build-api, build-web, build-nginx]
-    timeout-minutes: 10
-    environment: staging
+    name: Deploy to Local Machine
+    runs-on: self-hosted
+    needs: validate
+    timeout-minutes: 20
 
     steps:
-      - name: Deploy placeholder
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Verify .env exists
+        shell: bash
+        run: |
+          if [ ! -f .env ]; then
+            echo "❌ ERROR: .env file not found!"
+            echo "Copy .env.example to .env and fill in the required values:"
+            echo "  POSTGRES_PASSWORD, JWT_SECRET, REDIS_PASSWORD"
+            exit 1
+          fi
+          echo "✅ .env file found"
+
+      - name: Verify Docker is running
+        shell: bash
+        run: |
+          if ! docker info > /dev/null 2>&1; then
+            echo "❌ ERROR: Docker is not running!"
+            echo "Start Docker Desktop and try again."
+            exit 1
+          fi
+          echo "✅ Docker is running"
+
+      - name: Stop existing containers
+        shell: bash
+        run: docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
+      - name: Build and start all services
+        shell: bash
+        run: docker compose -f docker-compose.prod.yml up --build -d
+
+      - name: Wait for services to be healthy
+        shell: bash
+        run: |
+          echo "Waiting for services to start..."
+          sleep 15
+
+          echo ""
+          echo "========================================="
+          echo "  Service Status:"
+          echo "========================================="
+          docker compose -f docker-compose.prod.yml ps
+          echo ""
+
+          # Check each service
+          FAILED=0
+
+          if docker compose -f docker-compose.prod.yml ps postgres | grep -q "healthy"; then
+            echo "✅ PostgreSQL: healthy"
+          else
+            echo "⚠️  PostgreSQL: starting (may need more time)"
+          fi
+
+          if docker compose -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+            echo "✅ Redis: healthy"
+          else
+            echo "⚠️  Redis: starting (may need more time)"
+          fi
+
+          if docker compose -f docker-compose.prod.yml ps api | grep -q "Up"; then
+            echo "✅ API: running"
+          else
+            echo "❌ API: not running"
+            FAILED=1
+          fi
+
+          if docker compose -f docker-compose.prod.yml ps web | grep -q "Up"; then
+            echo "✅ Web: running"
+          else
+            echo "❌ Web: not running"
+            FAILED=1
+          fi
+
+          if docker compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
+            echo "✅ Nginx: running"
+          else
+            echo "❌ Nginx: not running"
+            FAILED=1
+          fi
+
+          echo ""
+          if [ $FAILED -eq 0 ]; then
+            echo "========================================="
+            echo "  ✅ Deploy complete!"
+            echo "  Access: http://localhost"
+            echo "========================================="
+          else
+            echo "========================================="
+            echo "  ⚠️  Some services may still be starting."
+            echo "  Check with: docker compose -f docker-compose.prod.yml ps"
+            echo "  Logs: docker compose -f docker-compose.prod.yml logs -f"
+            echo "========================================="
+          fi
+
+      - name: Show logs on failure
+        if: failure()
+        shell: bash
         run: |
           echo "========================================="
-          echo "  Staging images built and pushed:"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:staging-latest"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:staging-latest"
-          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:staging-latest"
+          echo "  Last 50 lines of logs:"
           echo "========================================="
-          echo ""
-          echo "To deploy manually via SSH:"
-          echo "  ssh user@staging-server 'cd /app && docker compose pull && docker compose up -d'"
-          echo ""
-          echo "Or configure one of these deployment methods:"
-          echo "  - SSH: appleboy/ssh-action@v1"
-          echo "  - AWS ECS: aws-actions/amazon-ecs-deploy-task-definition@v2"
-          echo "  - DigitalOcean: digitalocean/action-doctl@v2"
+          docker compose -f docker-compose.prod.yml logs --tail 50
