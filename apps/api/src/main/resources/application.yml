@@ -23,7 +23,9 @@ spring:
     serialization:
       write-dates-as-timestamps: false
     deserialization:
-      fail-on-unknown-properties: false
+      # Reject unknown JSON fields to prevent mass-assignment attacks.
+      # All accepted fields must be explicitly declared in request DTOs.
+      fail-on-unknown-properties: true
 
   cache:
     type: redis
