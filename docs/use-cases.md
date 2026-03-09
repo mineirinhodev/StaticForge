@@ -16,12 +16,12 @@
 
 ### UC01 - Registrar Conta
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC01 |
-| **Nome** | Registrar Conta |
-| **Atores** | Jogador (primario), Sistema de Email (secundario) |
-| **Pre-condicoes** | Nenhuma |
+| Campo             | Descricao                                                                                       |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| **ID**            | UC01                                                                                            |
+| **Nome**          | Registrar Conta                                                                                 |
+| **Atores**        | Jogador (primario), Sistema de Email (secundario)                                               |
+| **Pre-condicoes** | Nenhuma                                                                                         |
 | **Pos-condicoes** | Conta criada, email de verificacao enviado, usuario redirecionado ao fluxo de criacao de perfil |
 
 **Fluxo Principal:**
@@ -50,12 +50,12 @@
 
 ### UC02 - Criar/Editar Perfil de Jogador
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC02 |
-| **Nome** | Criar/Editar Perfil de Jogador |
-| **Atores** | Jogador (primario) |
-| **Pre-condicoes** | Conta ativa e verificada |
+| Campo             | Descricao                                                   |
+| ----------------- | ----------------------------------------------------------- |
+| **ID**            | UC02                                                        |
+| **Nome**          | Criar/Editar Perfil de Jogador                              |
+| **Atores**        | Jogador (primario)                                          |
+| **Pre-condicoes** | Conta ativa e verificada                                    |
 | **Pos-condicoes** | Perfil do jogador criado/atualizado com informacoes de jogo |
 
 **Fluxo Principal:**
@@ -94,12 +94,12 @@
 
 ### UC03 - Vincular e Verificar Personagem via Lodestone
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC03 |
-| **Nome** | Vincular e Verificar Personagem via Lodestone |
-| **Atores** | Jogador (primario), Lodestone/XIVAPI (secundario) |
-| **Pre-condicoes** | Conta ativa, personagem informado no perfil |
+| Campo             | Descricao                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| **ID**            | UC03                                                                                        |
+| **Nome**          | Vincular e Verificar Personagem via Lodestone                                               |
+| **Atores**        | Jogador (primario), Lodestone/XIVAPI (secundario)                                           |
+| **Pre-condicoes** | Conta ativa, personagem informado no perfil                                                 |
 | **Pos-condicoes** | Personagem marcado como "verificado", funcionalidades de matching e reputacao desbloqueadas |
 
 **Fluxo Principal:**
@@ -129,13 +129,13 @@
 
 ### UC04 - Login e Recuperacao de Senha
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC04 |
-| **Nome** | Login e Recuperacao de Senha |
-| **Atores** | Jogador (primario), Sistema de Email (secundario) |
-| **Pre-condicoes** | Conta existente |
-| **Pos-condicoes** | Jogador autenticado com sessao ativa |
+| Campo             | Descricao                                         |
+| ----------------- | ------------------------------------------------- |
+| **ID**            | UC04                                              |
+| **Nome**          | Login e Recuperacao de Senha                      |
+| **Atores**        | Jogador (primario), Sistema de Email (secundario) |
+| **Pre-condicoes** | Conta existente                                   |
+| **Pos-condicoes** | Jogador autenticado com sessao ativa              |
 
 **Fluxo Principal:**
 
@@ -163,13 +163,13 @@
 
 ### UC05 - Criar Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC05 |
-| **Nome** | Criar Static |
-| **Atores** | Jogador/Lider (primario) |
+| Campo             | Descricao                                                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **ID**            | UC05                                                                                                                   |
+| **Nome**          | Criar Static                                                                                                           |
+| **Atores**        | Jogador/Lider (primario)                                                                                               |
 | **Pre-condicoes** | Conta ativa, personagem verificado. Usuario free: nao possuir outra static como lider. Usuario premium: sem restricao. |
-| **Pos-condicoes** | Static criada com o jogador como lider, chat de grupo criado automaticamente |
+| **Pos-condicoes** | Static criada com o jogador como lider, chat de grupo criado automaticamente                                           |
 
 **Fluxo Principal:**
 
@@ -207,11 +207,11 @@
 
 ### UC06 - Gerenciar Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC06 |
-| **Nome** | Gerenciar Static |
-| **Atores** | Lider de Static (primario) |
+| Campo             | Descricao                           |
+| ----------------- | ----------------------------------- |
+| **ID**            | UC06                                |
+| **Nome**          | Gerenciar Static                    |
+| **Atores**        | Lider de Static (primario)          |
 | **Pre-condicoes** | Static existente, usuario e o lider |
 | **Pos-condicoes** | Configuracoes da static atualizadas |
 
@@ -245,12 +245,12 @@
 
 ### UC07 - Dissolver Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC07 |
-| **Nome** | Dissolver Static |
-| **Atores** | Lider de Static (primario) |
-| **Pre-condicoes** | Static existente, usuario e o lider |
+| Campo             | Descricao                                                                   |
+| ----------------- | --------------------------------------------------------------------------- |
+| **ID**            | UC07                                                                        |
+| **Nome**          | Dissolver Static                                                            |
+| **Atores**        | Lider de Static (primario)                                                  |
+| **Pre-condicoes** | Static existente, usuario e o lider                                         |
 | **Pos-condicoes** | Static marcada como "Dissolvida", membros notificados, historico preservado |
 
 **Fluxo Principal:**
@@ -280,13 +280,13 @@
 
 ### UC08 - Candidatar-se a uma Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC08 |
-| **Nome** | Candidatar-se a uma Static |
-| **Atores** | Jogador (primario), Lider de Static (secundario) |
+| Campo             | Descricao                                                             |
+| ----------------- | --------------------------------------------------------------------- |
+| **ID**            | UC08                                                                  |
+| **Nome**          | Candidatar-se a uma Static                                            |
+| **Atores**        | Jogador (primario), Lider de Static (secundario)                      |
 | **Pre-condicoes** | Conta ativa, personagem verificado, static com vaga aberta compativel |
-| **Pos-condicoes** | Candidatura registrada com status "Pendente", lider notificado |
+| **Pos-condicoes** | Candidatura registrada com status "Pendente", lider notificado        |
 
 **Fluxo Principal:**
 
@@ -322,13 +322,13 @@
 
 ### UC09 - Convidar Jogador para Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC09 |
-| **Nome** | Convidar Jogador para Static |
-| **Atores** | Lider de Static (primario), Jogador (secundario) |
+| Campo             | Descricao                                                            |
+| ----------------- | -------------------------------------------------------------------- |
+| **ID**            | UC09                                                                 |
+| **Nome**          | Convidar Jogador para Static                                         |
+| **Atores**        | Lider de Static (primario), Jogador (secundario)                     |
 | **Pre-condicoes** | Static existente com vaga aberta, jogador alvo com perfil verificado |
-| **Pos-condicoes** | Convite enviado ao jogador, jogador notificado |
+| **Pos-condicoes** | Convite enviado ao jogador, jogador notificado                       |
 
 **Fluxo Principal:**
 
@@ -358,12 +358,12 @@
 
 ### UC10 - Buscar Statics
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC10 |
-| **Nome** | Buscar Statics |
-| **Atores** | Jogador (primario) |
-| **Pre-condicoes** | Conta ativa |
+| Campo             | Descricao                            |
+| ----------------- | ------------------------------------ |
+| **ID**            | UC10                                 |
+| **Nome**          | Buscar Statics                       |
+| **Atores**        | Jogador (primario)                   |
+| **Pre-condicoes** | Conta ativa                          |
 | **Pos-condicoes** | Lista de statics compatíveis exibida |
 
 **Fluxo Principal:**
@@ -396,13 +396,13 @@
 
 ### UC11 - Buscar Jogadores
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC11 |
-| **Nome** | Buscar Jogadores |
-| **Atores** | Lider de Static (primario) |
+| Campo             | Descricao                                     |
+| ----------------- | --------------------------------------------- |
+| **ID**            | UC11                                          |
+| **Nome**          | Buscar Jogadores                              |
+| **Atores**        | Lider de Static (primario)                    |
 | **Pre-condicoes** | Conta ativa, static existente com vaga aberta |
-| **Pos-condicoes** | Lista de jogadores compativeis exibida |
+| **Pos-condicoes** | Lista de jogadores compativeis exibida        |
 
 **Fluxo Principal:**
 
@@ -435,13 +435,13 @@
 
 ### UC12 - Receber Sugestoes de Match Automatico
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC12 |
-| **Nome** | Receber Sugestoes de Match Automatico |
-| **Atores** | Jogador ou Lider (primario), Sistema de Matching (secundario) |
+| Campo             | Descricao                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| **ID**            | UC12                                                                               |
+| **Nome**          | Receber Sugestoes de Match Automatico                                              |
+| **Atores**        | Jogador ou Lider (primario), Sistema de Matching (secundario)                      |
 | **Pre-condicoes** | Perfil completo e verificado, status LFS ativo (jogador) ou vagas abertas (static) |
-| **Pos-condicoes** | Sugestoes de match exibidas com score de compatibilidade |
+| **Pos-condicoes** | Sugestoes de match exibidas com score de compatibilidade                           |
 
 **Fluxo Principal:**
 
@@ -449,15 +449,15 @@
 2. Para cada jogador LFS, o sistema:
    a. Cruza perfil do jogador com vagas abertas de statics
    b. Calcula score de compatibilidade baseado em:
-      - Compatibilidade de role/job (peso: 25%)
-      - Compatibilidade de horario (peso: 25%)
-      - Mesmo Data Center (peso: 15%)
-      - Idioma em comum (peso: 10%)
-      - Nivel de progressao similar (peso: 10%)
-      - Tipo de conteudo alinhado (peso: 10%)
-      - Nivel de seriedade compativel (peso: 5%)
-   c. Filtra matches abaixo de 40% de compatibilidade
-   d. Ordena por score decrescente
+   - Compatibilidade de role/job (peso: 25%)
+   - Compatibilidade de horario (peso: 25%)
+   - Mesmo Data Center (peso: 15%)
+   - Idioma em comum (peso: 10%)
+   - Nivel de progressao similar (peso: 10%)
+   - Tipo de conteudo alinhado (peso: 10%)
+   - Nivel de seriedade compativel (peso: 5%)
+     c. Filtra matches abaixo de 40% de compatibilidade
+     d. Ordena por score decrescente
 3. Para cada static com vagas, o sistema repete o processo para jogadores LFS
 4. Sistema notifica jogadores e lideres sobre novas sugestoes
 5. Jogador/Lider acessa a secao "Sugestoes de Match" no dashboard
@@ -479,12 +479,12 @@
 
 ### UC13 - Configurar Preferencias de Matching
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC13 |
-| **Nome** | Configurar Preferencias de Matching |
-| **Atores** | Jogador ou Lider (primario) |
-| **Pre-condicoes** | Conta ativa, perfil existente |
+| Campo             | Descricao                                                                        |
+| ----------------- | -------------------------------------------------------------------------------- |
+| **ID**            | UC13                                                                             |
+| **Nome**          | Configurar Preferencias de Matching                                              |
+| **Atores**        | Jogador ou Lider (primario)                                                      |
+| **Pre-condicoes** | Conta ativa, perfil existente                                                    |
 | **Pos-condicoes** | Preferencias de matching atualizadas, futuras sugestoes refletem novos criterios |
 
 **Fluxo Principal:**
@@ -511,12 +511,12 @@
 
 ### UC14 - Visualizar Detalhes de Compatibilidade
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC14 |
-| **Nome** | Visualizar Detalhes de Compatibilidade |
-| **Atores** | Jogador ou Lider (primario) |
-| **Pre-condicoes** | Sugestao de match existente |
+| Campo             | Descricao                                |
+| ----------------- | ---------------------------------------- |
+| **ID**            | UC14                                     |
+| **Nome**          | Visualizar Detalhes de Compatibilidade   |
+| **Atores**        | Jogador ou Lider (primario)              |
+| **Pre-condicoes** | Sugestao de match existente              |
 | **Pos-condicoes** | Detalhes de compatibilidade visualizados |
 
 **Fluxo Principal:**
@@ -550,13 +550,13 @@
 
 ### UC15 - Criar Evento de Raid
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC15 |
-| **Nome** | Criar Evento de Raid |
-| **Atores** | Lider de Static (primario para eventos de static), Jogador (primario para eventos PUG - premium) |
-| **Pre-condicoes** | Para evento de static: ser lider da static. Para PUG: conta premium ativa. |
-| **Pos-condicoes** | Evento criado, membros/publico notificados |
+| Campo             | Descricao                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------ |
+| **ID**            | UC15                                                                                             |
+| **Nome**          | Criar Evento de Raid                                                                             |
+| **Atores**        | Lider de Static (primario para eventos de static), Jogador (primario para eventos PUG - premium) |
+| **Pre-condicoes** | Para evento de static: ser lider da static. Para PUG: conta premium ativa.                       |
+| **Pos-condicoes** | Evento criado, membros/publico notificados                                                       |
 
 **Fluxo Principal:**
 
@@ -595,13 +595,13 @@
 
 ### UC16 - Confirmar Presenca em Evento
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC16 |
-| **Nome** | Confirmar Presenca em Evento |
-| **Atores** | Membro de Static ou Jogador (primario) |
+| Campo             | Descricao                                                            |
+| ----------------- | -------------------------------------------------------------------- |
+| **ID**            | UC16                                                                 |
+| **Nome**          | Confirmar Presenca em Evento                                         |
+| **Atores**        | Membro de Static ou Jogador (primario)                               |
 | **Pre-condicoes** | Evento existente, usuario e membro da static ou evento e PUG publico |
-| **Pos-condicoes** | Presenca registrada, lider/organizador informado |
+| **Pos-condicoes** | Presenca registrada, lider/organizador informado                     |
 
 **Fluxo Principal:**
 
@@ -630,12 +630,12 @@
 
 ### UC17 - Gerenciar Eventos PUG Publicos
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC17 |
-| **Nome** | Gerenciar Eventos PUG Publicos |
-| **Atores** | Organizador PUG (primario), Jogadores (secundario) |
-| **Pre-condicoes** | Conta premium, evento PUG criado |
+| Campo             | Descricao                                           |
+| ----------------- | --------------------------------------------------- |
+| **ID**            | UC17                                                |
+| **Nome**          | Gerenciar Eventos PUG Publicos                      |
+| **Atores**        | Organizador PUG (primario), Jogadores (secundario)  |
+| **Pre-condicoes** | Conta premium, evento PUG criado                    |
 | **Pos-condicoes** | Evento PUG gerenciado com participantes confirmados |
 
 **Fluxo Principal:**
@@ -667,13 +667,13 @@
 
 ### UC18 - Receber Lembretes de Evento
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC18 |
-| **Nome** | Receber Lembretes de Evento |
-| **Atores** | Jogador (primario), Sistema de Notificacoes (secundario) |
+| Campo             | Descricao                                                      |
+| ----------------- | -------------------------------------------------------------- |
+| **ID**            | UC18                                                           |
+| **Nome**          | Receber Lembretes de Evento                                    |
+| **Atores**        | Jogador (primario), Sistema de Notificacoes (secundario)       |
 | **Pre-condicoes** | Evento existente, jogador com presenca confirmada ou tentativa |
-| **Pos-condicoes** | Jogador notificado sobre o evento proximo |
+| **Pos-condicoes** | Jogador notificado sobre o evento proximo                      |
 
 **Fluxo Principal:**
 
@@ -695,12 +695,12 @@
 
 ### UC19 - Exportar Calendario
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC19 |
-| **Nome** | Exportar Calendario |
-| **Atores** | Jogador (primario) |
-| **Pre-condicoes** | Conta premium ativa, eventos existentes |
+| Campo             | Descricao                                 |
+| ----------------- | ----------------------------------------- |
+| **ID**            | UC19                                      |
+| **Nome**          | Exportar Calendario                       |
+| **Atores**        | Jogador (primario)                        |
+| **Pre-condicoes** | Conta premium ativa, eventos existentes   |
 | **Pos-condicoes** | URL de calendario iCal gerada e acessivel |
 
 **Fluxo Principal:**
@@ -730,13 +730,13 @@
 
 ### UC20 - Avaliar Jogador ou Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC20 |
-| **Nome** | Avaliar Jogador ou Static |
-| **Atores** | Jogador (primario) |
+| Campo             | Descricao                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **ID**            | UC20                                                                                                                |
+| **Nome**          | Avaliar Jogador ou Static                                                                                           |
+| **Atores**        | Jogador (primario)                                                                                                  |
 | **Pre-condicoes** | Jogador foi membro da static por pelo menos 2 semanas, ou a static avaliada teve o jogador por pelo menos 2 semanas |
-| **Pos-condicoes** | Avaliacao registrada, reputacao do alvo atualizada |
+| **Pos-condicoes** | Avaliacao registrada, reputacao do alvo atualizada                                                                  |
 
 **Fluxo Principal:**
 
@@ -770,12 +770,12 @@
 
 ### UC21 - Visualizar Reputacao
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC21 |
-| **Nome** | Visualizar Reputacao |
-| **Atores** | Jogador (primario) |
-| **Pre-condicoes** | Nenhuma (reputacao e publica) |
+| Campo             | Descricao                         |
+| ----------------- | --------------------------------- |
+| **ID**            | UC21                              |
+| **Nome**          | Visualizar Reputacao              |
+| **Atores**        | Jogador (primario)                |
+| **Pre-condicoes** | Nenhuma (reputacao e publica)     |
 | **Pos-condicoes** | Informacoes de reputacao exibidas |
 
 **Fluxo Principal:**
@@ -803,13 +803,13 @@
 
 ### UC22 - Reportar Avaliacao Abusiva
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC22 |
-| **Nome** | Reportar Avaliacao Abusiva |
-| **Atores** | Jogador (primario), Administrador (secundario) |
-| **Pre-condicoes** | Avaliacao existente |
-| **Pos-condicoes** | Report registrado para analise da moderacao |
+| Campo             | Descricao                                      |
+| ----------------- | ---------------------------------------------- |
+| **ID**            | UC22                                           |
+| **Nome**          | Reportar Avaliacao Abusiva                     |
+| **Atores**        | Jogador (primario), Administrador (secundario) |
+| **Pre-condicoes** | Avaliacao existente                            |
+| **Pos-condicoes** | Report registrado para analise da moderacao    |
 
 **Fluxo Principal:**
 
@@ -846,13 +846,13 @@
 
 ### UC23 - Enviar Mensagem Direta
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC23 |
-| **Nome** | Enviar Mensagem Direta |
-| **Atores** | Jogador (primario) |
+| Campo             | Descricao                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| **ID**            | UC23                                                                                     |
+| **Nome**          | Enviar Mensagem Direta                                                                   |
+| **Atores**        | Jogador (primario)                                                                       |
 | **Pre-condicoes** | Conta ativa, destinatario existente e nao bloqueado. Free: menos de 20 conversas ativas. |
-| **Pos-condicoes** | Mensagem enviada e entregue ao destinatario |
+| **Pos-condicoes** | Mensagem enviada e entregue ao destinatario                                              |
 
 **Fluxo Principal:**
 
@@ -882,12 +882,12 @@
 
 ### UC24 - Participar do Chat de Static
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC24 |
-| **Nome** | Participar do Chat de Static |
-| **Atores** | Membro de Static (primario) |
-| **Pre-condicoes** | Ser membro ativo da static |
+| Campo             | Descricao                                                  |
+| ----------------- | ---------------------------------------------------------- |
+| **ID**            | UC24                                                       |
+| **Nome**          | Participar do Chat de Static                               |
+| **Atores**        | Membro de Static (primario)                                |
+| **Pre-condicoes** | Ser membro ativo da static                                 |
 | **Pos-condicoes** | Mensagem enviada e visivel para todos os membros da static |
 
 **Fluxo Principal:**
@@ -915,13 +915,13 @@
 
 ### UC25 - Gerenciar Notificacoes
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC25 |
-| **Nome** | Gerenciar Notificacoes |
-| **Atores** | Jogador (primario), Sistema de Notificacoes (secundario) |
-| **Pre-condicoes** | Conta ativa |
-| **Pos-condicoes** | Preferencias de notificacao atualizadas |
+| Campo             | Descricao                                                |
+| ----------------- | -------------------------------------------------------- |
+| **ID**            | UC25                                                     |
+| **Nome**          | Gerenciar Notificacoes                                   |
+| **Atores**        | Jogador (primario), Sistema de Notificacoes (secundario) |
+| **Pre-condicoes** | Conta ativa                                              |
+| **Pos-condicoes** | Preferencias de notificacao atualizadas                  |
 
 **Fluxo Principal:**
 
@@ -955,12 +955,12 @@
 
 ### UC26 - Assinar Plano Premium
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC26 |
-| **Nome** | Assinar Plano Premium |
-| **Atores** | Jogador (primario), Sistema de Pagamentos (secundario) |
-| **Pre-condicoes** | Conta ativa, nao possuir assinatura premium ativa |
+| Campo             | Descricao                                                      |
+| ----------------- | -------------------------------------------------------------- |
+| **ID**            | UC26                                                           |
+| **Nome**          | Assinar Plano Premium                                          |
+| **Atores**        | Jogador (primario), Sistema de Pagamentos (secundario)         |
+| **Pre-condicoes** | Conta ativa, nao possuir assinatura premium ativa              |
 | **Pos-condicoes** | Assinatura ativa, recursos premium desbloqueados imediatamente |
 
 **Fluxo Principal:**
@@ -993,13 +993,13 @@
 
 ### UC27 - Acessar Recursos Premium
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC27 |
-| **Nome** | Acessar Recursos Premium |
-| **Atores** | Jogador Premium (primario) |
-| **Pre-condicoes** | Assinatura premium ativa |
-| **Pos-condicoes** | Recurso premium utilizado |
+| Campo             | Descricao                  |
+| ----------------- | -------------------------- |
+| **ID**            | UC27                       |
+| **Nome**          | Acessar Recursos Premium   |
+| **Atores**        | Jogador Premium (primario) |
+| **Pre-condicoes** | Assinatura premium ativa   |
+| **Pos-condicoes** | Recurso premium utilizado  |
 
 **Fluxo Principal:**
 
@@ -1028,13 +1028,13 @@
 
 ### UC28 - Gerenciar Assinatura Premium
 
-| Campo | Descricao |
-|-------|-----------|
-| **ID** | UC28 |
-| **Nome** | Gerenciar Assinatura Premium |
-| **Atores** | Jogador Premium (primario), Sistema de Pagamentos (secundario) |
-| **Pre-condicoes** | Assinatura premium existente (ativa ou expirada) |
-| **Pos-condicoes** | Configuracoes de assinatura atualizadas |
+| Campo             | Descricao                                                      |
+| ----------------- | -------------------------------------------------------------- |
+| **ID**            | UC28                                                           |
+| **Nome**          | Gerenciar Assinatura Premium                                   |
+| **Atores**        | Jogador Premium (primario), Sistema de Pagamentos (secundario) |
+| **Pre-condicoes** | Assinatura premium existente (ativa ou expirada)               |
+| **Pos-condicoes** | Configuracoes de assinatura atualizadas                        |
 
 **Fluxo Principal:**
 
@@ -1068,41 +1068,41 @@
 
 ## Apendice A: Matriz de Rastreabilidade (Requisitos x Use Cases)
 
-| Requisito | Use Cases Relacionados |
-|-----------|----------------------|
-| Recrutamento bidirecional | UC08, UC09, UC10, UC11 |
-| Matching automatico avancado | UC12, UC13, UC14 |
-| Calendario com PUG | UC15, UC16, UC17, UC18, UC19 |
-| Reputacao publica | UC20, UC21, UC22 |
-| Integracao Lodestone | UC02, UC03 |
-| Chat interno | UC23, UC24, UC25 |
-| Modelo Freemium | UC26, UC27, UC28 |
-| Multilingual | UC01 (selecao de idioma), UC02 (idiomas falados), UC12 (matching por idioma) |
-| Escopo customizavel | UC05 (criacao), UC06 (gestao), UC15 (eventos) |
+| Requisito                    | Use Cases Relacionados                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| Recrutamento bidirecional    | UC08, UC09, UC10, UC11                                                       |
+| Matching automatico avancado | UC12, UC13, UC14                                                             |
+| Calendario com PUG           | UC15, UC16, UC17, UC18, UC19                                                 |
+| Reputacao publica            | UC20, UC21, UC22                                                             |
+| Integracao Lodestone         | UC02, UC03                                                                   |
+| Chat interno                 | UC23, UC24, UC25                                                             |
+| Modelo Freemium              | UC26, UC27, UC28                                                             |
+| Multilingual                 | UC01 (selecao de idioma), UC02 (idiomas falados), UC12 (matching por idioma) |
+| Escopo customizavel          | UC05 (criacao), UC06 (gestao), UC15 (eventos)                                |
 
 ## Apendice B: Matriz Atores x Use Cases
 
-| Ator | Use Cases |
-|------|-----------|
-| **Jogador** | UC01, UC02, UC03, UC04, UC08, UC10, UC12, UC13, UC14, UC16, UC18, UC19, UC20, UC21, UC22, UC23, UC24, UC25, UC26, UC27, UC28 |
-| **Lider de Static** | UC05, UC06, UC07, UC09, UC11, UC15, UC17 |
-| **Membro de Static** | UC08, UC16, UC24 |
-| **Organizador PUG** | UC15 (PUG), UC17 |
-| **Administrador** | UC22 |
-| **Sistema de Matching** | UC12 |
-| **Lodestone/XIVAPI** | UC02, UC03 |
-| **Sistema de Notificacoes** | UC18, UC25 |
-| **Sistema de Pagamentos** | UC26, UC28 |
+| Ator                        | Use Cases                                                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Jogador**                 | UC01, UC02, UC03, UC04, UC08, UC10, UC12, UC13, UC14, UC16, UC18, UC19, UC20, UC21, UC22, UC23, UC24, UC25, UC26, UC27, UC28 |
+| **Lider de Static**         | UC05, UC06, UC07, UC09, UC11, UC15, UC17                                                                                     |
+| **Membro de Static**        | UC08, UC16, UC24                                                                                                             |
+| **Organizador PUG**         | UC15 (PUG), UC17                                                                                                             |
+| **Administrador**           | UC22                                                                                                                         |
+| **Sistema de Matching**     | UC12                                                                                                                         |
+| **Lodestone/XIVAPI**        | UC02, UC03                                                                                                                   |
+| **Sistema de Notificacoes** | UC18, UC25                                                                                                                   |
+| **Sistema de Pagamentos**   | UC26, UC28                                                                                                                   |
 
 ## Apendice C: Regras de Negocio x Use Cases
 
-| Regra de Negocio | Use Cases |
-|-----------------|-----------|
-| RN01-RN05 (Perfil) | UC01, UC02, UC03 |
-| RN06-RN12 (Static) | UC05, UC06, UC07 |
-| RN13-RN18 (Recrutamento) | UC08, UC09, UC10, UC11 |
-| RN19-RN23 (Matching) | UC12, UC13, UC14 |
-| RN24-RN29 (Calendario) | UC15, UC16, UC17, UC18, UC19 |
-| RN30-RN36 (Reputacao) | UC20, UC21, UC22 |
-| RN37-RN41 (Chat) | UC23, UC24, UC25 |
-| RN42-RN45 (Premium) | UC26, UC27, UC28 |
+| Regra de Negocio         | Use Cases                    |
+| ------------------------ | ---------------------------- |
+| RN01-RN05 (Perfil)       | UC01, UC02, UC03             |
+| RN06-RN12 (Static)       | UC05, UC06, UC07             |
+| RN13-RN18 (Recrutamento) | UC08, UC09, UC10, UC11       |
+| RN19-RN23 (Matching)     | UC12, UC13, UC14             |
+| RN24-RN29 (Calendario)   | UC15, UC16, UC17, UC18, UC19 |
+| RN30-RN36 (Reputacao)    | UC20, UC21, UC22             |
+| RN37-RN41 (Chat)         | UC23, UC24, UC25             |
+| RN42-RN45 (Premium)      | UC26, UC27, UC28             |

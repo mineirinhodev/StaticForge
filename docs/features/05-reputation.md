@@ -6,10 +6,10 @@ O modulo de Reputacao implementa o sistema de avaliacoes bidirecionais entre jog
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN30, RN31, RN32, RN33, RN34, RN35, RN36 |
-| **Casos de Uso** | UC20 (Avaliar Jogador/Static), UC21 (Ver Reputacao), UC22 (Reportar Avaliacao) |
+| Tipo                  | IDs                                                                            |
+| --------------------- | ------------------------------------------------------------------------------ |
+| **Regras de Negocio** | RN30, RN31, RN32, RN33, RN34, RN35, RN36                                       |
+| **Casos de Uso**      | UC20 (Avaliar Jogador/Static), UC21 (Ver Reputacao), UC22 (Reportar Avaliacao) |
 
 ---
 
@@ -421,18 +421,18 @@ public class ReviewReportService {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `ReviewCreatedEvent` | `ReviewService.createReview` | reviewId, targetId, targetType, score | `NotificationService` (notifica avaliado), `ReputationService` (invalida cache) |
-| `ReviewReportedEvent` | `ReviewReportService.reportReview` | reportId, reviewId | `NotificationService` (alerta admins) |
-| `ReputationBelowThresholdEvent` | `ReviewService.createReview` | targetId, score | `MatchingService` (restricao - RN36), `NotificationService` (alerta usuario) |
+| Evento                          | Publicado por                      | Dados                                 | Consumido por                                                                   |
+| ------------------------------- | ---------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
+| `ReviewCreatedEvent`            | `ReviewService.createReview`       | reviewId, targetId, targetType, score | `NotificationService` (notifica avaliado), `ReputationService` (invalida cache) |
+| `ReviewReportedEvent`           | `ReviewReportService.reportReview` | reportId, reviewId                    | `NotificationService` (alerta admins)                                           |
+| `ReputationBelowThresholdEvent` | `ReviewService.createReview`       | targetId, score                       | `MatchingService` (restricao - RN36), `NotificationService` (alerta usuario)    |
 
 #### Eventos Consumidos
 
-| Evento | Origem | Acao |
-|--------|--------|------|
+| Evento              | Origem          | Acao                            |
+| ------------------- | --------------- | ------------------------------- |
 | `MemberJoinedEvent` | `StaticService` | Registra inicio de coexistencia |
-| `MemberLeftEvent` | `StaticService` | Registra fim de coexistencia |
+| `MemberLeftEvent`   | `StaticService` | Registra fim de coexistencia    |
 
 ### 2.5 Controller
 
@@ -441,14 +441,14 @@ public class ReviewReportService {
 @RequestMapping("/api/v1")
 ```
 
-| Metodo | Path | Descricao | Auth | Status |
-|--------|------|-----------|------|--------|
-| POST | `/reviews` | Criar avaliacao | Sim | 201 |
-| PUT | `/reviews/{id}` | Editar avaliacao | Sim (Author) | 200 |
-| GET | `/users/{id}/reviews` | Avaliacoes de um jogador | Nao | 200 |
-| GET | `/statics/{id}/reviews` | Avaliacoes de uma static | Nao | 200 |
-| GET | `/users/{id}/reputation` | Reputacao agregada | Nao | 200 |
-| POST | `/reviews/{id}/report` | Reportar avaliacao | Sim | 201 |
+| Metodo | Path                     | Descricao                | Auth         | Status |
+| ------ | ------------------------ | ------------------------ | ------------ | ------ |
+| POST   | `/reviews`               | Criar avaliacao          | Sim          | 201    |
+| PUT    | `/reviews/{id}`          | Editar avaliacao         | Sim (Author) | 200    |
+| GET    | `/users/{id}/reviews`    | Avaliacoes de um jogador | Nao          | 200    |
+| GET    | `/statics/{id}/reviews`  | Avaliacoes de uma static | Nao          | 200    |
+| GET    | `/users/{id}/reputation` | Reputacao agregada       | Nao          | 200    |
+| POST   | `/reviews/{id}/report`   | Reportar avaliacao       | Sim          | 201    |
 
 **Exemplos de Request/Response:**
 
@@ -531,22 +531,22 @@ public class ReviewReportService {
 
 ### 2.7 Validacoes
 
-| Campo | Regra | Contexto |
-|-------|-------|----------|
-| `punctuality/communication/performance/attitude/commitment` | Inteiro entre 1 e 5 | CreateReviewRequest (RN33) |
-| `comment` | Max 2000 chars | CreateReviewRequest |
-| Coexistencia | Minimo 2 semanas na mesma static (RN32) | ReviewService |
-| Auto-avaliacao | Reviewer nao pode avaliar a si mesmo | ReviewService |
-| Duplicata | Uma avaliacao por par reviewer-target-type | ReviewService |
-| `reason` (report) | Enum valido | CreateReportRequest |
-| Report duplicado | Um report por usuario por review | ReviewReportService |
+| Campo                                                       | Regra                                      | Contexto                   |
+| ----------------------------------------------------------- | ------------------------------------------ | -------------------------- |
+| `punctuality/communication/performance/attitude/commitment` | Inteiro entre 1 e 5                        | CreateReviewRequest (RN33) |
+| `comment`                                                   | Max 2000 chars                             | CreateReviewRequest        |
+| Coexistencia                                                | Minimo 2 semanas na mesma static (RN32)    | ReviewService              |
+| Auto-avaliacao                                              | Reviewer nao pode avaliar a si mesmo       | ReviewService              |
+| Duplicata                                                   | Uma avaliacao por par reviewer-target-type | ReviewService              |
+| `reason` (report)                                           | Enum valido                                | CreateReportRequest        |
+| Report duplicado                                            | Um report por usuario por review           | ReviewReportService        |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `reputation:{targetId}:{targetType}` | String (JSON) | 10 min | Cache da reputacao agregada | Nova review criada/editada |
-| `reviews:{targetId}:{targetType}:page:{n}` | String (JSON) | 5 min | Cache paginado de reviews | Nova review |
+| Chave                                      | Tipo          | TTL    | Descricao                   | Invalidacao                |
+| ------------------------------------------ | ------------- | ------ | --------------------------- | -------------------------- |
+| `reputation:{targetId}:{targetType}`       | String (JSON) | 10 min | Cache da reputacao agregada | Nova review criada/editada |
+| `reviews:{targetId}:{targetType}:page:{n}` | String (JSON) | 5 min  | Cache paginado de reviews   | Nova review                |
 
 ### 2.9 Jobs Agendados
 
@@ -558,9 +558,9 @@ Nao ha jobs especificos para este modulo. A verificacao de reputacao abaixo do t
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/users/[id]` | SSR + ISR (60s) | Perfil publico (inclui tab de reputacao) |
+| Rota                            | Renderizacao    | Descricao                                   |
+| ------------------------------- | --------------- | ------------------------------------------- |
+| `/[locale]/users/[id]`          | SSR + ISR (60s) | Perfil publico (inclui tab de reputacao)    |
 | `/[locale]/(main)/statics/[id]` | SSR + ISR (60s) | Pagina da static (inclui tab de avaliacoes) |
 
 A reputacao e integrada nas paginas de perfil e static como tabs/secoes, sem paginas dedicadas.
@@ -605,21 +605,21 @@ components/reputation/
 
 function usePlayerReviews(characterId: string, page: number = 0) {
   return useQuery({
-    queryKey: ['reviews', 'player', characterId, page],
+    queryKey: ["reviews", "player", characterId, page],
     queryFn: () => api.get(`/users/${characterId}/reviews?page=${page}&size=10`),
   });
 }
 
 function useStaticReviews(staticId: string, page: number = 0) {
   return useQuery({
-    queryKey: ['reviews', 'static', staticId, page],
+    queryKey: ["reviews", "static", staticId, page],
     queryFn: () => api.get(`/statics/${staticId}/reviews?page=${page}&size=10`),
   });
 }
 
 function useReputation(userId: string) {
   return useQuery({
-    queryKey: ['reputation', userId],
+    queryKey: ["reputation", userId],
     queryFn: () => api.get(`/users/${userId}/reputation`),
     staleTime: 60_000,
   });
@@ -627,13 +627,13 @@ function useReputation(userId: string) {
 
 function useCreateReview() {
   return useMutation({
-    mutationFn: (data: CreateReviewRequest) => api.post('/reviews', data),
+    mutationFn: (data: CreateReviewRequest) => api.post("/reviews", data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ['reviews', variables.targetType.toLowerCase(), variables.targetId],
+        queryKey: ["reviews", variables.targetType.toLowerCase(), variables.targetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ['reputation', variables.targetId],
+        queryKey: ["reputation", variables.targetId],
       });
     },
   });
@@ -644,8 +644,8 @@ function useUpdateReview() {
     mutationFn: ({ id, data }: { id: string; data: CreateReviewRequest }) =>
       api.put(`/reviews/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
-      queryClient.invalidateQueries({ queryKey: ['reputation'] });
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["reputation"] });
     },
   });
 }
@@ -662,11 +662,11 @@ function useReportReview() {
 
 ```typescript
 // schemas/review.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createReviewSchema = z.object({
   targetId: z.string().uuid(),
-  targetType: z.enum(['PLAYER', 'STATIC']),
+  targetType: z.enum(["PLAYER", "STATIC"]),
   staticId: z.string().uuid().optional(),
   punctuality: z.number().int().min(1).max(5),
   communication: z.number().int().min(1).max(5),
@@ -677,7 +677,7 @@ export const createReviewSchema = z.object({
 });
 
 export const createReportSchema = z.object({
-  reason: z.enum(['HARASSMENT', 'FALSE_INFO', 'SPAM', 'INAPPROPRIATE', 'OTHER']),
+  reason: z.enum(["HARASSMENT", "FALSE_INFO", "SPAM", "INAPPROPRIATE", "OTHER"]),
   details: z.string().max(1000).optional(),
 });
 ```
@@ -690,14 +690,14 @@ Nao aplicavel diretamente. Notificacoes de novas avaliacoes sao enviadas via `/u
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `reputation.*` | Componentes de reputacao |
-| `reputation.criteria.*` | Nomes dos criterios (Punctuality, Communication, etc.) |
-| `reputation.trend.*` | Labels de tendencia |
-| `review.*` | Formulario e lista de avaliacoes |
-| `review.report.*` | Dialog de report |
-| `review.report.reasons.*` | Motivos de report |
+| Namespace                 | Uso                                                    |
+| ------------------------- | ------------------------------------------------------ |
+| `reputation.*`            | Componentes de reputacao                               |
+| `reputation.criteria.*`   | Nomes dos criterios (Punctuality, Communication, etc.) |
+| `reputation.trend.*`      | Labels de tendencia                                    |
+| `review.*`                | Formulario e lista de avaliacoes                       |
+| `review.report.*`         | Dialog de report                                       |
+| `review.report.reasons.*` | Motivos de report                                      |
 
 ---
 
@@ -752,16 +752,16 @@ CREATE INDEX idx_review_reports_status ON review_reports(status) WHERE status = 
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `reviews` | `target_id, target_type` | BTREE (partial) | Reputacao do alvo |
-| `reviews` | `reviewer_id` | BTREE (partial) | Reviews feitas por um jogador |
-| `reviews` | `static_id` | BTREE (partial) | Reviews de uma static |
-| `reviews` | `created_at` | BTREE DESC (partial) | Ordenacao cronologica |
-| `reviews` | `reviewer_id, target_id, target_type` | UNIQUE | Uma review por par |
-| `review_reports` | `review_id` | BTREE | Reports de uma review |
-| `review_reports` | `status` | BTREE (partial) | Reports pendentes |
-| `review_reports` | `review_id, reporter_id` | UNIQUE | Um report por usuario por review |
+| Tabela           | Indice                                | Tipo                 | Justificativa                    |
+| ---------------- | ------------------------------------- | -------------------- | -------------------------------- |
+| `reviews`        | `target_id, target_type`              | BTREE (partial)      | Reputacao do alvo                |
+| `reviews`        | `reviewer_id`                         | BTREE (partial)      | Reviews feitas por um jogador    |
+| `reviews`        | `static_id`                           | BTREE (partial)      | Reviews de uma static            |
+| `reviews`        | `created_at`                          | BTREE DESC (partial) | Ordenacao cronologica            |
+| `reviews`        | `reviewer_id, target_id, target_type` | UNIQUE               | Uma review por par               |
+| `review_reports` | `review_id`                           | BTREE                | Reports de uma review            |
+| `review_reports` | `status`                              | BTREE (partial)      | Reports pendentes                |
+| `review_reports` | `review_id, reporter_id`              | UNIQUE               | Um report por usuario por review |
 
 ---
 
@@ -787,16 +787,16 @@ reputation
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos |
-| 400 | `/errors/invalid-score` | Score fora de 1-5 |
-| 403 | `/errors/character-not-verified` | Character nao verificado |
-| 403 | `/errors/not-review-author` | Nao e o autor da review |
-| 404 | `/errors/review-not-found` | Review nao encontrada |
-| 404 | `/errors/target-not-found` | Alvo da avaliacao nao encontrado |
-| 409 | `/errors/review-already-exists` | Ja avaliou este alvo |
-| 409 | `/errors/self-review` | Nao pode avaliar a si mesmo |
-| 409 | `/errors/report-already-exists` | Ja reportou esta review |
-| 422 | `/errors/insufficient-coexistence` | Minimo de 2 semanas de convivencia nao atingido (RN32) |
-| 422 | `/errors/no-shared-static` | Reviewer e target nunca estiveram na mesma static |
+| HTTP | Tipo RFC 7807                      | Cenario                                                |
+| ---- | ---------------------------------- | ------------------------------------------------------ |
+| 400  | `/errors/validation`               | Campos invalidos                                       |
+| 400  | `/errors/invalid-score`            | Score fora de 1-5                                      |
+| 403  | `/errors/character-not-verified`   | Character nao verificado                               |
+| 403  | `/errors/not-review-author`        | Nao e o autor da review                                |
+| 404  | `/errors/review-not-found`         | Review nao encontrada                                  |
+| 404  | `/errors/target-not-found`         | Alvo da avaliacao nao encontrado                       |
+| 409  | `/errors/review-already-exists`    | Ja avaliou este alvo                                   |
+| 409  | `/errors/self-review`              | Nao pode avaliar a si mesmo                            |
+| 409  | `/errors/report-already-exists`    | Ja reportou esta review                                |
+| 422  | `/errors/insufficient-coexistence` | Minimo de 2 semanas de convivencia nao atingido (RN32) |
+| 422  | `/errors/no-shared-static`         | Reviewer e target nunca estiveram na mesma static      |

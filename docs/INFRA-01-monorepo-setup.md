@@ -98,10 +98,7 @@ Arquivo raiz que define o monorepo com npm workspaces e scripts que delegam ao T
   "name": "ffxiv-static-planner",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -120,6 +117,7 @@ Arquivo raiz que define o monorepo com npm workspaces e scripts que delegam ao T
 ```
 
 **Detalhes:**
+
 - `workspaces`: Registra `apps/*` e `packages/*` como pacotes do monorepo
 - `scripts`: Cada comando delega ao `turbo run`, que executa em paralelo nos workspaces
 - `engines`: Exige Node.js 20+ (LTS)
@@ -159,13 +157,13 @@ Configuração do Turborepo com 5 tasks e suas estratégias de cache:
 
 **Detalhes das tasks:**
 
-| Task | Cache | Comportamento |
-|------|-------|---------------|
+| Task    | Cache                                            | Comportamento                                                |
+| ------- | ------------------------------------------------ | ------------------------------------------------------------ |
 | `build` | Sim — outputs: `.next/**`, `build/**`, `dist/**` | Depende de `^build` (deps primeiro). Exclui `.next/cache/**` |
-| `dev` | Não | `persistent: true` — mantém servidores rodando (não encerra) |
-| `lint` | Sim | Depende de `^build` (precisa de tipos compilados) |
-| `test` | Sim | Depende de `^build` |
-| `clean` | Não | Remove artefatos, sem cache |
+| `dev`   | Não                                              | `persistent: true` — mantém servidores rodando (não encerra) |
+| `lint`  | Sim                                              | Depende de `^build` (precisa de tipos compilados)            |
+| `test`  | Sim                                              | Depende de `^build`                                          |
+| `clean` | Não                                              | Remove artefatos, sem cache                                  |
 
 - `globalDependencies`: Arquivos `.env.*local` invalidam cache de todas as tasks
 - `dependsOn: ["^build"]`: Garante que dependências do workspace são compiladas antes
@@ -212,6 +210,7 @@ Criado com `create-next-app` e configurado para o monorepo.
 ```
 
 **Stack:**
+
 - **Next.js 15.5.12** com App Router
 - **React 19** + React DOM 19
 - **Tailwind CSS 4** via `@tailwindcss/postcss`
@@ -253,9 +252,7 @@ export const metadata: Metadata = {
   description: "Find and manage your FFXIV raid static",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>{children}</body>
@@ -269,12 +266,10 @@ export default function RootLayout({
 ```tsx
 export default function Home() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center">
       <main className="text-center">
-        <h1 className="text-4xl font-bold mb-4">FFXIV Static Planner</h1>
-        <p className="text-lg text-gray-600">
-          Find and manage your FFXIV raid static
-        </p>
+        <h1 className="mb-4 text-4xl font-bold">FFXIV Static Planner</h1>
+        <p className="text-lg text-gray-600">Find and manage your FFXIV raid static</p>
       </main>
     </div>
   );
@@ -405,6 +400,7 @@ tasks.withType<Test> {
 ```
 
 **Stack do Backend:**
+
 - **Spring Boot 3.3.7** com Java 21
 - **Gradle Kotlin DSL** com Spring Dependency Management
 - **PostgreSQL 16** + Flyway migrations
@@ -570,6 +566,7 @@ export default [
 ```
 
 **Uso no `apps/web/tsconfig.json`:**
+
 ```json
 {
   "extends": "@ffxiv-planner/typescript-config/nextjs.json",
@@ -592,6 +589,7 @@ npm run dev
 ```
 
 **Resultado:**
+
 ```
 • turbo 2.8.14
 • Packages in scope: @ffxiv-planner/api, @ffxiv-planner/eslint-config,
@@ -607,10 +605,10 @@ npm run dev
 @ffxiv-planner/api:dev:  Tomcat started on port 8080 with context path '/api/v1'
 ```
 
-| App | URL | Tempo de startup |
-|-----|-----|-----------------|
-| Frontend (Next.js) | `http://localhost:3000` | ~2.7s |
-| Backend (Spring Boot) | `http://localhost:8080/api/v1` | ~7.0s |
+| App                   | URL                            | Tempo de startup |
+| --------------------- | ------------------------------ | ---------------- |
+| Frontend (Next.js)    | `http://localhost:3000`        | ~2.7s            |
+| Backend (Spring Boot) | `http://localhost:8080/api/v1` | ~7.0s            |
 
 ### 8. `npm run build` — Build completo
 
@@ -619,6 +617,7 @@ npm run build
 ```
 
 **Resultado:**
+
 ```
 • turbo 2.8.14
 • Running build in 4 packages
@@ -637,10 +636,10 @@ Cached:   1 cached, 2 total
 Time:     27.47s
 ```
 
-| App | Artefato | Tamanho |
-|-----|----------|---------|
-| Frontend | `.next/` (static pages) | First Load ~102kB |
-| Backend | `build/libs/*.jar` | Spring Boot fat JAR |
+| App      | Artefato                | Tamanho             |
+| -------- | ----------------------- | ------------------- |
+| Frontend | `.next/` (static pages) | First Load ~102kB   |
+| Backend  | `build/libs/*.jar`      | Spring Boot fat JAR |
 
 ---
 
@@ -649,12 +648,14 @@ Time:     27.47s
 ### Turbopack Runtime Error
 
 **Problema:** Ao acessar `http://localhost:3000`, aparecia:
+
 ```
 Next.js 15.5.12
 Runtime Error — An unexpected Turbopack error occurred.
 ```
 
 **Causa:** O `next.config.ts` original configurava `turbopack.root` manualmente:
+
 ```ts
 // ANTES (com bug)
 const nextConfig: NextConfig = {
@@ -667,6 +668,7 @@ const nextConfig: NextConfig = {
 O Next.js 15.5+ infere automaticamente o workspace root a partir do lockfile (`package-lock.json`). A configuração manual conflitava com essa detecção automática.
 
 **Correção:** Removida a propriedade `turbopack.root`:
+
 ```ts
 // DEPOIS (corrigido)
 const nextConfig: NextConfig = {};
@@ -676,14 +678,14 @@ const nextConfig: NextConfig = {};
 
 ## Pré-requisitos para Rodar
 
-| Dependência | Versão | Necessário para |
-|-------------|--------|-----------------|
-| Node.js | >= 20 (LTS) | Frontend + Turborepo |
-| npm | >= 10 | Workspaces |
-| Java | 21 (Temurin/Adoptium) | Backend |
-| PostgreSQL | 16 | Banco de dados |
-| Redis | Latest | Cache + rate limiting |
-| Docker | Latest | PostgreSQL + Redis (opcional) |
+| Dependência | Versão                | Necessário para               |
+| ----------- | --------------------- | ----------------------------- |
+| Node.js     | >= 20 (LTS)           | Frontend + Turborepo          |
+| npm         | >= 10                 | Workspaces                    |
+| Java        | 21 (Temurin/Adoptium) | Backend                       |
+| PostgreSQL  | 16                    | Banco de dados                |
+| Redis       | Latest                | Cache + rate limiting         |
+| Docker      | Latest                | PostgreSQL + Redis (opcional) |
 
 ### Comandos para subir a infra:
 

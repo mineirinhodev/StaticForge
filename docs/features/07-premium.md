@@ -6,25 +6,25 @@ O modulo Premium gerencia o modelo de monetizacao freemium da plataforma. Inclui
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN42, RN43, RN44, RN45 |
-| **Casos de Uso** | UC26 (Assinar Premium), UC27 (Gerenciar Assinatura), UC28 (Cancelar Premium) |
+| Tipo                  | IDs                                                                          |
+| --------------------- | ---------------------------------------------------------------------------- |
+| **Regras de Negocio** | RN42, RN43, RN44, RN45                                                       |
+| **Casos de Uso**      | UC26 (Assinar Premium), UC27 (Gerenciar Assinatura), UC28 (Cancelar Premium) |
 
 ### 1.2 Limites Free vs Premium
 
-| Recurso | Free | Premium |
-|---------|------|---------|
-| Statics criadas | 1 | Ilimitadas |
-| Sugestoes de match por semana | 5 | Ilimitadas |
-| Conversas diretas ativas | 20 | Ilimitadas |
-| Criar eventos PUG publicos | Nao | Sim |
-| Exportar calendario (iCal) | Nao | Sim |
-| Filtros de busca avancados | Nao | Sim |
-| Badge premium no perfil | Nao | Sim |
-| Perfil destacado na busca | Nao | Sim |
-| Lembretes personalizados | Nao | Sim |
-| Webhooks Discord | Nao | Sim |
+| Recurso                       | Free | Premium    |
+| ----------------------------- | ---- | ---------- |
+| Statics criadas               | 1    | Ilimitadas |
+| Sugestoes de match por semana | 5    | Ilimitadas |
+| Conversas diretas ativas      | 20   | Ilimitadas |
+| Criar eventos PUG publicos    | Nao  | Sim        |
+| Exportar calendario (iCal)    | Nao  | Sim        |
+| Filtros de busca avancados    | Nao  | Sim        |
+| Badge premium no perfil       | Nao  | Sim        |
+| Perfil destacado na busca     | Nao  | Sim        |
+| Lembretes personalizados      | Nao  | Sim        |
+| Webhooks Discord              | Nao  | Sim        |
 
 ---
 
@@ -472,13 +472,13 @@ public class PremiumAspect {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `SubscriptionActivatedEvent` | `SubscriptionService` / Webhook | userId, plan, endDate | `UserService` (atualiza isPremium), `NotificationService` |
-| `SubscriptionCanceledEvent` | `SubscriptionService.cancel` | userId, endDate | `NotificationService` (confirma cancelamento) |
-| `SubscriptionReactivatedEvent` | `SubscriptionService.reactivate` | userId | `NotificationService` |
-| `SubscriptionExpiredEvent` | `SubscriptionService.expire` | userId | `UserService` (remove isPremium), `StaticService` (read-only statics extras), `NotificationService` |
-| `PaymentFailedEvent` | Webhook `invoice.payment_failed` | userId, failureReason | `NotificationService` (alerta usuario) |
+| Evento                         | Publicado por                    | Dados                 | Consumido por                                                                                       |
+| ------------------------------ | -------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
+| `SubscriptionActivatedEvent`   | `SubscriptionService` / Webhook  | userId, plan, endDate | `UserService` (atualiza isPremium), `NotificationService`                                           |
+| `SubscriptionCanceledEvent`    | `SubscriptionService.cancel`     | userId, endDate       | `NotificationService` (confirma cancelamento)                                                       |
+| `SubscriptionReactivatedEvent` | `SubscriptionService.reactivate` | userId                | `NotificationService`                                                                               |
+| `SubscriptionExpiredEvent`     | `SubscriptionService.expire`     | userId                | `UserService` (remove isPremium), `StaticService` (read-only statics extras), `NotificationService` |
+| `PaymentFailedEvent`           | Webhook `invoice.payment_failed` | userId, failureReason | `NotificationService` (alerta usuario)                                                              |
 
 ### 2.5 Controller
 
@@ -489,21 +489,21 @@ public class PremiumAspect {
 @RequestMapping("/api/v1/subscriptions")
 ```
 
-| Metodo | Path | Descricao | Auth | Request Body | Response Body | Status |
-|--------|------|-----------|------|-------------|---------------|--------|
-| GET | `/plans` | Listar planos | Nao | - | `List<PlanResponse>` | 200 |
-| POST | `/` | Iniciar assinatura | Sim | `CreateSubscriptionRequest` | `CheckoutSessionResponse` | 201 |
-| GET | `/me` | Minha assinatura | Sim | - | `SubscriptionResponse` | 200 |
-| PUT | `/me/cancel` | Cancelar assinatura | Sim | - | `SubscriptionResponse` | 200 |
-| PUT | `/me/reactivate` | Reativar assinatura | Sim | - | `SubscriptionResponse` | 200 |
-| POST | `/trial` | Ativar trial | Sim | - | `SubscriptionResponse` | 201 |
-| GET | `/me/payments` | Historico de pagamentos | Sim | - | `Page<PaymentHistoryResponse>` | 200 |
+| Metodo | Path             | Descricao               | Auth | Request Body                | Response Body                  | Status |
+| ------ | ---------------- | ----------------------- | ---- | --------------------------- | ------------------------------ | ------ |
+| GET    | `/plans`         | Listar planos           | Nao  | -                           | `List<PlanResponse>`           | 200    |
+| POST   | `/`              | Iniciar assinatura      | Sim  | `CreateSubscriptionRequest` | `CheckoutSessionResponse`      | 201    |
+| GET    | `/me`            | Minha assinatura        | Sim  | -                           | `SubscriptionResponse`         | 200    |
+| PUT    | `/me/cancel`     | Cancelar assinatura     | Sim  | -                           | `SubscriptionResponse`         | 200    |
+| PUT    | `/me/reactivate` | Reativar assinatura     | Sim  | -                           | `SubscriptionResponse`         | 200    |
+| POST   | `/trial`         | Ativar trial            | Sim  | -                           | `SubscriptionResponse`         | 201    |
+| GET    | `/me/payments`   | Historico de pagamentos | Sim  | -                           | `Page<PaymentHistoryResponse>` | 200    |
 
 #### StripeWebhookController
 
-| Metodo | Path | Descricao | Auth |
-|--------|------|-----------|------|
-| POST | `/api/v1/webhooks/stripe` | Webhook Stripe | Nao (verificado por assinatura HMAC) |
+| Metodo | Path                      | Descricao      | Auth                                 |
+| ------ | ------------------------- | -------------- | ------------------------------------ |
+| POST   | `/api/v1/webhooks/stripe` | Webhook Stripe | Nao (verificado por assinatura HMAC) |
 
 **Exemplos de Request/Response:**
 
@@ -538,10 +538,7 @@ public class PremiumAspect {
     "currency": "USD",
     "interval": "year",
     "savingsPercent": 16.5,
-    "features": [
-      "All Monthly features",
-      "Save 16.5% vs monthly"
-    ]
+    "features": ["All Monthly features", "Save 16.5% vs monthly"]
   }
 ]
 ```
@@ -600,28 +597,28 @@ public class PremiumAspect {
 
 ### 2.7 Validacoes
 
-| Campo | Regra | DTO |
-|-------|-------|-----|
-| `plan` | Obrigatorio, enum MONTHLY/ANNUAL | CreateSubscriptionRequest |
-| `successUrl` | URL valida | CreateSubscriptionRequest |
-| `cancelUrl` | URL valida | CreateSubscriptionRequest |
-| Assinatura ativa | Usuario nao pode ter assinatura ja ativa | Service (createSubscription) |
-| Trial unico | trialUsed deve ser false | Service (activateTrial) - RN45 |
-| Cancelamento | Status deve ser ACTIVE ou TRIALING | Service (cancelSubscription) |
-| Reativacao | Status deve ser CANCELED e endDate > hoje | Service (reactivateSubscription) |
+| Campo            | Regra                                     | DTO                              |
+| ---------------- | ----------------------------------------- | -------------------------------- |
+| `plan`           | Obrigatorio, enum MONTHLY/ANNUAL          | CreateSubscriptionRequest        |
+| `successUrl`     | URL valida                                | CreateSubscriptionRequest        |
+| `cancelUrl`      | URL valida                                | CreateSubscriptionRequest        |
+| Assinatura ativa | Usuario nao pode ter assinatura ja ativa  | Service (createSubscription)     |
+| Trial unico      | trialUsed deve ser false                  | Service (activateTrial) - RN45   |
+| Cancelamento     | Status deve ser ACTIVE ou TRIALING        | Service (cancelSubscription)     |
+| Reativacao       | Status deve ser CANCELED e endDate > hoje | Service (reactivateSubscription) |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `subscription:{userId}` | String (JSON) | 5 min | Cache da assinatura do usuario | Qualquer mudanca de status |
-| `plans:available` | String (JSON) | 1 hora | Cache dos planos disponiveis | Mudanca de precos (manual) |
-| `premium:check:{userId}` | Boolean | 1 min | Cache rapido de verificacao isPremium | Mudanca de status |
+| Chave                    | Tipo          | TTL    | Descricao                             | Invalidacao                |
+| ------------------------ | ------------- | ------ | ------------------------------------- | -------------------------- |
+| `subscription:{userId}`  | String (JSON) | 5 min  | Cache da assinatura do usuario        | Qualquer mudanca de status |
+| `plans:available`        | String (JSON) | 1 hora | Cache dos planos disponiveis          | Mudanca de precos (manual) |
+| `premium:check:{userId}` | Boolean       | 1 min  | Cache rapido de verificacao isPremium | Mudanca de status          |
 
 ### 2.9 Jobs Agendados
 
-| Job | Frequencia | Descricao |
-|-----|-----------|-----------|
+| Job                     | Frequencia         | Descricao                                                                                                                                                                                                                                                                                                                            |
+| ----------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `SubscriptionScheduler` | Diario (01:00 UTC) | 1. Busca assinaturas com endDate < hoje e status ACTIVE/TRIALING -> expira (RN44). 2. Busca assinaturas PAST_DUE com mais de 7 dias -> expira. 3. Busca assinaturas expirando em 3 dias -> envia alerta (NotificationService). 4. Busca assinaturas CANCELED com endDate < hoje -> atualiza para EXPIRED e remove isPremium do User. |
 
 ---
@@ -630,11 +627,11 @@ public class PremiumAspect {
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(main)/premium` | CSR | Pagina de planos premium com comparacao free vs premium |
-| `/[locale]/(main)/account/subscription` | CSR | Gerenciar assinatura atual |
-| `/[locale]/(main)/account/settings` | CSR | Configuracoes da conta (inclui secao de assinatura) |
+| Rota                                    | Renderizacao | Descricao                                               |
+| --------------------------------------- | ------------ | ------------------------------------------------------- |
+| `/[locale]/(main)/premium`              | CSR          | Pagina de planos premium com comparacao free vs premium |
+| `/[locale]/(main)/account/subscription` | CSR          | Gerenciar assinatura atual                              |
+| `/[locale]/(main)/account/settings`     | CSR          | Configuracoes da conta (inclui secao de assinatura)     |
 
 ### 3.2 Componentes React
 
@@ -677,16 +674,16 @@ account/subscription/page.tsx      -- Client Component
 
 function usePlans() {
   return useQuery({
-    queryKey: ['subscription', 'plans'],
-    queryFn: () => api.get('/subscriptions/plans'),
+    queryKey: ["subscription", "plans"],
+    queryFn: () => api.get("/subscriptions/plans"),
     staleTime: 60 * 60 * 1000, // 1 hora
   });
 }
 
 function useMySubscription() {
   return useQuery({
-    queryKey: ['subscription', 'me'],
-    queryFn: () => api.get('/subscriptions/me'),
+    queryKey: ["subscription", "me"],
+    queryFn: () => api.get("/subscriptions/me"),
     enabled: authStore.isAuthenticated,
     retry: false, // 404 e esperado se nao tem assinatura
   });
@@ -694,8 +691,7 @@ function useMySubscription() {
 
 function useCreateSubscription() {
   return useMutation({
-    mutationFn: (data: CreateSubscriptionRequest) =>
-      api.post('/subscriptions', data),
+    mutationFn: (data: CreateSubscriptionRequest) => api.post("/subscriptions", data),
     onSuccess: (response) => {
       // Redireciona para Stripe Checkout
       window.location.href = response.checkoutUrl;
@@ -705,37 +701,37 @@ function useCreateSubscription() {
 
 function useCancelSubscription() {
   return useMutation({
-    mutationFn: () => api.put('/subscriptions/me/cancel'),
+    mutationFn: () => api.put("/subscriptions/me/cancel"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
   });
 }
 
 function useReactivateSubscription() {
   return useMutation({
-    mutationFn: () => api.put('/subscriptions/me/reactivate'),
+    mutationFn: () => api.put("/subscriptions/me/reactivate"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
   });
 }
 
 function useActivateTrial() {
   return useMutation({
-    mutationFn: () => api.post('/subscriptions/trial'),
+    mutationFn: () => api.post("/subscriptions/trial"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
   });
 }
 
 function usePaymentHistory(page: number = 0) {
   return useQuery({
-    queryKey: ['subscription', 'payments', page],
+    queryKey: ["subscription", "payments", page],
     queryFn: () => api.get(`/subscriptions/me/payments?page=${page}&size=10`),
     enabled: authStore.isAuthenticated,
   });
@@ -746,10 +742,10 @@ function usePaymentHistory(page: number = 0) {
 
 ```typescript
 // schemas/subscription.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createSubscriptionSchema = z.object({
-  plan: z.enum(['MONTHLY', 'ANNUAL']),
+  plan: z.enum(["MONTHLY", "ANNUAL"]),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 });
@@ -766,16 +762,16 @@ Nao aplicavel diretamente a este modulo. Notificacoes sobre status de assinatura
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `premium.*` | Pagina de planos e comparacao |
-| `premium.plans.*` | Nomes e descricoes dos planos |
-| `premium.features.*` | Lista de features premium |
-| `subscription.*` | Gerenciamento de assinatura |
-| `subscription.status.*` | Labels de status (ACTIVE, CANCELED, etc.) |
-| `subscription.actions.*` | Botoes e confirmacoes |
-| `payment.*` | Historico de pagamentos |
-| `trial.*` | Banner e instrucoes do trial |
+| Namespace                | Uso                                       |
+| ------------------------ | ----------------------------------------- |
+| `premium.*`              | Pagina de planos e comparacao             |
+| `premium.plans.*`        | Nomes e descricoes dos planos             |
+| `premium.features.*`     | Lista de features premium                 |
+| `subscription.*`         | Gerenciamento de assinatura               |
+| `subscription.status.*`  | Labels de status (ACTIVE, CANCELED, etc.) |
+| `subscription.actions.*` | Botoes e confirmacoes                     |
+| `payment.*`              | Historico de pagamentos                   |
+| `trial.*`                | Banner e instrucoes do trial              |
 
 **Exemplo de chaves:**
 
@@ -873,16 +869,16 @@ CREATE INDEX idx_payment_history_paid_at ON payment_history(paid_at DESC);
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `subscriptions` | `user_id` | UNIQUE | Uma assinatura por usuario |
-| `subscriptions` | `status` | BTREE | Filtro por status no scheduler |
-| `subscriptions` | `end_date` | BTREE | Busca de assinaturas expirando |
-| `subscriptions` | `stripe_subscription_id` | UNIQUE (partial) | Busca por ID do Stripe |
-| `subscriptions` | `stripe_customer_id` | BTREE (partial) | Busca por customer do Stripe |
-| `payment_history` | `subscription_id` | BTREE | Historico por assinatura |
-| `payment_history` | `stripe_payment_id` | UNIQUE (partial) | Idempotencia de webhooks |
-| `payment_history` | `paid_at` | BTREE DESC | Ordenacao cronologica |
+| Tabela            | Indice                   | Tipo             | Justificativa                  |
+| ----------------- | ------------------------ | ---------------- | ------------------------------ |
+| `subscriptions`   | `user_id`                | UNIQUE           | Uma assinatura por usuario     |
+| `subscriptions`   | `status`                 | BTREE            | Filtro por status no scheduler |
+| `subscriptions`   | `end_date`               | BTREE            | Busca de assinaturas expirando |
+| `subscriptions`   | `stripe_subscription_id` | UNIQUE (partial) | Busca por ID do Stripe         |
+| `subscriptions`   | `stripe_customer_id`     | BTREE (partial)  | Busca por customer do Stripe   |
+| `payment_history` | `subscription_id`        | BTREE            | Historico por assinatura       |
+| `payment_history` | `stripe_payment_id`      | UNIQUE (partial) | Idempotencia de webhooks       |
+| `payment_history` | `paid_at`                | BTREE DESC       | Ordenacao cronologica          |
 
 ---
 
@@ -947,28 +943,28 @@ public List<MatchSuggestion> getMatches(UUID userId) {
 
 ### 5.3 Eventos Publicados e Consumidos
 
-| Direcao | Evento | Consumidor | Acao |
-|---------|--------|-----------|------|
-| Saida | `SubscriptionActivatedEvent` | `UserService` | isPremium=true, premiumExpiresAt=endDate |
-| Saida | `SubscriptionExpiredEvent` | `UserService` | isPremium=false, premiumExpiresAt=null |
-| Saida | `SubscriptionExpiredEvent` | `StaticService` | Statics extras em read-only (RN44) |
-| Saida | `SubscriptionCanceledEvent` | `NotificationService` | Notifica usuario da data final |
-| Saida | `PaymentFailedEvent` | `NotificationService` | Alerta usuario sobre falha |
+| Direcao | Evento                       | Consumidor            | Acao                                     |
+| ------- | ---------------------------- | --------------------- | ---------------------------------------- |
+| Saida   | `SubscriptionActivatedEvent` | `UserService`         | isPremium=true, premiumExpiresAt=endDate |
+| Saida   | `SubscriptionExpiredEvent`   | `UserService`         | isPremium=false, premiumExpiresAt=null   |
+| Saida   | `SubscriptionExpiredEvent`   | `StaticService`       | Statics extras em read-only (RN44)       |
+| Saida   | `SubscriptionCanceledEvent`  | `NotificationService` | Notifica usuario da data final           |
+| Saida   | `PaymentFailedEvent`         | `NotificationService` | Alerta usuario sobre falha               |
 
 ---
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos no request |
-| 400 | `/errors/invalid-plan` | Plano nao reconhecido |
-| 402 | `/errors/payment-required` | Pagamento falhou ou e necessario |
-| 403 | `/errors/premium-required` | Funcionalidade requer premium (via @RequiresPremium) |
-| 404 | `/errors/subscription-not-found` | Usuario nao tem assinatura |
-| 409 | `/errors/subscription-already-active` | Ja tem assinatura ativa |
-| 409 | `/errors/trial-already-used` | Trial ja foi utilizado (RN45) |
-| 409 | `/errors/cannot-reactivate` | Assinatura ja expirou, nao pode reativar |
-| 422 | `/errors/cannot-cancel` | Assinatura nao esta em status cancelavel |
-| 500 | `/errors/stripe-error` | Erro na comunicacao com Stripe |
-| 502 | `/errors/stripe-unavailable` | Stripe indisponivel |
+| HTTP | Tipo RFC 7807                         | Cenario                                              |
+| ---- | ------------------------------------- | ---------------------------------------------------- |
+| 400  | `/errors/validation`                  | Campos invalidos no request                          |
+| 400  | `/errors/invalid-plan`                | Plano nao reconhecido                                |
+| 402  | `/errors/payment-required`            | Pagamento falhou ou e necessario                     |
+| 403  | `/errors/premium-required`            | Funcionalidade requer premium (via @RequiresPremium) |
+| 404  | `/errors/subscription-not-found`      | Usuario nao tem assinatura                           |
+| 409  | `/errors/subscription-already-active` | Ja tem assinatura ativa                              |
+| 409  | `/errors/trial-already-used`          | Trial ja foi utilizado (RN45)                        |
+| 409  | `/errors/cannot-reactivate`           | Assinatura ja expirou, nao pode reativar             |
+| 422  | `/errors/cannot-cancel`               | Assinatura nao esta em status cancelavel             |
+| 500  | `/errors/stripe-error`                | Erro na comunicacao com Stripe                       |
+| 502  | `/errors/stripe-unavailable`          | Stripe indisponivel                                  |

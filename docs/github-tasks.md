@@ -9,24 +9,24 @@ Organizacao: issues granulares agrupadas por milestone (modulo).
 
 Criar as seguintes labels antes de criar as issues:
 
-| Label | Cor | Descricao |
-|-------|-----|-----------|
-| `backend` | `#0E8A16` | Trabalho no Spring Boot / Java |
-| `frontend` | `#1D76DB` | Trabalho no Next.js / React |
-| `database` | `#FBCA04` | Migrations, schema, indices |
-| `infra` | `#D93F0B` | Docker, CI/CD, deploy, config |
-| `docs` | `#C5DEF5` | Documentacao |
-| `auth` | `#B60205` | Modulo de autenticacao |
-| `profile` | `#E99695` | Modulo de perfil |
-| `static` | `#0075CA` | Modulo de statics |
-| `matching` | `#7057FF` | Modulo de matching |
-| `calendar` | `#008672` | Modulo de calendario |
-| `reputation` | `#D876E3` | Modulo de reputacao |
-| `chat` | `#F9D0C4` | Modulo de chat |
-| `premium` | `#FEF2C0` | Modulo premium/pagamentos |
-| `priority:high` | `#B60205` | Prioridade alta |
-| `priority:medium` | `#FBCA04` | Prioridade media |
-| `priority:low` | `#0E8A16` | Prioridade baixa |
+| Label             | Cor       | Descricao                      |
+| ----------------- | --------- | ------------------------------ |
+| `backend`         | `#0E8A16` | Trabalho no Spring Boot / Java |
+| `frontend`        | `#1D76DB` | Trabalho no Next.js / React    |
+| `database`        | `#FBCA04` | Migrations, schema, indices    |
+| `infra`           | `#D93F0B` | Docker, CI/CD, deploy, config  |
+| `docs`            | `#C5DEF5` | Documentacao                   |
+| `auth`            | `#B60205` | Modulo de autenticacao         |
+| `profile`         | `#E99695` | Modulo de perfil               |
+| `static`          | `#0075CA` | Modulo de statics              |
+| `matching`        | `#7057FF` | Modulo de matching             |
+| `calendar`        | `#008672` | Modulo de calendario           |
+| `reputation`      | `#D876E3` | Modulo de reputacao            |
+| `chat`            | `#F9D0C4` | Modulo de chat                 |
+| `premium`         | `#FEF2C0` | Modulo premium/pagamentos      |
+| `priority:high`   | `#B60205` | Prioridade alta                |
+| `priority:medium` | `#FBCA04` | Prioridade media               |
+| `priority:low`    | `#0E8A16` | Prioridade baixa               |
 
 ---
 
@@ -40,6 +40,7 @@ Criar as seguintes labels antes de criar as issues:
 Configurar o monorepo com Turborepo 2.x e npm workspaces.
 
 **Checklist:**
+
 - [ ] Criar `package.json` root com workspaces
 - [ ] Criar `turbo.json` com pipelines (dev, build, lint, test)
 - [ ] Criar `apps/web/` (Next.js 15) com `create-next-app`
@@ -59,6 +60,7 @@ Configurar o monorepo com Turborepo 2.x e npm workspaces.
 Criar `docker-compose.yml` para ambiente de desenvolvimento local.
 
 **Checklist:**
+
 - [ ] PostgreSQL 16 Alpine com volume persistente
 - [ ] Redis 7 Alpine
 - [ ] Container do backend (Spring Boot) com hot reload
@@ -77,6 +79,7 @@ Criar `docker-compose.yml` para ambiente de desenvolvimento local.
 Criar Dockerfiles multi-stage otimizados para producao.
 
 **Checklist:**
+
 - [ ] `apps/api/Dockerfile` (temurin:21-jdk build -> temurin:21-jre runtime)
 - [ ] `apps/web/Dockerfile` (node:22 build -> standalone output)
 - [ ] Nginx config para reverse proxy
@@ -92,6 +95,7 @@ Criar Dockerfiles multi-stage otimizados para producao.
 Pipeline CI com lint, testes e build.
 
 **Checklist:**
+
 - [ ] Workflow `pr-validation.yml` (lint, test frontend, test backend, build)
 - [ ] Workflow `staging-deploy.yml` (build Docker, push registry, deploy)
 - [ ] Workflow `production-deploy.yml` (E2E, build prod images, deploy)
@@ -107,6 +111,7 @@ Pipeline CI com lint, testes e build.
 Configuracoes compartilhadas via packages do monorepo.
 
 **Checklist:**
+
 - [ ] `packages/eslint-config/` com regras base
 - [ ] `packages/typescript-config/` com tsconfig base
 - [ ] `apps/web` estende as configs compartilhadas
@@ -128,6 +133,7 @@ Configuracoes compartilhadas via packages do monorepo.
 Criar a migration Flyway `V1__create_users_and_characters.sql`.
 
 **Checklist:**
+
 - [ ] Tabela `users` com todos os campos (email, password_hash, locale, is_premium, oauth, lockout, soft delete)
 - [ ] Tabela `characters` com campos e FK para users
 - [ ] Tabela `character_jobs` com FK para characters e constraint unique (character_id, job_name)
@@ -145,6 +151,7 @@ Criar a migration Flyway `V1__create_users_and_characters.sql`.
 Implementar as entidades JPA com anotacoes, relacionamentos e enum Role.
 
 **Checklist:**
+
 - [ ] `AuditableEntity` (@MappedSuperclass com createdAt/updatedAt)
 - [ ] `User` entity com todos os campos e relacionamentos
 - [ ] `Character` entity com FK para User e lista de jobs
@@ -163,6 +170,7 @@ Implementar as entidades JPA com anotacoes, relacionamentos e enum Role.
 Implementar interfaces Spring Data JPA com queries customizadas.
 
 **Checklist:**
+
 - [ ] `UserRepository` (findByEmail, findByOAuthProvider, findActiveById)
 - [ ] `CharacterRepository` (findByUserId, findByLodestoneId, findMainByUserId, findLFSByDataCenter)
 - [ ] `CharacterJobRepository` (findByCharacterId, findMainByCharacterId)
@@ -178,6 +186,7 @@ Implementar interfaces Spring Data JPA com queries customizadas.
 Implementar infraestrutura JWT completa.
 
 **Checklist:**
+
 - [ ] `JwtProperties` (@ConfigurationProperties com secret, accessExpiration, refreshExpiration)
 - [ ] `JwtTokenProvider` (generateAccessToken, generateRefreshToken, getUserIdFromToken, validateToken)
 - [ ] `JwtAuthenticationFilter` (OncePerRequestFilter - extrai token do header, valida, seta SecurityContext)
@@ -194,6 +203,7 @@ Implementar infraestrutura JWT completa.
 Configuracao central de seguranca com JWT.
 
 **Checklist:**
+
 - [ ] `SecurityConfig` com HttpSecurity configurado
 - [ ] Endpoints publicos: register, login, refresh, forgot-password, reset-password, perfis publicos
 - [ ] Endpoints autenticados: todos os demais
@@ -212,6 +222,7 @@ Configuracao central de seguranca com JWT.
 Servico de autenticacao completo.
 
 **Checklist:**
+
 - [ ] `register()` -- validacao de email unico, hash BCrypt, evento UserRegisteredEvent
 - [ ] `login()` -- verificacao de lockout (5 tentativas = 15min), validacao de senha, geracao de tokens
 - [ ] `refresh()` -- refresh token rotation, geracao de novo par de tokens
@@ -230,6 +241,7 @@ Servico de autenticacao completo.
 Controller REST para endpoints de autenticacao.
 
 **Checklist:**
+
 - [ ] POST `/api/v1/auth/register` -> 201
 - [ ] POST `/api/v1/auth/login` -> 200 (seta cookie httpOnly com refresh token)
 - [ ] POST `/api/v1/auth/refresh` -> 200 (le cookie, rotaciona token)
@@ -250,6 +262,7 @@ Controller REST para endpoints de autenticacao.
 Autenticacao via provedores OAuth 2.0.
 
 **Checklist:**
+
 - [ ] `CustomOAuth2UserService` (cria/vincula usuario)
 - [ ] `OAuth2SuccessHandler` (gera JWT e redireciona para frontend)
 - [ ] Configuracao no application.yml (client-id, client-secret, redirect-uri)
@@ -266,6 +279,7 @@ Autenticacao via provedores OAuth 2.0.
 CRUD de perfil do usuario.
 
 **Checklist:**
+
 - [ ] `ProfileService.getMyProfile()` -- perfil completo com characters e jobs
 - [ ] `ProfileService.getPublicProfile()` -- perfil publico com cache Redis (5min)
 - [ ] `ProfileService.updateProfile()` -- atualiza locale, bio, availability; invalida cache
@@ -284,6 +298,7 @@ CRUD de perfil do usuario.
 CRUD de personagens com logica de main character.
 
 **Checklist:**
+
 - [ ] `createCharacter()` -- logica de isMain (primeiro = main automatico)
 - [ ] `updateCharacter()` -- verificacao de ownership
 - [ ] `deleteCharacter()` -- nao pode ser o unico, promove outro a main se necessario
@@ -302,6 +317,7 @@ CRUD de personagens com logica de main character.
 Integracao com XIVAPI para verificacao de personagens.
 
 **Checklist:**
+
 - [ ] `LodestoneClient` (WebFlux) -- buscar perfil por nome+server, buscar por lodestoneId
 - [ ] `LodestoneMapper` -- mapear response da API para dados do character
 - [ ] `CharacterService.startVerification()` -- gera codigo, armazena no Redis, retorna instrucoes
@@ -320,6 +336,7 @@ Integracao com XIVAPI para verificacao de personagens.
 Configuracao do Redis para cache, sessoes JWT e rate limiting.
 
 **Checklist:**
+
 - [ ] `RedisConfig` (RedisTemplate, CacheManager)
 - [ ] Configuracao de cache com TTLs por tipo (profiles 5min, lodestone 1h)
 - [ ] Rate limiting para login (sliding window counter)
@@ -336,6 +353,7 @@ Configuracao do Redis para cache, sessoes JWT e rate limiting.
 Handler global de excecoes com formato RFC 7807 Problem Details.
 
 **Checklist:**
+
 - [ ] `GlobalExceptionHandler` (@RestControllerAdvice)
 - [ ] `BusinessException` (base para excecoes de negocio)
 - [ ] `ResourceNotFoundException` (404)
@@ -353,6 +371,7 @@ Handler global de excecoes com formato RFC 7807 Problem Details.
 Implementar paginas de autenticacao com formularios validados.
 
 **Checklist:**
+
 - [ ] `/[locale]/(auth)/login/page.tsx` -- formulario de login + botoes OAuth
 - [ ] `/[locale]/(auth)/register/page.tsx` -- formulario de registro
 - [ ] `/[locale]/(auth)/forgot-password/page.tsx` -- solicitar reset
@@ -371,6 +390,7 @@ Implementar paginas de autenticacao com formularios validados.
 Gerenciamento de estado de autenticacao e cliente HTTP.
 
 **Checklist:**
+
 - [ ] `stores/auth-store.ts` (Zustand -- accessToken, user, isAuthenticated, setAuth, clearAuth)
 - [ ] `lib/api.ts` (Axios instance com base URL)
 - [ ] Request interceptor: injeta Authorization Bearer header
@@ -387,6 +407,7 @@ Gerenciamento de estado de autenticacao e cliente HTTP.
 Paginas de perfil, edicao e gerenciamento de characters/jobs.
 
 **Checklist:**
+
 - [ ] `/[locale]/(main)/profile/page.tsx` -- meu perfil
 - [ ] `/[locale]/(main)/profile/edit/page.tsx` -- editar perfil
 - [ ] `/[locale]/(main)/profile/characters/page.tsx` -- CRUD de characters e jobs
@@ -405,6 +426,7 @@ Paginas de perfil, edicao e gerenciamento de characters/jobs.
 Setup de internacionalizacao com next-intl.
 
 **Checklist:**
+
 - [ ] Instalar e configurar `next-intl` com App Router
 - [ ] Middleware de deteccao de locale e redirect
 - [ ] Segmento `[locale]` no App Router
@@ -422,6 +444,7 @@ Setup de internacionalizacao com next-intl.
 Layout compartilhado e middleware de protecao de rotas.
 
 **Checklist:**
+
 - [ ] `app/[locale]/layout.tsx` -- root layout com providers (Zustand, TanStack Query, next-intl)
 - [ ] `app/[locale]/(auth)/layout.tsx` -- layout de autenticacao (centralizado, sem sidebar)
 - [ ] `app/[locale]/(main)/layout.tsx` -- layout autenticado (com header e sidebar)
@@ -445,6 +468,7 @@ Layout compartilhado e middleware de protecao de rotas.
 Migration Flyway para tabelas de assinaturas e pagamentos.
 
 **Checklist:**
+
 - [ ] Tabela `subscriptions` com todos os campos e FK para users
 - [ ] Tabela `payment_history` com FK para subscriptions
 - [ ] Indices conforme feature doc
@@ -457,6 +481,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] `Subscription` entity
 - [ ] `PaymentHistory` entity
 - [ ] Enums: `SubscriptionPlan`, `SubscriptionStatus`, `PaymentStatus`
@@ -469,6 +494,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] Adicionar `stripe-java` ao build.gradle.kts
 - [ ] `StripeService` (getOrCreateCustomer, createCheckoutSession, cancelSubscription, reactivateSubscription, constructWebhookEvent)
 - [ ] Configuracao de chaves Stripe no application.yml
@@ -481,6 +507,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] `getAvailablePlans()` -- lista planos com precos
 - [ ] `createSubscription()` -- cria checkout session no Stripe
 - [ ] `getMySubscription()` -- retorna assinatura atual
@@ -498,6 +525,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] POST `/api/v1/webhooks/stripe` -- recebe e verifica webhooks
 - [ ] Handler `checkout.session.completed` -- cria Subscription, ativa premium
 - [ ] Handler `invoice.paid` -- renova periodo, registra pagamento
@@ -513,6 +541,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] Annotation `@RequiresPremium`
 - [ ] `PremiumAspect` (@Around) -- verifica isPremium, lanca PremiumRequiredException se false
 - [ ] Testes
@@ -524,6 +553,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] DTOs: CreateSubscriptionRequest, PlanResponse, SubscriptionResponse, CheckoutSessionResponse, PaymentHistoryResponse
 - [ ] SubscriptionMapper (MapStruct)
 - [ ] SubscriptionController com todos os endpoints
@@ -536,6 +566,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `premium`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Quartz job diario as 01:00 UTC
 - [ ] Expirar assinaturas ACTIVE/TRIALING vencidas
 - [ ] Expirar PAST_DUE com mais de 7 dias
@@ -549,6 +580,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `frontend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/[locale]/(main)/premium/page.tsx`
 - [ ] Componentes: PlanComparison, PlanCard, PriceDisplay, FeatureList, SubscribeButton
 - [ ] Hook `usePlans()`, `useCreateSubscription()`
@@ -561,6 +593,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `frontend`, `premium`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/[locale]/(main)/account/subscription/page.tsx`
 - [ ] Componentes: SubscriptionStatus, CancelButton, ReactivateButton, PaymentHistoryTable
 - [ ] `/[locale]/(main)/account/settings/page.tsx`
@@ -579,6 +612,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `database`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `V2__create_statics_and_memberships.sql` (statics, static_memberships)
 - [ ] `V3__create_vacancies_applications_invitations.sql` (static_vacancies, applications, invitations)
 - [ ] Extensao `pg_trgm` para busca textual por nome de static
@@ -592,6 +626,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `Static` entity com enums (StaticStatus)
 - [ ] `StaticMembership` entity
 - [ ] `StaticVacancy` entity com JSONB fields
@@ -606,6 +641,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `StaticRepository` com findActiveById, findByMemberUserId, countByLeaderUserId
 - [ ] `StaticSpecifications` para busca dinamica (filtros por DC, role, language, status, nome)
 - [ ] `StaticMembershipRepository` (findActiveByStaticId, findLeaderByStaticId, countActive)
@@ -620,6 +656,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `createStatic()` -- verificacao de limite free/premium (RN10), cria membership de lider
 - [ ] `updateStatic()` -- verificacao de lideranca
 - [ ] `dissolveStatic()` -- soft delete, notificacao de membros (RN12)
@@ -636,6 +673,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `createVacancy()` -- verificacao de lideranca, espaco na static
 - [ ] `updateVacancy()`, `closeVacancy()`
 - [ ] `getVacancies()`
@@ -649,6 +687,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `apply()` -- vaga aberta, character verificado, sem duplicata, nao membro (RN14)
 - [ ] `acceptApplication()` -- cria membership, fecha vaga, rejeita demais candidaturas
 - [ ] `rejectApplication()`, `withdrawApplication()`
@@ -663,6 +702,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `invite()` -- verificacao de lideranca, character verificado, sem duplicata (RN15)
 - [ ] `acceptInvitation()` -- cria membership, fecha vaga se aplicavel
 - [ ] `rejectInvitation()`, `cancelInvitation()`
@@ -680,6 +720,7 @@ Migration Flyway para tabelas de assinaturas e pagamentos.
 Busca com filtros dinamicos via Specifications.
 
 **Checklist:**
+
 - [ ] `searchStatics()` -- filtros por DC, server, role, language, contentScope, status, query
 - [ ] `searchPlayers()` -- filtros por DC, role, job, parseTier, lookingForStatic
 - [ ] SearchController com GET `/search/statics` e `/search/players`
@@ -693,6 +734,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `backend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `StaticController` -- CRUD, membros, transferencia, leave
 - [ ] `VacancyController` -- CRUD de vagas
 - [ ] `ApplicationController` -- aplicar, aceitar, rejeitar, cancelar, listar
@@ -708,6 +750,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `backend`, `static`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Quartz job diario as 00:00 UTC
 - [ ] Expirar candidaturas com mais de 14 dias (RN17)
 - [ ] Expirar convites com mais de 7 dias (RN18)
@@ -721,6 +764,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `frontend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/statics` -- listar minhas statics
 - [ ] `/statics/create` -- formulario de criacao com Zod
 - [ ] `/statics/[id]` -- pagina publica da static (SSR + ISR)
@@ -736,6 +780,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `frontend`, `static`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/search/statics` -- busca com filtros e paginacao (URL state com nuqs)
 - [ ] `/search/players` -- busca com filtros e paginacao
 - [ ] Componentes: SearchFilters, StaticResultList, PlayerResultList, Pagination
@@ -754,6 +799,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `database`, `matching`, `priority:high`
 
 **Checklist:**
+
 - [ ] Tabelas com campos JSONB para criteria e weights
 - [ ] Indices para busca por character, status e score
 - [ ] Validar migration
@@ -765,6 +811,7 @@ Busca com filtros dinamicos via Specifications.
 **Labels:** `backend`, `matching`, `priority:high`
 
 **Checklist:**
+
 - [ ] `MatchSuggestion` entity com enums (MatchTargetType, MatchStatus)
 - [ ] `MatchPreference` entity com campos JSONB
 - [ ] Repositories com queries customizadas
@@ -779,6 +826,7 @@ Busca com filtros dinamicos via Specifications.
 Implementar o algoritmo de matching com 7 criterios ponderados.
 
 **Checklist:**
+
 - [ ] Criterio 1: Role/Job (25%) -- match exato, match de role, sem match
 - [ ] Criterio 2: Schedule (25%) -- calculo de sobreposicao horaria
 - [ ] Criterio 3: Data Center (15%) -- mesmo server, mesmo DC, mesma regiao (RN23)
@@ -796,6 +844,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `matching`, `priority:high`
 
 **Checklist:**
+
 - [ ] `getMatches()` -- limite free 5/semana (RN20), threshold 40% (RN22)
 - [ ] `getMatch()`, `dismissMatch()`
 - [ ] `getPreferences()`, `updatePreferences()` -- pesos devem somar 100 (RN21)
@@ -811,6 +860,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `matching`, `priority:high`
 
 **Checklist:**
+
 - [ ] Controller com endpoints GET/PUT /matches, GET/PUT /matches/preferences
 - [ ] DTOs: MatchSuggestionResponse, MatchCriteriaBreakdown, MatchPreferencesResponse
 - [ ] MatchMapper (MapStruct)
@@ -823,6 +873,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `matching`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/matches` -- lista de sugestoes com score e preview
 - [ ] `/matches/preferences` -- editor de pesos (sliders somam 100), filtros, blacklist
 - [ ] Componentes: MatchCard, CompatibilityScore, CompatibilityBreakdown (grafico radar), PreferencesForm
@@ -842,6 +893,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `database`, `calendar`, `priority:high`
 
 **Checklist:**
+
 - [ ] Tabelas com suporte a eventos recorrentes (recurrence_rule) e PUG (is_public)
 - [ ] Indices para busca por static, datas e PUGs publicos
 - [ ] Validar migration
@@ -853,6 +905,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `calendar`, `priority:high`
 
 **Checklist:**
+
 - [ ] `RaidEvent` entity com enum AttendanceStatus
 - [ ] `Attendance` entity com constraint unique (event_id, character_id)
 - [ ] Repositories com queries para static events, public events, user calendar, reminders
@@ -866,6 +919,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `calendar`, `priority:high`
 
 **Checklist:**
+
 - [ ] `createStaticEvent()` -- verificacao de lideranca, cria attendances TENTATIVE (RN24)
 - [ ] `createPugEvent()` -- @RequiresPremium, maxParticipants e dataCenter obrigatorios (RN26)
 - [ ] `updateEvent()`, `cancelEvent()`
@@ -884,6 +938,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `calendar`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `ICalService.generateIcal()` -- formato RFC 5545 (VCALENDAR, VEVENT, RRULE, VALARM)
 - [ ] GET `/calendar/me/ical` -- @RequiresPremium, retorna text/calendar
 - [ ] Testes
@@ -895,6 +950,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `calendar`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Job a cada 15 minutos
 - [ ] Lembrete 24h antes e 1h antes (RN28)
 - [ ] Evitar envio duplicado (verificar notificacoes ja enviadas)
@@ -908,6 +964,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `calendar`, `priority:high`
 
 **Checklist:**
+
 - [ ] Todos os endpoints REST conforme feature doc
 - [ ] Testes de integracao
 
@@ -918,6 +975,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `calendar`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/calendar` -- FullCalendar wrapper com modos mes/semana/dia
 - [ ] `/calendar/events/[id]` -- detalhe do evento com painel de presencas
 - [ ] `/calendar/events/create` -- formulario com DateTimePicker, RecurrenceEditor, PugOptions
@@ -939,6 +997,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `database`, `reputation`, `priority:high`
 
 **Checklist:**
+
 - [ ] Tabelas com CHECK constraints (scores 1-5) e UNIQUEs
 - [ ] Indices para busca por target, reviewer e reports pendentes
 - [ ] Validar migration
@@ -950,6 +1009,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `reputation`, `priority:high`
 
 **Checklist:**
+
 - [ ] `Review` entity com enums (ReviewTargetType) e soft delete
 - [ ] `ReviewReport` entity com enums (ReportReason, ReportStatus)
 - [ ] Repositories com queries para calcular media, contar reviews, buscar por target
@@ -962,6 +1022,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `reputation`, `priority:high`
 
 **Checklist:**
+
 - [ ] `CoexistenceValidator` -- valida 2 semanas de convivencia na mesma static (RN32)
 - [ ] `createReview()` -- character verificado, mesma static, 2 semanas, sem auto-review, sem duplicata (RN30-RN33)
 - [ ] `updateReview()` -- apenas autor
@@ -977,6 +1038,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `reputation`, `priority:high`
 
 **Checklist:**
+
 - [ ] `getReputation()` -- media ponderada com peso temporal (RN35): peso = 1 / (1 + dias/180)
 - [ ] Breakdown por criterio (pontualidade, comunicacao, performance, atitude, comprometimento)
 - [ ] Calculo de tendencia (comparacao ultimo mes vs anterior)
@@ -991,6 +1053,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `reputation`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `reportReview()` -- sem auto-report, sem duplicata, alerta se 3+ reports (RN34)
 - [ ] Controller com todos os endpoints (publicos para GET, autenticados para POST/PUT)
 - [ ] Testes
@@ -1002,6 +1065,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `reputation`, `priority:high`
 
 **Checklist:**
+
 - [ ] Componentes: ReputationCard (score circular), ReputationChart (radar Recharts), ReviewList, ReviewCard, ReviewForm (5 sliders), ReportDialog
 - [ ] Integrar na pagina de perfil (`/users/[id]`) e pagina de static (`/statics/[id]`)
 - [ ] Hooks: useReputation, usePlayerReviews, useStaticReviews, useCreateReview, useReportReview
@@ -1020,6 +1084,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `database`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] Tabelas com UNIQUEs e suporte a soft delete de mensagens
 - [ ] Indices para busca por room, user, sent_at
 - [ ] Validar migration
@@ -1031,6 +1096,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] `ChatRoom` entity com enum ChatRoomType (DM, STATIC)
 - [ ] `ChatRoomMember`, `Message`, `MessageRead` entities
 - [ ] Repositories com queries para rooms do usuario, DM entre dois users, mensagens paginadas, unread count
@@ -1043,6 +1109,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `infra`, `priority:high`
 
 **Checklist:**
+
 - [ ] `WebSocketConfig` -- registrar endpoint `/ws`, configurar STOMP broker
 - [ ] `ChannelInterceptor` -- validar JWT no CONNECT frame
 - [ ] Configurar origins permitidas para WebSocket
@@ -1055,6 +1122,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] `getMyChatRooms()` -- lista com ultimo mensagem e unread count
 - [ ] `createDm()` -- verificacao de bloqueio (RN41), limite free 20 DMs (RN39), reutilizar DM existente
 - [ ] `createStaticChatRoom()` -- automatico ao criar static (RN38)
@@ -1073,6 +1141,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] `@MessageMapping("/chat.send")` -- enviar mensagem
 - [ ] `@MessageMapping("/chat.typing")` -- indicador de digitacao
 - [ ] `@MessageMapping("/chat.read")` -- marcar como lido
@@ -1086,6 +1155,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `infra`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `ChatRedisConfig` -- RedisMessageListenerContainer
 - [ ] `ChatRedisPublisher` -- publica em `ws:chat:{roomId}`
 - [ ] `ChatRedisSubscriber` -- recebe e distribui para clients locais
@@ -1098,6 +1168,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `updatePresence()` -- heartbeat no Redis com TTL 5min
 - [ ] `isOnline()`, `getRoomPresence()`, `removePresence()`
 - [ ] Hook no connect/disconnect do WebSocket
@@ -1110,6 +1181,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] GET `/chats` -- listar conversas
 - [ ] POST `/chats/dm` -- iniciar DM
 - [ ] GET `/chats/{id}/messages` -- historico
@@ -1123,6 +1195,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `chat`, `priority:high`
 
 **Checklist:**
+
 - [ ] `/chat` -- layout split (lista + conversa)
 - [ ] `/chat/[id]` -- conversa ativa com scroll infinito
 - [ ] Componentes: ChatRoomList, ChatRoomItem, MessageList, MessageBubble, TypingIndicator, MessageInput
@@ -1145,6 +1218,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `database`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `V9__create_notifications.sql`
 - [ ] `V10__create_user_blocks.sql`
 - [ ] `V11__create_indexes.sql` (indices adicionais globais)
@@ -1156,6 +1230,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Entity `Notification`
 - [ ] Consumir todos os eventos de dominio e gerar notificacoes in-app
 - [ ] Envio via WebSocket (`/user/queue/notifications`)
@@ -1169,6 +1244,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Block/Unblock usuario
 - [ ] Integrar com ChatService (desativar DMs) e MatchingService (excluir de matches)
 - [ ] Controller: POST /users/block, DELETE /users/block/{userId}, GET /users/blocked
@@ -1180,6 +1256,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Componente NotificationBell no header com badge de contagem
 - [ ] Dropdown de notificacoes com lista e marcar como lida
 - [ ] Zustand store `notification-store.ts`
@@ -1193,6 +1270,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `priority:medium`
 
 **Checklist:**
+
 - [ ] `/dashboard` -- pagina inicial apos login
 - [ ] Resumo de: statics ativas, proximos eventos, candidaturas pendentes, novos matches, notificacoes
 - [ ] Widgets: ProximoEventoCard, MatchesPendentesCard, CandidaturasPendentesCard
@@ -1204,6 +1282,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `priority:low`
 
 **Checklist:**
+
 - [ ] `/[locale]/page.tsx` -- landing page estatica
 - [ ] Hero section, Features section, How it works, Pricing, FAQ
 - [ ] SEO meta tags
@@ -1220,6 +1299,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `priority:high`
 
 **Checklist:**
+
 - [ ] AuthServiceTest, ProfileServiceTest, CharacterServiceTest
 - [ ] StaticServiceTest, VacancyServiceTest, ApplicationServiceTest, InvitationServiceTest
 - [ ] MatchCalculationServiceTest, MatchingServiceTest
@@ -1236,6 +1316,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `backend`, `priority:high`
 
 **Checklist:**
+
 - [ ] AbstractIntegrationTest com TestContainers (PostgreSQL + Redis)
 - [ ] AuthControllerIntegrationTest (fluxo completo de registro/login/refresh)
 - [ ] StaticControllerIntegrationTest (criar static, vagas, candidaturas)
@@ -1249,6 +1330,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `priority:high`
 
 **Checklist:**
+
 - [ ] Testes de componentes: LoginForm, RegisterForm, StaticCard, MatchCard, ReviewForm
 - [ ] Testes de hooks: useAuth, useWebSocket
 - [ ] Testes de stores: auth-store, chat-store
@@ -1263,6 +1345,7 @@ Implementar o algoritmo de matching com 7 criterios ponderados.
 **Labels:** `frontend`, `priority:medium`
 
 **Checklist:**
+
 - [ ] Fluxo de autenticacao (register -> verify -> login -> logout)
 - [ ] Fluxo de static (criar -> publicar vaga -> candidatar -> aceitar)
 - [ ] Fluxo de chat (criar DM -> enviar mensagem)

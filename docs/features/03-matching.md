@@ -6,10 +6,10 @@ O modulo de Matching implementa o sistema de recomendacao automatica que conecta
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN19, RN20, RN21, RN22, RN23 |
-| **Casos de Uso** | UC12 (Ver Sugestoes de Match), UC13 (Configurar Preferencias de Match), UC14 (Interagir com Sugestao) |
+| Tipo                  | IDs                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Regras de Negocio** | RN19, RN20, RN21, RN22, RN23                                                                          |
+| **Casos de Uso**      | UC12 (Ver Sugestoes de Match), UC13 (Configurar Preferencias de Match), UC14 (Interagir com Sugestao) |
 
 ---
 
@@ -393,20 +393,20 @@ public class MatchScheduler {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `MatchPreferencesUpdatedEvent` | `MatchingService.updatePreferences` | characterId | `MatchScheduler` (pode triggerar recalculo individual) |
-| `MatchingCompletedEvent` | `MatchScheduler` | totalSuggestions | `NotificationService` (notifica usuarios com novas sugestoes) |
-| `NewMatchSuggestionEvent` | `MatchScheduler` (por usuario) | userId, matchCount | `NotificationService` (push notification) |
+| Evento                         | Publicado por                       | Dados              | Consumido por                                                 |
+| ------------------------------ | ----------------------------------- | ------------------ | ------------------------------------------------------------- |
+| `MatchPreferencesUpdatedEvent` | `MatchingService.updatePreferences` | characterId        | `MatchScheduler` (pode triggerar recalculo individual)        |
+| `MatchingCompletedEvent`       | `MatchScheduler`                    | totalSuggestions   | `NotificationService` (notifica usuarios com novas sugestoes) |
+| `NewMatchSuggestionEvent`      | `MatchScheduler` (por usuario)      | userId, matchCount | `NotificationService` (push notification)                     |
 
 #### Eventos Consumidos
 
-| Evento | Origem | Acao |
-|--------|--------|------|
+| Evento                   | Origem             | Acao                                                |
+| ------------------------ | ------------------ | --------------------------------------------------- |
 | `CharacterVerifiedEvent` | `CharacterService` | Ativa matching para o character (calcula sugestoes) |
-| `ProfileUpdatedEvent` | `ProfileService` | Recalcula matches do character |
-| `VacancyCreatedEvent` | `VacancyService` | Recalcula matches para a static |
-| `StaticDissolvedEvent` | `StaticService` | Remove sugestoes da static dissolvida |
+| `ProfileUpdatedEvent`    | `ProfileService`   | Recalcula matches do character                      |
+| `VacancyCreatedEvent`    | `VacancyService`   | Recalcula matches para a static                     |
+| `StaticDissolvedEvent`   | `StaticService`    | Remove sugestoes da static dissolvida               |
 
 ### 2.5 Controller
 
@@ -415,13 +415,13 @@ public class MatchScheduler {
 @RequestMapping("/api/v1/matches")
 ```
 
-| Metodo | Path | Descricao | Auth | Response Body | Status |
-|--------|------|-----------|------|---------------|--------|
-| GET | `/` | Minhas sugestoes | Sim | `Page<MatchSuggestionResponse>` | 200 |
-| GET | `/{id}` | Detalhe do match | Sim | `MatchSuggestionResponse` | 200 |
-| PUT | `/{id}/dismiss` | Descartar match | Sim | - | 204 |
-| GET | `/preferences` | Minhas preferencias | Sim | `MatchPreferencesResponse` | 200 |
-| PUT | `/preferences` | Atualizar preferencias | Sim | `MatchPreferencesResponse` | 200 |
+| Metodo | Path            | Descricao              | Auth | Response Body                   | Status |
+| ------ | --------------- | ---------------------- | ---- | ------------------------------- | ------ |
+| GET    | `/`             | Minhas sugestoes       | Sim  | `Page<MatchSuggestionResponse>` | 200    |
+| GET    | `/{id}`         | Detalhe do match       | Sim  | `MatchSuggestionResponse`       | 200    |
+| PUT    | `/{id}/dismiss` | Descartar match        | Sim  | -                               | 204    |
+| GET    | `/preferences`  | Minhas preferencias    | Sim  | `MatchPreferencesResponse`      | 200    |
+| PUT    | `/preferences`  | Atualizar preferencias | Sim  | `MatchPreferencesResponse`      | 200    |
 
 **Exemplos de Request/Response:**
 
@@ -550,28 +550,28 @@ public class MatchScheduler {
 
 ### 2.7 Validacoes
 
-| Campo | Regra | Contexto |
-|-------|-------|----------|
-| `criteriaWeights` | Valores devem somar exatamente 100 | UpdateMatchPreferencesRequest |
-| `criteriaWeights` (cada valor) | Entre 0 e 100, inteiro | UpdateMatchPreferencesRequest |
-| Character verificado | Matching so funciona com character verificado (RN02) | MatchingService |
-| Limite free | Max 5 sugestoes/semana para free (RN20) | MatchingService.getMatches |
-| Threshold 40% | Sugestoes abaixo de 40% nao sao exibidas (RN22) | MatchCalculationService |
-| Blacklist | Statics/characters na blacklist nao aparecem | MatchCalculationService |
+| Campo                          | Regra                                                | Contexto                      |
+| ------------------------------ | ---------------------------------------------------- | ----------------------------- |
+| `criteriaWeights`              | Valores devem somar exatamente 100                   | UpdateMatchPreferencesRequest |
+| `criteriaWeights` (cada valor) | Entre 0 e 100, inteiro                               | UpdateMatchPreferencesRequest |
+| Character verificado           | Matching so funciona com character verificado (RN02) | MatchingService               |
+| Limite free                    | Max 5 sugestoes/semana para free (RN20)              | MatchingService.getMatches    |
+| Threshold 40%                  | Sugestoes abaixo de 40% nao sao exibidas (RN22)      | MatchCalculationService       |
+| Blacklist                      | Statics/characters na blacklist nao aparecem         | MatchCalculationService       |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `match:{characterId}` | String (JSON) | 24 horas | Cache das sugestoes de match calculadas | Recalculo diario, dismiss, preferencias atualizadas |
-| `count:matches:{userId}:{week}` | Counter | 7 dias | Contador de sugestoes visualizadas (limite free - RN20) | Reset semanal automatico |
-| `lock:matching:run` | String | 10 min | Lock distribuido para evitar execucao concorrente do job | Liberado apos conclusao ou timeout |
-| `match:preferences:{characterId}` | String (JSON) | 1 hora | Cache das preferencias | Atualizacao de preferencias |
+| Chave                             | Tipo          | TTL      | Descricao                                                | Invalidacao                                         |
+| --------------------------------- | ------------- | -------- | -------------------------------------------------------- | --------------------------------------------------- |
+| `match:{characterId}`             | String (JSON) | 24 horas | Cache das sugestoes de match calculadas                  | Recalculo diario, dismiss, preferencias atualizadas |
+| `count:matches:{userId}:{week}`   | Counter       | 7 dias   | Contador de sugestoes visualizadas (limite free - RN20)  | Reset semanal automatico                            |
+| `lock:matching:run`               | String        | 10 min   | Lock distribuido para evitar execucao concorrente do job | Liberado apos conclusao ou timeout                  |
+| `match:preferences:{characterId}` | String (JSON) | 1 hora   | Cache das preferencias                                   | Atualizacao de preferencias                         |
 
 ### 2.9 Jobs Agendados
 
-| Job | Frequencia | Descricao |
-|-----|-----------|-----------|
+| Job              | Frequencia         | Descricao                                                                                                                                                                      |
+| ---------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `MatchScheduler` | Diario (03:00 UTC) | Recalcula sugestoes de match para todos os jogadores LFS e statics com vagas. Usa lock distribuido. Prioriza matches no mesmo Data Center (RN23). Filtra abaixo de 40% (RN22). |
 
 ---
@@ -580,10 +580,10 @@ public class MatchScheduler {
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(main)/matches` | CSR | Lista de sugestoes de match |
-| `/[locale]/(main)/matches/preferences` | CSR | Configurar preferencias de matching |
+| Rota                                   | Renderizacao | Descricao                           |
+| -------------------------------------- | ------------ | ----------------------------------- |
+| `/[locale]/(main)/matches`             | CSR          | Lista de sugestoes de match         |
+| `/[locale]/(main)/matches/preferences` | CSR          | Configurar preferencias de matching |
 
 ### 3.2 Componentes React
 
@@ -628,7 +628,7 @@ matches/preferences/page.tsx        -- Client Component
 
 function useMatches(page: number = 0) {
   return useQuery({
-    queryKey: ['matches', page],
+    queryKey: ["matches", page],
     queryFn: () => api.get(`/matches?page=${page}&size=10&sort=score,desc`),
     enabled: authStore.isAuthenticated,
   });
@@ -636,7 +636,7 @@ function useMatches(page: number = 0) {
 
 function useMatch(id: string) {
   return useQuery({
-    queryKey: ['matches', id],
+    queryKey: ["matches", id],
     queryFn: () => api.get(`/matches/${id}`),
     enabled: !!id,
   });
@@ -646,26 +646,25 @@ function useDismissMatch() {
   return useMutation({
     mutationFn: (id: string) => api.put(`/matches/${id}/dismiss`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['matches'] });
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
     },
   });
 }
 
 function useMatchPreferences() {
   return useQuery({
-    queryKey: ['matches', 'preferences'],
-    queryFn: () => api.get('/matches/preferences'),
+    queryKey: ["matches", "preferences"],
+    queryFn: () => api.get("/matches/preferences"),
     enabled: authStore.isAuthenticated,
   });
 }
 
 function useUpdateMatchPreferences() {
   return useMutation({
-    mutationFn: (data: UpdateMatchPreferencesRequest) =>
-      api.put('/matches/preferences', data),
+    mutationFn: (data: UpdateMatchPreferencesRequest) => api.put("/matches/preferences", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['matches', 'preferences'] });
-      queryClient.invalidateQueries({ queryKey: ['matches'] });
+      queryClient.invalidateQueries({ queryKey: ["matches", "preferences"] });
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
     },
   });
 }
@@ -676,10 +675,10 @@ function useUpdateMatchPreferences() {
 ```typescript
 // Novas sugestoes sao notificadas via canal pessoal
 // /user/queue/matches
-stompClient.subscribe('/user/queue/matches', (message) => {
+stompClient.subscribe("/user/queue/matches", (message) => {
   const data = JSON.parse(message.body);
   // { type: "NEW_MATCHES", count: 3 }
-  queryClient.invalidateQueries({ queryKey: ['matches'] });
+  queryClient.invalidateQueries({ queryKey: ["matches"] });
   toast.info(`${data.count} new match suggestions available!`);
 });
 ```
@@ -688,52 +687,55 @@ stompClient.subscribe('/user/queue/matches', (message) => {
 
 ```typescript
 // schemas/match-preferences.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const matchPreferencesSchema = z.object({
-  criteriaWeights: z.object({
-    roleJob: z.number().int().min(0).max(100),
-    schedule: z.number().int().min(0).max(100),
-    dataCenter: z.number().int().min(0).max(100),
-    language: z.number().int().min(0).max(100),
-    progression: z.number().int().min(0).max(100),
-    contentScope: z.number().int().min(0).max(100),
-    playstyle: z.number().int().min(0).max(100),
-  }).refine(
-    (weights) => Object.values(weights).reduce((a, b) => a + b, 0) === 100,
-    { message: 'Criteria weights must sum to 100' }
-  ),
-  mandatoryFilters: z.object({
-    sameDataCenter: z.boolean().default(true),
-    languages: z.array(z.string()).optional(),
-    contentScope: z.array(z.enum(['SAVAGE', 'ULTIMATE', 'EXTREME', 'CRITERION'])).optional(),
-    minParseTier: z.enum(['GRAY', 'GREEN', 'BLUE', 'PURPLE', 'ORANGE', 'PINK']).optional(),
-  }).optional(),
+  criteriaWeights: z
+    .object({
+      roleJob: z.number().int().min(0).max(100),
+      schedule: z.number().int().min(0).max(100),
+      dataCenter: z.number().int().min(0).max(100),
+      language: z.number().int().min(0).max(100),
+      progression: z.number().int().min(0).max(100),
+      contentScope: z.number().int().min(0).max(100),
+      playstyle: z.number().int().min(0).max(100),
+    })
+    .refine((weights) => Object.values(weights).reduce((a, b) => a + b, 0) === 100, {
+      message: "Criteria weights must sum to 100",
+    }),
+  mandatoryFilters: z
+    .object({
+      sameDataCenter: z.boolean().default(true),
+      languages: z.array(z.string()).optional(),
+      contentScope: z.array(z.enum(["SAVAGE", "ULTIMATE", "EXTREME", "CRITERION"])).optional(),
+      minParseTier: z.enum(["GRAY", "GREEN", "BLUE", "PURPLE", "ORANGE", "PINK"]).optional(),
+    })
+    .optional(),
   blacklistStaticIds: z.array(z.string().uuid()).optional(),
   blacklistCharacterIds: z.array(z.string().uuid()).optional(),
   preferredSchedule: z.any().optional(),
-  preferredRoles: z.array(z.enum(['TANK', 'HEALER', 'DPS'])).optional(),
+  preferredRoles: z.array(z.enum(["TANK", "HEALER", "DPS"])).optional(),
 });
 ```
 
 ### 3.5 WebSocket
 
-| Destination | Tipo | Descricao |
-|-------------|------|-----------|
+| Destination           | Tipo      | Descricao                               |
+| --------------------- | --------- | --------------------------------------- |
 | `/user/queue/matches` | SUBSCRIBE | Notificacao de novas sugestoes de match |
 
 ### 3.6 Internacionalizacao
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `match.*` | Pagina de sugestoes |
-| `match.criteria.*` | Nomes dos criterios (Role/Job, Schedule, etc.) |
-| `match.preferences.*` | Pagina de preferencias |
-| `match.status.*` | Status das sugestoes |
-| `match.empty.*` | Estados vazios |
-| `match.premium.*` | Mensagens de upsell |
+| Namespace             | Uso                                            |
+| --------------------- | ---------------------------------------------- |
+| `match.*`             | Pagina de sugestoes                            |
+| `match.criteria.*`    | Nomes dos criterios (Role/Job, Schedule, etc.) |
+| `match.preferences.*` | Pagina de preferencias                         |
+| `match.status.*`      | Status das sugestoes                           |
+| `match.empty.*`       | Estados vazios                                 |
+| `match.premium.*`     | Mensagens de upsell                            |
 
 ---
 
@@ -779,13 +781,13 @@ CREATE INDEX idx_match_preferences_character ON match_preferences(character_id);
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `match_suggestions` | `character_id, status` | BTREE | Sugestoes ativas do jogador |
-| `match_suggestions` | `target_type, target_id` | BTREE | Sugestoes por alvo |
-| `match_suggestions` | `score` (partial) | BTREE DESC | Ordenacao por score |
-| `match_suggestions` | `expires_at` (partial) | BTREE | Expirar sugestoes antigas |
-| `match_preferences` | `character_id` | UNIQUE | Uma preferencia por character |
+| Tabela              | Indice                   | Tipo       | Justificativa                 |
+| ------------------- | ------------------------ | ---------- | ----------------------------- |
+| `match_suggestions` | `character_id, status`   | BTREE      | Sugestoes ativas do jogador   |
+| `match_suggestions` | `target_type, target_id` | BTREE      | Sugestoes por alvo            |
+| `match_suggestions` | `score` (partial)        | BTREE DESC | Ordenacao por score           |
+| `match_suggestions` | `expires_at` (partial)   | BTREE      | Expirar sugestoes antigas     |
+| `match_preferences` | `character_id`           | UNIQUE     | Uma preferencia por character |
 
 ---
 
@@ -811,25 +813,25 @@ matching
 
 ### 5.2 Eventos
 
-| Direcao | Evento | Acao |
-|---------|--------|------|
-| Entrada | `CharacterVerifiedEvent` | Calcula sugestoes para o character recem-verificado |
-| Entrada | `ProfileUpdatedEvent` | Recalcula sugestoes do character atualizado |
-| Entrada | `VacancyCreatedEvent` | Recalcula sugestoes para a static com nova vaga |
-| Entrada | `StaticDissolvedEvent` | Remove todas as sugestoes da static dissolvida |
-| Saida | `NewMatchSuggestionEvent` | Notifica usuario de novas sugestoes via WebSocket |
-| Saida | `MatchingCompletedEvent` | Log de conclusao do job diario |
+| Direcao | Evento                    | Acao                                                |
+| ------- | ------------------------- | --------------------------------------------------- |
+| Entrada | `CharacterVerifiedEvent`  | Calcula sugestoes para o character recem-verificado |
+| Entrada | `ProfileUpdatedEvent`     | Recalcula sugestoes do character atualizado         |
+| Entrada | `VacancyCreatedEvent`     | Recalcula sugestoes para a static com nova vaga     |
+| Entrada | `StaticDissolvedEvent`    | Remove todas as sugestoes da static dissolvida      |
+| Saida   | `NewMatchSuggestionEvent` | Notifica usuario de novas sugestoes via WebSocket   |
+| Saida   | `MatchingCompletedEvent`  | Log de conclusao do job diario                      |
 
 ---
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos |
-| 400 | `/errors/weights-sum-invalid` | Pesos dos criterios nao somam 100 |
-| 403 | `/errors/character-not-verified` | Character nao verificado (RN02) |
-| 403 | `/errors/premium-required` | Limite free de sugestoes atingido (RN20) |
-| 404 | `/errors/match-not-found` | Sugestao nao encontrada |
-| 404 | `/errors/preferences-not-found` | Preferencias nao encontradas |
-| 422 | `/errors/match-already-dismissed` | Sugestao ja foi descartada |
+| HTTP | Tipo RFC 7807                     | Cenario                                  |
+| ---- | --------------------------------- | ---------------------------------------- |
+| 400  | `/errors/validation`              | Campos invalidos                         |
+| 400  | `/errors/weights-sum-invalid`     | Pesos dos criterios nao somam 100        |
+| 403  | `/errors/character-not-verified`  | Character nao verificado (RN02)          |
+| 403  | `/errors/premium-required`        | Limite free de sugestoes atingido (RN20) |
+| 404  | `/errors/match-not-found`         | Sugestao nao encontrada                  |
+| 404  | `/errors/preferences-not-found`   | Preferencias nao encontradas             |
+| 422  | `/errors/match-already-dismissed` | Sugestao ja foi descartada               |

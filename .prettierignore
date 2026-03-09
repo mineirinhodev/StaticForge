@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+target/
+
+# Java (formatted by IDE/Checkstyle)
+apps/api/
+
+# Generated files
+*.min.js
+*.min.css
+package-lock.json
+pnpm-lock.yaml
+
+# Docker & CI
+docker-compose*.yml
+Dockerfile
+nginx/
+.github/

@@ -6,10 +6,10 @@ O modulo de Autenticacao & Perfil e a base de todo o sistema. Ele gerencia o cic
 
 ### 1.1 Rastreabilidade
 
-| Tipo | IDs |
-|------|-----|
-| **Regras de Negocio** | RN01, RN02, RN03, RN04, RN05 |
-| **Casos de Uso** | UC01 (Registrar Conta), UC02 (Criar Perfil de Jogador), UC03 (Vincular Personagem ao Lodestone), UC04 (Login e Autenticacao) |
+| Tipo                  | IDs                                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Regras de Negocio** | RN01, RN02, RN03, RN04, RN05                                                                                                 |
+| **Casos de Uso**      | UC01 (Registrar Conta), UC02 (Criar Perfil de Jogador), UC03 (Vincular Personagem ao Lodestone), UC04 (Login e Autenticacao) |
 
 ---
 
@@ -741,13 +741,13 @@ public class CharacterJobService {
 
 #### Eventos Publicados
 
-| Evento | Publicado por | Dados | Consumido por |
-|--------|--------------|-------|---------------|
-| `UserRegisteredEvent` | `AuthService.register` | userId, email, locale | `NotificationService` (email de verificacao) |
-| `PasswordResetRequestedEvent` | `AuthService.forgotPassword` | userId, email, resetToken | `NotificationService` (email de reset) |
-| `ProfileUpdatedEvent` | `ProfileService.updateProfile` | userId | `MatchingService` (recalcular matches) |
-| `CharacterCreatedEvent` | `CharacterService.createCharacter` | characterId, userId | - |
-| `CharacterVerifiedEvent` | `CharacterService.confirmVerification` | characterId, userId | `MatchingService` (ativar matching), `NotificationService` (notificar usuario) |
+| Evento                        | Publicado por                          | Dados                     | Consumido por                                                                  |
+| ----------------------------- | -------------------------------------- | ------------------------- | ------------------------------------------------------------------------------ |
+| `UserRegisteredEvent`         | `AuthService.register`                 | userId, email, locale     | `NotificationService` (email de verificacao)                                   |
+| `PasswordResetRequestedEvent` | `AuthService.forgotPassword`           | userId, email, resetToken | `NotificationService` (email de reset)                                         |
+| `ProfileUpdatedEvent`         | `ProfileService.updateProfile`         | userId                    | `MatchingService` (recalcular matches)                                         |
+| `CharacterCreatedEvent`       | `CharacterService.createCharacter`     | characterId, userId       | -                                                                              |
+| `CharacterVerifiedEvent`      | `CharacterService.confirmVerification` | characterId, userId       | `MatchingService` (ativar matching), `NotificationService` (notificar usuario) |
 
 ### 2.5 Controller
 
@@ -758,14 +758,14 @@ public class CharacterJobService {
 @RequestMapping("/api/v1/auth")
 ```
 
-| Metodo | Path | Descricao | Request Body | Response Body | Status |
-|--------|------|-----------|-------------|---------------|--------|
-| POST | `/register` | Registrar conta | `RegisterRequest` | `{ "message": "..." }` | 201 |
-| POST | `/login` | Login | `LoginRequest` | `LoginResponse` | 200 |
-| POST | `/refresh` | Renovar token | - (cookie) | `TokenRefreshResponse` | 200 |
-| POST | `/logout` | Logout | - | - | 204 |
-| POST | `/forgot-password` | Solicitar reset | `ForgotPasswordRequest` | `{ "message": "..." }` | 200 |
-| POST | `/reset-password` | Redefinir senha | `ResetPasswordRequest` | `{ "message": "..." }` | 200 |
+| Metodo | Path               | Descricao       | Request Body            | Response Body          | Status |
+| ------ | ------------------ | --------------- | ----------------------- | ---------------------- | ------ |
+| POST   | `/register`        | Registrar conta | `RegisterRequest`       | `{ "message": "..." }` | 201    |
+| POST   | `/login`           | Login           | `LoginRequest`          | `LoginResponse`        | 200    |
+| POST   | `/refresh`         | Renovar token   | - (cookie)              | `TokenRefreshResponse` | 200    |
+| POST   | `/logout`          | Logout          | -                       | -                      | 204    |
+| POST   | `/forgot-password` | Solicitar reset | `ForgotPasswordRequest` | `{ "message": "..." }` | 200    |
+| POST   | `/reset-password`  | Redefinir senha | `ResetPasswordRequest`  | `{ "message": "..." }` | 200    |
 
 **Exemplos de Request/Response:**
 
@@ -823,11 +823,11 @@ public class CharacterJobService {
 @RequestMapping("/api/v1")
 ```
 
-| Metodo | Path | Descricao | Auth | Response Body | Status |
-|--------|------|-----------|------|---------------|--------|
-| GET | `/profile/me` | Meu perfil completo | Sim | `ProfileResponse` | 200 |
-| PUT | `/profile/me` | Atualizar perfil | Sim | `ProfileResponse` | 200 |
-| GET | `/users/{id}/profile` | Perfil publico | Nao | `ProfileResponse` | 200 |
+| Metodo | Path                  | Descricao           | Auth | Response Body     | Status |
+| ------ | --------------------- | ------------------- | ---- | ----------------- | ------ |
+| GET    | `/profile/me`         | Meu perfil completo | Sim  | `ProfileResponse` | 200    |
+| PUT    | `/profile/me`         | Atualizar perfil    | Sim  | `ProfileResponse` | 200    |
+| GET    | `/users/{id}/profile` | Perfil publico      | Nao  | `ProfileResponse` | 200    |
 
 #### CharacterController
 
@@ -836,16 +836,16 @@ public class CharacterJobService {
 @RequestMapping("/api/v1/characters")
 ```
 
-| Metodo | Path | Descricao | Auth | Request Body | Response Body | Status |
-|--------|------|-----------|------|-------------|---------------|--------|
-| POST | `/` | Adicionar personagem | Sim | `CharacterCreateRequest` | `CharacterResponse` | 201 |
-| PUT | `/{id}` | Atualizar personagem | Sim | `CharacterCreateRequest` | `CharacterResponse` | 200 |
-| DELETE | `/{id}` | Remover personagem | Sim | - | - | 204 |
-| POST | `/{id}/verify` | Iniciar verificacao | Sim | - | `VerificationStartResponse` | 200 |
-| POST | `/{id}/verify/confirm` | Confirmar verificacao | Sim | `VerificationConfirmRequest` | `CharacterResponse` | 200 |
-| POST | `/{id}/jobs` | Adicionar job | Sim | `JobCreateRequest` | `JobResponse` | 201 |
-| PUT | `/{id}/jobs/{jobId}` | Atualizar job | Sim | `JobCreateRequest` | `JobResponse` | 200 |
-| DELETE | `/{id}/jobs/{jobId}` | Remover job | Sim | - | - | 204 |
+| Metodo | Path                   | Descricao             | Auth | Request Body                 | Response Body               | Status |
+| ------ | ---------------------- | --------------------- | ---- | ---------------------------- | --------------------------- | ------ |
+| POST   | `/`                    | Adicionar personagem  | Sim  | `CharacterCreateRequest`     | `CharacterResponse`         | 201    |
+| PUT    | `/{id}`                | Atualizar personagem  | Sim  | `CharacterCreateRequest`     | `CharacterResponse`         | 200    |
+| DELETE | `/{id}`                | Remover personagem    | Sim  | -                            | -                           | 204    |
+| POST   | `/{id}/verify`         | Iniciar verificacao   | Sim  | -                            | `VerificationStartResponse` | 200    |
+| POST   | `/{id}/verify/confirm` | Confirmar verificacao | Sim  | `VerificationConfirmRequest` | `CharacterResponse`         | 200    |
+| POST   | `/{id}/jobs`           | Adicionar job         | Sim  | `JobCreateRequest`           | `JobResponse`               | 201    |
+| PUT    | `/{id}/jobs/{jobId}`   | Atualizar job         | Sim  | `JobCreateRequest`           | `JobResponse`               | 200    |
+| DELETE | `/{id}/jobs/{jobId}`   | Remover job           | Sim  | -                            | -                           | 204    |
 
 ### 2.6 Seguranca e Autorizacao
 
@@ -927,39 +927,39 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 ### 2.7 Validacoes
 
-| Campo | Regra | DTO |
-|-------|-------|-----|
-| `email` | Formato valido, unico no sistema | RegisterRequest, LoginRequest |
-| `password` | Min 8 chars, 1 maiuscula, 1 numero | RegisterRequest, ResetPasswordRequest |
-| `confirmPassword` | Igual a password | RegisterRequest, ResetPasswordRequest |
-| `locale` | Enum: en, ja, de, fr, pt | RegisterRequest, ProfileUpdateRequest |
-| `name` (character) | Obrigatorio, max 50 chars | CharacterCreateRequest |
-| `server` | Obrigatorio, deve ser server valido do FFXIV | CharacterCreateRequest |
-| `dataCenter` | Obrigatorio, deve ser DC valido do FFXIV | CharacterCreateRequest |
-| `jobName` | Obrigatorio, max 3 chars, deve ser job valido | JobCreateRequest |
-| `role` | Obrigatorio, enum TANK/HEALER/DPS | JobCreateRequest |
-| `ilvl` | Positivo, max 999 | JobCreateRequest |
-| `parseTier` | Enum: GRAY, GREEN, BLUE, PURPLE, ORANGE, PINK | JobCreateRequest |
-| `lodestoneId` | Positivo, unico no sistema (RN04) | VerificationConfirmRequest |
+| Campo              | Regra                                         | DTO                                   |
+| ------------------ | --------------------------------------------- | ------------------------------------- |
+| `email`            | Formato valido, unico no sistema              | RegisterRequest, LoginRequest         |
+| `password`         | Min 8 chars, 1 maiuscula, 1 numero            | RegisterRequest, ResetPasswordRequest |
+| `confirmPassword`  | Igual a password                              | RegisterRequest, ResetPasswordRequest |
+| `locale`           | Enum: en, ja, de, fr, pt                      | RegisterRequest, ProfileUpdateRequest |
+| `name` (character) | Obrigatorio, max 50 chars                     | CharacterCreateRequest                |
+| `server`           | Obrigatorio, deve ser server valido do FFXIV  | CharacterCreateRequest                |
+| `dataCenter`       | Obrigatorio, deve ser DC valido do FFXIV      | CharacterCreateRequest                |
+| `jobName`          | Obrigatorio, max 3 chars, deve ser job valido | JobCreateRequest                      |
+| `role`             | Obrigatorio, enum TANK/HEALER/DPS             | JobCreateRequest                      |
+| `ilvl`             | Positivo, max 999                             | JobCreateRequest                      |
+| `parseTier`        | Enum: GRAY, GREEN, BLUE, PURPLE, ORANGE, PINK | JobCreateRequest                      |
+| `lodestoneId`      | Positivo, unico no sistema (RN04)             | VerificationConfirmRequest            |
 
 ### 2.8 Cache (Redis)
 
-| Chave | Tipo | TTL | Descricao | Invalidacao |
-|-------|------|-----|-----------|-------------|
-| `session:{userId}` | Hash | 30 dias | Hash do refresh token ativo | Logout, refresh rotation |
-| `profile:{userId}` | String (JSON) | 5 min | Cache de perfil publico | PUT /profile/me |
-| `lodestone:{lodestoneId}` | String (JSON) | 1 hora | Dados importados do Lodestone | Resincronizacao semanal |
-| `lodestone:verify:{characterId}` | String | 1 hora | Codigo de verificacao pendente | Confirmacao ou expiracao |
-| `rate:login:{email}` | Counter | 15 min | Contador de tentativas de login | Login bem-sucedido |
-| `email:verify:{token}` | String | 24 horas | Token de verificacao de email | Verificacao ou expiracao |
-| `password:reset:{tokenHash}` | String | 1 hora | Token de reset de senha | Reset ou expiracao |
+| Chave                            | Tipo          | TTL      | Descricao                       | Invalidacao              |
+| -------------------------------- | ------------- | -------- | ------------------------------- | ------------------------ |
+| `session:{userId}`               | Hash          | 30 dias  | Hash do refresh token ativo     | Logout, refresh rotation |
+| `profile:{userId}`               | String (JSON) | 5 min    | Cache de perfil publico         | PUT /profile/me          |
+| `lodestone:{lodestoneId}`        | String (JSON) | 1 hora   | Dados importados do Lodestone   | Resincronizacao semanal  |
+| `lodestone:verify:{characterId}` | String        | 1 hora   | Codigo de verificacao pendente  | Confirmacao ou expiracao |
+| `rate:login:{email}`             | Counter       | 15 min   | Contador de tentativas de login | Login bem-sucedido       |
+| `email:verify:{token}`           | String        | 24 horas | Token de verificacao de email   | Verificacao ou expiracao |
+| `password:reset:{tokenHash}`     | String        | 1 hora   | Token de reset de senha         | Reset ou expiracao       |
 
 ### 2.9 Jobs Agendados
 
-| Job | Frequencia | Descricao |
-|-----|-----------|-----------|
-| `LodestoneRefreshJob` | Semanal (domingo 05:00 UTC) | Resincroniza dados do Lodestone (avatar, FC, etc.) para todos os personagens verificados. Invalida cache `lodestone:{id}`. Respeita rate limit da API. |
-| `CleanupJob` (parcial) | Semanal | Remove refresh tokens expirados da tabela `refresh_tokens`. |
+| Job                    | Frequencia                  | Descricao                                                                                                                                              |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LodestoneRefreshJob`  | Semanal (domingo 05:00 UTC) | Resincroniza dados do Lodestone (avatar, FC, etc.) para todos os personagens verificados. Invalida cache `lodestone:{id}`. Respeita rate limit da API. |
+| `CleanupJob` (parcial) | Semanal                     | Remove refresh tokens expirados da tabela `refresh_tokens`.                                                                                            |
 
 ---
 
@@ -967,16 +967,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 ### 3.1 Paginas e Rotas
 
-| Rota | Renderizacao | Descricao |
-|------|-------------|-----------|
-| `/[locale]/(auth)/login` | SSR | Pagina de login com formulario e botoes OAuth |
-| `/[locale]/(auth)/register` | SSR | Pagina de registro |
-| `/[locale]/(auth)/forgot-password` | SSR | Solicitar reset de senha |
-| `/[locale]/(auth)/reset-password` | SSR | Redefinir senha (com token na URL) |
-| `/[locale]/(main)/profile` | CSR | Meu perfil (dados do usuario autenticado) |
-| `/[locale]/(main)/profile/edit` | CSR | Editar perfil |
-| `/[locale]/(main)/profile/characters` | CSR | Gerenciar personagens e jobs |
-| `/[locale]/users/[id]` | SSR + ISR (60s) | Perfil publico de outro jogador |
+| Rota                                  | Renderizacao    | Descricao                                     |
+| ------------------------------------- | --------------- | --------------------------------------------- |
+| `/[locale]/(auth)/login`              | SSR             | Pagina de login com formulario e botoes OAuth |
+| `/[locale]/(auth)/register`           | SSR             | Pagina de registro                            |
+| `/[locale]/(auth)/forgot-password`    | SSR             | Solicitar reset de senha                      |
+| `/[locale]/(auth)/reset-password`     | SSR             | Redefinir senha (com token na URL)            |
+| `/[locale]/(main)/profile`            | CSR             | Meu perfil (dados do usuario autenticado)     |
+| `/[locale]/(main)/profile/edit`       | CSR             | Editar perfil                                 |
+| `/[locale]/(main)/profile/characters` | CSR             | Gerenciar personagens e jobs                  |
+| `/[locale]/users/[id]`                | SSR + ISR (60s) | Perfil publico de outro jogador               |
 
 ### 3.2 Componentes React
 
@@ -1037,7 +1037,7 @@ interface AuthState {
 // useAuth.ts
 function useLogin() {
   return useMutation({
-    mutationFn: (data: LoginRequest) => api.post('/auth/login', data),
+    mutationFn: (data: LoginRequest) => api.post("/auth/login", data),
     onSuccess: (response) => {
       authStore.setAuth(response.accessToken, response.user);
     },
@@ -1046,23 +1046,23 @@ function useLogin() {
 
 function useRegister() {
   return useMutation({
-    mutationFn: (data: RegisterRequest) => api.post('/auth/register', data),
+    mutationFn: (data: RegisterRequest) => api.post("/auth/register", data),
   });
 }
 
 function useLogout() {
   return useMutation({
-    mutationFn: () => api.post('/auth/logout'),
+    mutationFn: () => api.post("/auth/logout"),
     onSuccess: () => {
       authStore.clearAuth();
-      router.push('/login');
+      router.push("/login");
     },
   });
 }
 
 function useRefreshToken() {
   return useMutation({
-    mutationFn: () => api.post('/auth/refresh'),
+    mutationFn: () => api.post("/auth/refresh"),
     onSuccess: (response) => {
       authStore.setAccessToken(response.accessToken);
     },
@@ -1072,15 +1072,15 @@ function useRefreshToken() {
 // useProfile.ts
 function useMyProfile() {
   return useQuery({
-    queryKey: ['profile', 'me'],
-    queryFn: () => api.get('/profile/me'),
+    queryKey: ["profile", "me"],
+    queryFn: () => api.get("/profile/me"),
     enabled: authStore.isAuthenticated,
   });
 }
 
 function usePublicProfile(userId: string) {
   return useQuery({
-    queryKey: ['profile', userId],
+    queryKey: ["profile", userId],
     queryFn: () => api.get(`/users/${userId}/profile`),
     staleTime: 60_000, // 1 minuto
   });
@@ -1088,9 +1088,9 @@ function usePublicProfile(userId: string) {
 
 function useUpdateProfile() {
   return useMutation({
-    mutationFn: (data: ProfileUpdateRequest) => api.put('/profile/me', data),
+    mutationFn: (data: ProfileUpdateRequest) => api.put("/profile/me", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
   });
 }
@@ -1098,18 +1098,18 @@ function useUpdateProfile() {
 // useCharacters.ts
 function useCharacters() {
   return useQuery({
-    queryKey: ['characters'],
-    queryFn: () => api.get('/profile/me').then(p => p.characters),
+    queryKey: ["characters"],
+    queryFn: () => api.get("/profile/me").then((p) => p.characters),
     enabled: authStore.isAuthenticated,
   });
 }
 
 function useCreateCharacter() {
   return useMutation({
-    mutationFn: (data: CharacterCreateRequest) => api.post('/characters', data),
+    mutationFn: (data: CharacterCreateRequest) => api.post("/characters", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['characters'] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["characters"] });
     },
   });
 }
@@ -1118,8 +1118,8 @@ function useDeleteCharacter() {
   return useMutation({
     mutationFn: (id: string) => api.delete(`/characters/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['characters'] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["characters"] });
     },
   });
 }
@@ -1135,8 +1135,8 @@ function useConfirmVerification() {
     mutationFn: ({ characterId, lodestoneId }: { characterId: string; lodestoneId: number }) =>
       api.post(`/characters/${characterId}/verify/confirm`, { lodestoneId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['characters'] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["characters"] });
     },
   });
 }
@@ -1164,17 +1164,19 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !error.config._retry) {
       error.config._retry = true;
       try {
-        const { data } = await axios.post(`${baseURL}/auth/refresh`, null, { withCredentials: true });
+        const { data } = await axios.post(`${baseURL}/auth/refresh`, null, {
+          withCredentials: true,
+        });
         useAuthStore.getState().setAccessToken(data.accessToken);
         error.config.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(error.config);
       } catch {
         useAuthStore.getState().clearAuth();
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -1182,58 +1184,70 @@ api.interceptors.response.use(
 
 ```typescript
 // schemas/auth.ts
-import { z } from 'zod';
+import { z } from "zod";
 
-export const registerSchema = z.object({
-  email: z.string().email('Invalid email address').max(255),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-    .regex(/\d/, 'Password must contain at least 1 number'),
-  confirmPassword: z.string(),
-  locale: z.enum(['en', 'ja', 'de', 'fr', 'pt']).optional().default('en'),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const registerSchema = z
+  .object({
+    email: z.string().email("Invalid email address").max(255),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+      .regex(/\d/, "Password must contain at least 1 number"),
+    confirmPassword: z.string(),
+    locale: z.enum(["en", "ja", "de", "fr", "pt"]).optional().default("en"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email("Invalid email address"),
 });
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1),
-  newPassword: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-    .regex(/\d/, 'Password must contain at least 1 number'),
-  confirmPassword: z.string(),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+      .regex(/\d/, "Password must contain at least 1 number"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 // schemas/profile.ts
 export const profileSchema = z.object({
-  locale: z.enum(['en', 'ja', 'de', 'fr', 'pt']).optional(),
+  locale: z.enum(["en", "ja", "de", "fr", "pt"]).optional(),
   bio: z.string().max(1000).optional(),
-  availability: z.record(z.array(z.object({
-    start: z.string(), // "20:00"
-    end: z.string(),   // "23:00"
-    timezone: z.string(),
-  }))).optional(),
+  availability: z
+    .record(
+      z.array(
+        z.object({
+          start: z.string(), // "20:00"
+          end: z.string(), // "23:00"
+          timezone: z.string(),
+        }),
+      ),
+    )
+    .optional(),
 });
 
 // schemas/character.ts
 export const characterSchema = z.object({
-  name: z.string().min(1, 'Character name is required').max(50),
-  server: z.string().min(1, 'Server is required').max(50),
-  dataCenter: z.string().min(1, 'Data Center is required').max(20),
+  name: z.string().min(1, "Character name is required").max(50),
+  server: z.string().min(1, "Server is required").max(50),
+  dataCenter: z.string().min(1, "Data Center is required").max(20),
   isMain: z.boolean().default(false),
   lookingForStatic: z.boolean().default(false),
   availability: z.any().optional(), // JSON
@@ -1242,10 +1256,10 @@ export const characterSchema = z.object({
 // schemas/job.ts
 export const jobSchema = z.object({
   jobName: z.string().min(1).max(3),
-  role: z.enum(['TANK', 'HEALER', 'DPS']),
+  role: z.enum(["TANK", "HEALER", "DPS"]),
   isMain: z.boolean().default(false),
   ilvl: z.number().int().positive().max(999).optional(),
-  parseTier: z.enum(['GRAY', 'GREEN', 'BLUE', 'PURPLE', 'ORANGE', 'PINK']).optional(),
+  parseTier: z.enum(["GRAY", "GREEN", "BLUE", "PURPLE", "ORANGE", "PINK"]).optional(),
   progression: z.string().max(100).optional(),
 });
 ```
@@ -1258,20 +1272,20 @@ Nao aplicavel diretamente a este modulo. A autenticacao WebSocket e tratada no m
 
 **Namespaces i18n:**
 
-| Namespace | Uso |
-|-----------|-----|
-| `auth.login.*` | Pagina de login (titulo, labels, botoes, erros) |
-| `auth.register.*` | Pagina de registro |
-| `auth.forgotPassword.*` | Pagina de recuperacao de senha |
-| `auth.resetPassword.*` | Pagina de redefinicao de senha |
-| `profile.*` | Paginas de perfil |
-| `character.*` | Gerenciamento de personagens |
-| `character.verification.*` | Fluxo de verificacao Lodestone |
-| `job.*` | Gerenciamento de jobs |
-| `validation.*` | Mensagens de erro de validacao |
-| `ffxiv.jobs.*` | Nomes oficiais dos jobs por idioma |
-| `ffxiv.servers.*` | Nomes de servers e Data Centers |
-| `ffxiv.roles.*` | Tank, Healer, DPS traduzidos |
+| Namespace                  | Uso                                             |
+| -------------------------- | ----------------------------------------------- |
+| `auth.login.*`             | Pagina de login (titulo, labels, botoes, erros) |
+| `auth.register.*`          | Pagina de registro                              |
+| `auth.forgotPassword.*`    | Pagina de recuperacao de senha                  |
+| `auth.resetPassword.*`     | Pagina de redefinicao de senha                  |
+| `profile.*`                | Paginas de perfil                               |
+| `character.*`              | Gerenciamento de personagens                    |
+| `character.verification.*` | Fluxo de verificacao Lodestone                  |
+| `job.*`                    | Gerenciamento de jobs                           |
+| `validation.*`             | Mensagens de erro de validacao                  |
+| `ffxiv.jobs.*`             | Nomes oficiais dos jobs por idioma              |
+| `ffxiv.servers.*`          | Nomes de servers e Data Centers                 |
+| `ffxiv.roles.*`            | Tank, Healer, DPS traduzidos                    |
 
 **Exemplo de chaves:**
 
@@ -1388,18 +1402,18 @@ CREATE INDEX idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
 
 ### 4.2 Indices
 
-| Tabela | Indice | Tipo | Justificativa |
-|--------|--------|------|---------------|
-| `users` | `email` | UNIQUE | Login por email |
-| `users` | `oauth_provider, oauth_provider_id` | BTREE (partial) | Login via OAuth |
-| `characters` | `user_id` | BTREE | Buscar personagens do usuario |
-| `characters` | `lodestone_id` | UNIQUE (partial) | Vinculo unico com Lodestone |
-| `characters` | `data_center, server` | BTREE | Filtros de busca |
-| `characters` | `data_center, looking_for_static` | BTREE (partial) | Jogadores LFS por DC |
-| `character_jobs` | `character_id` | BTREE | Jobs do personagem |
-| `character_jobs` | `character_id, job_name` | UNIQUE | Evitar job duplicado |
-| `refresh_tokens` | `token_hash` | UNIQUE (partial) | Busca por token ativo |
-| `refresh_tokens` | `user_id` | BTREE | Revogar tokens do usuario |
+| Tabela           | Indice                              | Tipo             | Justificativa                 |
+| ---------------- | ----------------------------------- | ---------------- | ----------------------------- |
+| `users`          | `email`                             | UNIQUE           | Login por email               |
+| `users`          | `oauth_provider, oauth_provider_id` | BTREE (partial)  | Login via OAuth               |
+| `characters`     | `user_id`                           | BTREE            | Buscar personagens do usuario |
+| `characters`     | `lodestone_id`                      | UNIQUE (partial) | Vinculo unico com Lodestone   |
+| `characters`     | `data_center, server`               | BTREE            | Filtros de busca              |
+| `characters`     | `data_center, looking_for_static`   | BTREE (partial)  | Jogadores LFS por DC          |
+| `character_jobs` | `character_id`                      | BTREE            | Jobs do personagem            |
+| `character_jobs` | `character_id, job_name`            | UNIQUE           | Evitar job duplicado          |
+| `refresh_tokens` | `token_hash`                        | UNIQUE (partial) | Busca por token ativo         |
+| `refresh_tokens` | `user_id`                           | BTREE            | Revogar tokens do usuario     |
 
 ---
 
@@ -1427,34 +1441,34 @@ auth-profile
 
 ### 5.2 Eventos Publicados e Consumidos
 
-| Direcao | Evento | Consumidor | Acao |
-|---------|--------|-----------|------|
-| Saida | `UserRegisteredEvent` | `NotificationService` | Envia email de verificacao |
-| Saida | `PasswordResetRequestedEvent` | `NotificationService` | Envia email de reset |
-| Saida | `ProfileUpdatedEvent` | `MatchingService` | Recalcula matches do usuario |
-| Saida | `CharacterVerifiedEvent` | `MatchingService` | Ativa matching para o personagem |
-| Entrada | `SubscriptionActivatedEvent` | `AuthService/UserService` | Atualiza isPremium=true |
-| Entrada | `SubscriptionExpiredEvent` | `AuthService/UserService` | Atualiza isPremium=false |
+| Direcao | Evento                        | Consumidor                | Acao                             |
+| ------- | ----------------------------- | ------------------------- | -------------------------------- |
+| Saida   | `UserRegisteredEvent`         | `NotificationService`     | Envia email de verificacao       |
+| Saida   | `PasswordResetRequestedEvent` | `NotificationService`     | Envia email de reset             |
+| Saida   | `ProfileUpdatedEvent`         | `MatchingService`         | Recalcula matches do usuario     |
+| Saida   | `CharacterVerifiedEvent`      | `MatchingService`         | Ativa matching para o personagem |
+| Entrada | `SubscriptionActivatedEvent`  | `AuthService/UserService` | Atualiza isPremium=true          |
+| Entrada | `SubscriptionExpiredEvent`    | `AuthService/UserService` | Atualiza isPremium=false         |
 
 ---
 
 ## 6. Tratamento de Erros
 
-| HTTP | Tipo RFC 7807 | Cenario |
-|------|---------------|---------|
-| 400 | `/errors/validation` | Campos invalidos no request |
-| 400 | `/errors/password-mismatch` | Senha e confirmacao nao coincidem |
-| 401 | `/errors/invalid-credentials` | Email ou senha incorretos |
-| 401 | `/errors/token-expired` | Access token expirado |
-| 401 | `/errors/refresh-token-invalid` | Refresh token invalido ou revogado |
-| 403 | `/errors/account-locked` | Conta bloqueada por tentativas excessivas |
-| 403 | `/errors/account-not-verified` | Email nao verificado |
-| 404 | `/errors/user-not-found` | Usuario nao encontrado |
-| 404 | `/errors/character-not-found` | Personagem nao encontrado |
-| 409 | `/errors/email-already-exists` | Email ja registrado |
-| 409 | `/errors/lodestone-already-linked` | Lodestone ID ja vinculado a outra conta (RN04) |
-| 409 | `/errors/job-already-exists` | Job ja existe no personagem |
-| 422 | `/errors/verification-failed` | Codigo de verificacao nao encontrado na bio do Lodestone |
-| 422 | `/errors/verification-expired` | Codigo de verificacao expirado |
-| 429 | `/errors/rate-limit` | Limite de tentativas de login excedido |
-| 502 | `/errors/lodestone-unavailable` | Lodestone/XIVAPI indisponivel |
+| HTTP | Tipo RFC 7807                      | Cenario                                                  |
+| ---- | ---------------------------------- | -------------------------------------------------------- |
+| 400  | `/errors/validation`               | Campos invalidos no request                              |
+| 400  | `/errors/password-mismatch`        | Senha e confirmacao nao coincidem                        |
+| 401  | `/errors/invalid-credentials`      | Email ou senha incorretos                                |
+| 401  | `/errors/token-expired`            | Access token expirado                                    |
+| 401  | `/errors/refresh-token-invalid`    | Refresh token invalido ou revogado                       |
+| 403  | `/errors/account-locked`           | Conta bloqueada por tentativas excessivas                |
+| 403  | `/errors/account-not-verified`     | Email nao verificado                                     |
+| 404  | `/errors/user-not-found`           | Usuario nao encontrado                                   |
+| 404  | `/errors/character-not-found`      | Personagem nao encontrado                                |
+| 409  | `/errors/email-already-exists`     | Email ja registrado                                      |
+| 409  | `/errors/lodestone-already-linked` | Lodestone ID ja vinculado a outra conta (RN04)           |
+| 409  | `/errors/job-already-exists`       | Job ja existe no personagem                              |
+| 422  | `/errors/verification-failed`      | Codigo de verificacao nao encontrado na bio do Lodestone |
+| 422  | `/errors/verification-expired`     | Codigo de verificacao expirado                           |
+| 429  | `/errors/rate-limit`               | Limite de tentativas de login excedido                   |
+| 502  | `/errors/lodestone-unavailable`    | Lodestone/XIVAPI indisponivel                            |
