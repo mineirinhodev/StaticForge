@@ -7,9 +7,15 @@ RUN rm -rf /etc/nginx/conf.d/default.conf \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Use non-root user (nginx user already exists in the image).
+# Pre-create all cache subdirectories Nginx needs at runtime,
+# then hand ownership to the nginx user.
 # Listens on unprivileged port 8080 — docker-compose maps 80:8080.
-RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /tmp \
+RUN mkdir -p /var/cache/nginx/client_temp \
+             /var/cache/nginx/proxy_temp \
+             /var/cache/nginx/fastcgi_temp \
+             /var/cache/nginx/uwsgi_temp \
+             /var/cache/nginx/scgi_temp \
+    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /tmp \
     && touch /tmp/nginx.pid \
     && chown nginx:nginx /tmp/nginx.pid
 

@@ -54,6 +54,7 @@ jobs:
     runs-on: self-hosted
     needs: validate
     timeout-minutes: 20
+    environment: staging
 
     steps:
       - name: Checkout latest code

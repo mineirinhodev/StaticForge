@@ -12,7 +12,21 @@ spring:
   jpa:
     show-sql: true
 
+# Restrict actuator even in development
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    env:
+      enabled: false
+    beans:
+      enabled: false
+    configprops:
+      enabled: false
+
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: WARN
     org.hibernate.SQL: DEBUG
