@@ -34,7 +34,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --no-audit
 
       - name: Lint frontend
         run: npx turbo run lint --filter=@ffxiv-planner/web
@@ -90,7 +90,9 @@ jobs:
 
       - name: Run tests
         working-directory: apps/api
-        run: ./mvnw verify -B -Dspring.profiles.active=ci
+        run: |
+          chmod +x ./mvnw
+          ./mvnw verify -B -Dspring.profiles.active=ci
         env:
           DATABASE_URL: jdbc:postgresql://localhost:5432/ffxiv_planner_test
           DATABASE_USERNAME: postgres
@@ -126,7 +128,9 @@ jobs:
 
       - name: Build JAR
         working-directory: apps/api
-        run: ./mvnw package -DskipTests -B
+        run: |
+          chmod +x ./mvnw
+          ./mvnw package -DskipTests -B
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4

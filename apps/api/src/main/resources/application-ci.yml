@@ -1,0 +1,50 @@
+# =============================================================
+# Spring Profile: CI (GitHub Actions)
+# =============================================================
+# Used by: ./mvnw verify -B -Dspring.profiles.active=ci
+#
+# Connects to real PostgreSQL + Redis service containers.
+# Uses ddl-auto: update (not validate) because Flyway migrations
+# may not exist yet during early development.
+# =============================================================
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ffxiv_planner_test}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  jpa:
+    hibernate:
+      # Use 'update' until Flyway migrations cover the full schema,
+      # then switch to 'validate' to match dev/prod behavior.
+      ddl-auto: update
+    show-sql: false
+
+  flyway:
+    # Disable Flyway in CI until the first migration exists.
+    # Remove this line once V1__*.sql is committed.
+    enabled: false
+
+  cache:
+    type: redis
+
+  # Disable mail in CI
+  mail:
+    host: ""
+
+# Deterministic JWT secret for CI tests
+app:
+  jwt:
+    secret: ${JWT_SECRET:ci-test-jwt-secret-key-minimum-32-characters-long}
+
+logging:
+  level:
+    root: WARN
+    com.ffxiv.planner: INFO
+    org.hibernate.SQL: WARN

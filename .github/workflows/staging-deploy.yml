@@ -39,7 +39,9 @@ jobs:
 
       - name: Compile backend
         working-directory: apps/api
-        run: ./mvnw compile -B
+        run: |
+          chmod +x ./mvnw
+          ./mvnw compile -B
 
   # ── Build & push Docker images ─────────────────────────
   build-api:
