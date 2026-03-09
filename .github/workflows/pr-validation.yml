@@ -1,19 +1,21 @@
 # =============================================================
-# PR Validation — lint, test, build
+# PR Validation — lint, test, build, SonarCloud
 # =============================================================
-# Runs on every pull request targeting master.
-# Three parallel jobs + a gate job that requires all to pass.
+# Runs on every pull request targeting master and on push to master.
+# Three parallel jobs + SonarCloud analysis + a gate job.
 # =============================================================
 
 name: PR Validation
 
 on:
+  push:
+    branches: [master]
   pull_request:
     branches: [master]
     types: [opened, synchronize, reopened]
 
 concurrency:
-  group: pr-${{ github.event.pull_request.number }}
+  group: validation-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -83,6 +85,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # SonarCloud needs full history for blame data
 
       - name: Setup JDK 21
         uses: actions/setup-java@v4
@@ -91,11 +95,19 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Run tests
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run tests with coverage
         working-directory: apps/api
         run: |
           chmod +x ./mvnw
           ./mvnw verify -B -Dspring.profiles.active=ci
+          ./mvnw dependency:copy-dependencies -B -DoutputDirectory=target/dependency
         env:
           DATABASE_URL: jdbc:postgresql://localhost:5432/ffxiv_planner_test
           DATABASE_USERNAME: postgres
@@ -103,6 +115,25 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
           JWT_SECRET: ci-test-jwt-secret-key-minimum-32-characters-long
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci || npm install
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v5
+        with:
+          args: >
+            -Dsonar.projectKey=mineirinhodev_StaticForge
+            -Dsonar.organization=eminhodev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Upload test results
         if: always()
