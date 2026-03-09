@@ -82,7 +82,7 @@ jobs:
           ./mvnw verify -B -Dspring.profiles.active=ci
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v5
         with:
           args: >
             -Dsonar.projectKey=mineirinhodev_StaticForge
