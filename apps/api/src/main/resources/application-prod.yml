@@ -8,9 +8,36 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
 
   jpa:
     show-sql: false
+
+server:
+  # Trust proxy headers from Nginx (X-Forwarded-For, X-Forwarded-Proto)
+  forward-headers-strategy: native
+  error:
+    # Never expose stack traces or internal details in error responses
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false
+
+# Restrict actuator endpoints in production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+    env:
+      enabled: false
+    beans:
+      enabled: false
+    mappings:
+      enabled: false
 
 logging:
   level:
