@@ -8,31 +8,22 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class JwtTokenProviderTest {
-
-    private static final String SECRET =
-            "test-jwt-secret-key-minimum-32-characters-long-for-hs256";
 
     private JwtTokenProvider provider;
 
     @BeforeEach
     void setUp() {
-        JwtProperties props = new JwtProperties();
-        props.setSecret(SECRET);
-        props.setAccessExpiration(Duration.ofMinutes(15));
-        props.setRefreshExpiration(Duration.ofDays(30));
-        provider = new JwtTokenProvider(props);
+        provider = JwtTestFixtures.defaultProvider();
     }
 
     // ── generateAccessToken ───────────────────────────────────
 
     @Test
     void generateAccessToken_returnsNonBlankToken() {
-        UUID userId = UUID.randomUUID();
-
-        String token = provider.generateAccessToken(userId);
+        String token = provider.generateAccessToken(UUID.randomUUID());
 
         assertThat(token).isNotBlank();
     }
@@ -54,9 +45,7 @@ class JwtTokenProviderTest {
         UUID userId = UUID.randomUUID();
         String token = provider.generateAccessToken(userId);
 
-        UUID extracted = provider.getUserIdFromToken(token);
-
-        assertThat(extracted).isEqualTo(userId);
+        assertThat(provider.getUserIdFromToken(token)).isEqualTo(userId);
     }
 
     // ── validateToken ─────────────────────────────────────────
@@ -71,13 +60,12 @@ class JwtTokenProviderTest {
     @Test
     void validateToken_returnsFalseForExpiredToken() {
         JwtProperties shortProps = new JwtProperties();
-        shortProps.setSecret(SECRET);
+        shortProps.setSecret(JwtTestFixtures.TEST_SECRET);
         shortProps.setAccessExpiration(Duration.ofMillis(1));
         shortProps.setRefreshExpiration(Duration.ofDays(30));
         JwtTokenProvider shortProvider = new JwtTokenProvider(shortProps);
 
         String token = shortProvider.generateAccessToken(UUID.randomUUID());
-        // Ensure token is expired
         try { Thread.sleep(10); } catch (InterruptedException ignored) {}
 
         assertThat(shortProvider.validateToken(token)).isFalse();
@@ -103,9 +91,7 @@ class JwtTokenProviderTest {
     void getExpirationFromToken_returnsFutureInstant() {
         String token = provider.generateAccessToken(UUID.randomUUID());
 
-        Instant expiration = provider.getExpirationFromToken(token);
-
-        assertThat(expiration).isAfter(Instant.now());
+        assertThat(provider.getExpirationFromToken(token)).isAfter(Instant.now());
     }
 
     @Test
@@ -115,7 +101,6 @@ class JwtTokenProviderTest {
 
         Instant expiration = provider.getExpirationFromToken(token);
 
-        // Should be approximately 15 minutes from now (within 5 seconds tolerance)
         assertThat(expiration).isBetween(
                 issuedAt.plus(Duration.ofMinutes(14).plusSeconds(55)),
                 issuedAt.plus(Duration.ofMinutes(15).plusSeconds(5))
@@ -126,24 +111,19 @@ class JwtTokenProviderTest {
 
     @Test
     void generateRefreshToken_returnsNonBlankString() {
-        String token = provider.generateRefreshToken();
-
-        assertThat(token).isNotBlank();
+        assertThat(provider.generateRefreshToken()).isNotBlank();
     }
 
     @Test
     void generateRefreshToken_producesUniqueValues() {
-        String token1 = provider.generateRefreshToken();
-        String token2 = provider.generateRefreshToken();
-
-        assertThat(token1).isNotEqualTo(token2);
+        assertThat(provider.generateRefreshToken()).isNotEqualTo(provider.generateRefreshToken());
     }
 
     @Test
-    void generateRefreshToken_isNotAJwt() {
+    void generateRefreshToken_isValidUuid() {
         String token = provider.generateRefreshToken();
 
-        // JWTs have exactly 2 dots (header.payload.signature)
-        assertThat(token.split("\\.")).hasSize(1);
+        // Asserts that the token is a valid UUID (not a JWT)
+        assertThatCode(() -> UUID.fromString(token)).doesNotThrowAnyException();
     }
 }

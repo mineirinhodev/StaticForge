@@ -3,14 +3,13 @@ package com.ffxiv.planner.auth.jwt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,11 +23,7 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        JwtProperties props = new JwtProperties();
-        props.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
-        props.setAccessExpiration(Duration.ofMinutes(15));
-        props.setRefreshExpiration(Duration.ofDays(30));
-        tokenProvider = new JwtTokenProvider(props);
+        tokenProvider = JwtTestFixtures.defaultProvider();
         filter = new JwtAuthenticationFilter(tokenProvider);
         SecurityContextHolder.clearContext();
     }
@@ -39,7 +34,7 @@ class JwtAuthenticationFilterTest {
         String token = tokenProvider.generateAccessToken(userId);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Bearer " + token);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -64,7 +59,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void invalidToken_doesNotSetAuthentication() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Bearer invalid.token.here");
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer invalid.token.here");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -76,7 +71,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void nonBearerHeader_doesNotSetAuthentication() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic dXNlcjpwYXNz");
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNz");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -92,7 +87,7 @@ class JwtAuthenticationFilterTest {
         MockFilterChain chain = mock(MockFilterChain.class);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Bearer " + token);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         filter.doFilterInternal(request, response, chain);
