@@ -3,6 +3,7 @@ package com.ffxiv.planner.auth.security;
 import com.ffxiv.planner.auth.jwt.JwtAuthenticationFilter;
 import com.ffxiv.planner.auth.jwt.JwtProperties;
 import com.ffxiv.planner.auth.jwt.JwtTokenProvider;
+import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = {SecurityTestController.class, SecurityTestPublicController.class})
 @Import({SecurityConfig.class, JwtAuthenticationEntryPoint.class, SecurityConfigTest.Fixtures.class})
+@ActiveProfiles("security-test")
 class SecurityConfigTest {
 
     @Autowired
