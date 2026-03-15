@@ -41,6 +41,7 @@ spring:
 
 # Deterministic JWT secret for tests
 app:
+  frontend-url: http://localhost:3000
   jwt:
     secret: test-jwt-secret-key-minimum-32-characters-long-for-hs256
 
