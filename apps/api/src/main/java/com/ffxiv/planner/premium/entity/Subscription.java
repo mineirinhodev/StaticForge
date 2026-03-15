@@ -62,7 +62,9 @@ public class Subscription extends AuditableEntity {
     @Column(name = "auto_renew", nullable = false)
     private boolean autoRenew = true;
 
-    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Apenas navegabilidade — PaymentHistory é escrito exclusivamente pelo webhook handler.
+    // Sem cascade nem orphanRemoval: registros de pagamento são auditoria imutável.
+    @OneToMany(mappedBy = "subscription")
     @OrderBy("paidAt DESC")
     private List<PaymentHistory> payments = new ArrayList<>();
 }
