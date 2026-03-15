@@ -2,6 +2,8 @@ package com.ffxiv.planner.auth.controller;
 
 import com.ffxiv.planner.auth.dto.AuthResponse;
 import com.ffxiv.planner.auth.jwt.JwtAuthenticationFilter;
+import com.ffxiv.planner.auth.jwt.JwtProperties;
+import com.ffxiv.planner.auth.jwt.JwtTokenProvider;
 import com.ffxiv.planner.auth.security.JwtAuthenticationEntryPoint;
 import com.ffxiv.planner.auth.security.SecurityConfig;
 import com.ffxiv.planner.auth.service.AuthService;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerTest {
 
     @Autowired MockMvc mockMvc;
+    @Autowired JwtTokenProvider jwtTokenProvider;
     @MockBean AuthService authService;
 
     private static final AuthResponse TOKENS =
@@ -162,12 +166,14 @@ class AuthControllerTest {
 
     @Test
     void logout_returns204() throws Exception {
-        // logout requer autenticação — enviar token válido
+        UUID userId = UUID.randomUUID();
+        String token = jwtTokenProvider.generateAccessToken(userId);
+
         mockMvc.perform(post("/auth/logout")
-                        .header("Authorization", "Bearer " + validToken()))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
-        verify(authService).logout(any(UUID.class));
+        verify(authService).logout(eq(userId));
     }
 
     @Test
@@ -222,31 +228,19 @@ class AuthControllerTest {
 
     // ── fixtures ──────────────────────────────────────────────
 
-    private String validToken() {
-        com.ffxiv.planner.auth.jwt.JwtProperties props =
-                new com.ffxiv.planner.auth.jwt.JwtProperties();
-        props.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
-        props.setAccessExpiration(java.time.Duration.ofMinutes(15));
-        props.setRefreshExpiration(java.time.Duration.ofDays(30));
-        return new com.ffxiv.planner.auth.jwt.JwtTokenProvider(props)
-                .generateAccessToken(UUID.randomUUID());
-    }
-
     @TestConfiguration
     static class JwtFixtures {
         @Bean
-        com.ffxiv.planner.auth.jwt.JwtTokenProvider jwtTokenProvider() {
-            com.ffxiv.planner.auth.jwt.JwtProperties props =
-                    new com.ffxiv.planner.auth.jwt.JwtProperties();
+        JwtTokenProvider jwtTokenProvider() {
+            JwtProperties props = new JwtProperties();
             props.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
             props.setAccessExpiration(java.time.Duration.ofMinutes(15));
             props.setRefreshExpiration(java.time.Duration.ofDays(30));
-            return new com.ffxiv.planner.auth.jwt.JwtTokenProvider(props);
+            return new JwtTokenProvider(props);
         }
 
         @Bean
-        JwtAuthenticationFilter jwtAuthenticationFilter(
-                com.ffxiv.planner.auth.jwt.JwtTokenProvider provider) {
+        JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider provider) {
             return new JwtAuthenticationFilter(provider);
         }
     }
