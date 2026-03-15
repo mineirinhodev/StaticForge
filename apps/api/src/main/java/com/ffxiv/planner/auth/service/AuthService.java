@@ -57,13 +57,17 @@ public class AuthService {
         user.setActive(true);
 
         user = userRepository.save(user);
-        return issueTokens(user);
+        return issueTokens(user, null);
     }
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(InvalidCredentialsException::new);
+
+        if (!user.isActive()) {
+            throw new InvalidCredentialsException();
+        }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
@@ -72,7 +76,7 @@ public class AuthService {
         }
 
         user.setFailedLoginAttempts(0);
-        return issueTokens(user);
+        return issueTokens(user, null);
     }
 
     @Transactional
@@ -87,11 +91,17 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        // Revogar token atual (rotação de refresh token)
-        stored.setRevokedAt(Instant.now());
-        refreshTokenRepository.save(stored);
+        if (!stored.getUser().isActive()) {
+            throw new InvalidCredentialsException();
+        }
 
-        return issueTokens(stored.getUser());
+        // Emitir novo par antes de revogar o antigo, para obter o hash do substituto
+        AuthResponse response = issueTokens(stored.getUser(), stored);
+
+        // Registrar qual token substituiu este (reuse detection)
+        stored.setRevokedAt(Instant.now());
+
+        return response;
     }
 
     @Transactional
@@ -101,17 +111,28 @@ public class AuthService {
 
     // ── helpers ───────────────────────────────────────────────
 
-    private AuthResponse issueTokens(User user) {
+    /**
+     * Emite um par access + refresh token para o usuário.
+     *
+     * @param predecessor token que está sendo rotacionado, ou null (primeiro login/registro).
+     *                    Quando informado, seu campo {@code replacedBy} é preenchido com o hash
+     *                    do novo token para habilitar reuse detection.
+     */
+    private AuthResponse issueTokens(User user, RefreshToken predecessor) {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getId());
         String rawRefresh = jwtTokenProvider.generateRefreshToken();
-        Instant expiresAt = jwtTokenProvider.getExpirationFromToken(accessToken);
+        String newHash = hashToken(rawRefresh);
 
         RefreshToken rt = new RefreshToken();
         rt.setUser(user);
-        rt.setTokenHash(hashToken(rawRefresh));
+        rt.setTokenHash(newHash);
         rt.setCreatedAt(Instant.now());
         rt.setExpiresAt(Instant.now().plus(jwtProperties.getRefreshExpiration()));
         refreshTokenRepository.save(rt);
+
+        if (predecessor != null) {
+            predecessor.setReplacedBy(newHash);
+        }
 
         return new AuthResponse(accessToken, rawRefresh);
     }

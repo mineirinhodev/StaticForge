@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,8 +44,8 @@ class AuthServiceTest {
     void setUp() {
         JwtProperties props = new JwtProperties();
         props.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
-        props.setAccessExpiration(java.time.Duration.ofMinutes(15));
-        props.setRefreshExpiration(java.time.Duration.ofDays(30));
+        props.setAccessExpiration(Duration.ofMinutes(15));
+        props.setRefreshExpiration(Duration.ofDays(30));
 
         authService = new AuthService(
                 userRepository, refreshTokenRepository,
@@ -65,8 +66,6 @@ class AuthServiceTest {
         });
         when(jwtTokenProvider.generateAccessToken(any())).thenReturn("access");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(UUID.randomUUID().toString());
-        when(jwtTokenProvider.getExpirationFromToken(anyString()))
-                .thenReturn(Instant.now().plusSeconds(900));
 
         AuthResponse response = authService.register(req);
 
@@ -104,8 +103,6 @@ class AuthServiceTest {
         });
         when(jwtTokenProvider.generateAccessToken(any())).thenReturn("access");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(rawToken);
-        when(jwtTokenProvider.getExpirationFromToken(anyString()))
-                .thenReturn(Instant.now().plusSeconds(900));
 
         authService.register(req);
 
@@ -127,8 +124,6 @@ class AuthServiceTest {
         when(passwordEncoder.matches(req.password(), "hash")).thenReturn(true);
         when(jwtTokenProvider.generateAccessToken(user.getId())).thenReturn("access");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(UUID.randomUUID().toString());
-        when(jwtTokenProvider.getExpirationFromToken(anyString()))
-                .thenReturn(Instant.now().plusSeconds(900));
 
         AuthResponse response = authService.login(req);
 
@@ -158,6 +153,21 @@ class AuthServiceTest {
     }
 
     @Test
+    void login_throwsForInactiveUser() {
+        var req = new LoginRequest("user@example.com", "senha123");
+        User user = activeUser("user@example.com", "hash");
+        user.setActive(false);
+
+        when(userRepository.findByEmail(req.email())).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> authService.login(req))
+                .isInstanceOf(InvalidCredentialsException.class);
+
+        // senha nem deve ser verificada para usuário inativo
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
+    }
+
+    @Test
     void login_resetsFailedAttemptsOnSuccess() {
         var req = new LoginRequest("user@example.com", "senha123");
         User user = activeUser("user@example.com", "hash");
@@ -167,8 +177,6 @@ class AuthServiceTest {
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(jwtTokenProvider.generateAccessToken(any())).thenReturn("access");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(UUID.randomUUID().toString());
-        when(jwtTokenProvider.getExpirationFromToken(anyString()))
-                .thenReturn(Instant.now().plusSeconds(900));
 
         authService.login(req);
 
@@ -198,26 +206,55 @@ class AuthServiceTest {
         String hash = AuthService.hashToken(rawToken);
 
         User user = activeUser("user@example.com", "hash");
-        user.setId(UUID.randomUUID());
-
-        RefreshToken stored = new RefreshToken();
-        stored.setUser(user);
-        stored.setTokenHash(hash);
-        stored.setExpiresAt(Instant.now().plusSeconds(86400));
+        RefreshToken stored = validRefreshToken(user, hash);
 
         when(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hash))
                 .thenReturn(Optional.of(stored));
         when(jwtTokenProvider.generateAccessToken(user.getId())).thenReturn("new-access");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(UUID.randomUUID().toString());
-        when(jwtTokenProvider.getExpirationFromToken(anyString()))
-                .thenReturn(Instant.now().plusSeconds(900));
 
         AuthResponse response = authService.refresh(rawToken);
 
         assertThat(response.accessToken()).isEqualTo("new-access");
         assertThat(response.refreshToken()).isNotBlank();
-        // token antigo deve ser revogado
+    }
+
+    @Test
+    void refresh_revokesOldTokenAfterRotation() {
+        String rawToken = UUID.randomUUID().toString();
+        String hash = AuthService.hashToken(rawToken);
+
+        User user = activeUser("user@example.com", "hash");
+        RefreshToken stored = validRefreshToken(user, hash);
+
+        when(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hash))
+                .thenReturn(Optional.of(stored));
+        when(jwtTokenProvider.generateAccessToken(any())).thenReturn("access");
+        when(jwtTokenProvider.generateRefreshToken()).thenReturn(UUID.randomUUID().toString());
+
+        authService.refresh(rawToken);
+
         assertThat(stored.getRevokedAt()).isNotNull();
+    }
+
+    @Test
+    void refresh_populatesReplacedByForReuseDetection() {
+        String rawToken = UUID.randomUUID().toString();
+        String hash = AuthService.hashToken(rawToken);
+
+        User user = activeUser("user@example.com", "hash");
+        RefreshToken stored = validRefreshToken(user, hash);
+
+        String newRaw = UUID.randomUUID().toString();
+        when(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hash))
+                .thenReturn(Optional.of(stored));
+        when(jwtTokenProvider.generateAccessToken(any())).thenReturn("access");
+        when(jwtTokenProvider.generateRefreshToken()).thenReturn(newRaw);
+
+        authService.refresh(rawToken);
+
+        // replacedBy deve conter o hash SHA-256 do novo token
+        assertThat(stored.getReplacedBy()).isEqualTo(AuthService.hashToken(newRaw));
     }
 
     @Test
@@ -238,12 +275,26 @@ class AuthServiceTest {
         String hash = AuthService.hashToken(rawToken);
 
         User user = activeUser("user@example.com", "hash");
-        user.setId(UUID.randomUUID());
-
         RefreshToken stored = new RefreshToken();
         stored.setUser(user);
         stored.setTokenHash(hash);
         stored.setExpiresAt(Instant.now().minusSeconds(1)); // expirado
+
+        when(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hash))
+                .thenReturn(Optional.of(stored));
+
+        assertThatThrownBy(() -> authService.refresh(rawToken))
+                .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void refresh_throwsForInactiveUser() {
+        String rawToken = UUID.randomUUID().toString();
+        String hash = AuthService.hashToken(rawToken);
+
+        User user = activeUser("user@example.com", "hash");
+        user.setActive(false);
+        RefreshToken stored = validRefreshToken(user, hash);
 
         when(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hash))
                 .thenReturn(Optional.of(stored));
@@ -263,7 +314,7 @@ class AuthServiceTest {
         verify(refreshTokenRepository).revokeAllByUserId(userId);
     }
 
-    // ── helper ───────────────────────────────────────────────
+    // ── helpers ───────────────────────────────────────────────
 
     private User activeUser(String email, String hash) {
         User u = new User();
@@ -272,5 +323,13 @@ class AuthServiceTest {
         u.setPasswordHash(hash);
         u.setActive(true);
         return u;
+    }
+
+    private RefreshToken validRefreshToken(User user, String hash) {
+        RefreshToken rt = new RefreshToken();
+        rt.setUser(user);
+        rt.setTokenHash(hash);
+        rt.setExpiresAt(Instant.now().plusSeconds(86400));
+        return rt;
     }
 }
