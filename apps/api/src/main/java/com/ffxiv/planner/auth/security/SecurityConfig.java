@@ -48,7 +48,8 @@ public class SecurityConfig {
                             "/auth/login",
                             "/auth/refresh",
                             "/auth/forgot-password",
-                            "/auth/reset-password"
+                            "/auth/reset-password",
+                            "/webhooks/stripe"
                     ).permitAll()
                     .requestMatchers(HttpMethod.GET, "/users/*/profile").permitAll()
                     .anyRequest().authenticated()
