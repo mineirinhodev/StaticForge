@@ -46,3 +46,8 @@ app:
     secret: ${JWT_SECRET}
     access-expiration: 15m
     refresh-expiration: 30d
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:sk_test_placeholder}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+    price-monthly: ${STRIPE_PRICE_MONTHLY:price_monthly_placeholder}
+    price-annual: ${STRIPE_PRICE_ANNUAL:price_annual_placeholder}
