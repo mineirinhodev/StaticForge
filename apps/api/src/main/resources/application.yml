@@ -39,3 +39,9 @@ logging:
   level:
     root: INFO
     com.ffxiv.planner: DEBUG
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-expiration: 15m
+    refresh-expiration: 30d
