@@ -1,6 +1,7 @@
 package com.ffxiv.planner.common.web;
 
 import com.ffxiv.planner.common.exception.EmailAlreadyExistsException;
+import com.ffxiv.planner.common.exception.ForbiddenException;
 import com.ffxiv.planner.common.exception.InvalidCredentialsException;
 import com.ffxiv.planner.common.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,15 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND, ex.getMessage());
         problem.setType(URI.create("https://httpstatuses.com/404"));
+        return problem;
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleForbidden(ForbiddenException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN, ex.getMessage());
+        problem.setType(URI.create("https://httpstatuses.com/403"));
         return problem;
     }
 }
