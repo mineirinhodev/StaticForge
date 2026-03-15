@@ -1,6 +1,7 @@
 package com.ffxiv.planner.auth.security;
 
 import com.ffxiv.planner.auth.jwt.JwtAuthenticationFilter;
+import com.ffxiv.planner.auth.jwt.JwtProperties;
 import com.ffxiv.planner.auth.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,18 +9,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = SecurityTestController.class)
+@WebMvcTest(controllers = {SecurityTestController.class, SecurityTestPublicController.class})
 @Import({SecurityConfig.class, JwtAuthenticationEntryPoint.class, SecurityConfigTest.Fixtures.class})
 class SecurityConfigTest {
 
@@ -27,19 +27,16 @@ class SecurityConfigTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    // ── Rotas públicas de auth ────────────────────────────────
+    // ── Rotas públicas de auth → 200 ────────────────────────
 
     @Test
     void postAuthRegister_isPublic() throws Exception {
         mockMvc.perform(post("/auth/register")
                         .contentType("application/json")
                         .content("{}"))
-                .andExpect(status().isNotFound()); // 404 (sem controller real), não 401/403
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -47,13 +44,13 @@ class SecurityConfigTest {
         mockMvc.perform(post("/auth/login")
                         .contentType("application/json")
                         .content("{}"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
     void postAuthRefresh_isPublic() throws Exception {
         mockMvc.perform(post("/auth/refresh"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -61,7 +58,7 @@ class SecurityConfigTest {
         mockMvc.perform(post("/auth/forgot-password")
                         .contentType("application/json")
                         .content("{}"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -69,7 +66,15 @@ class SecurityConfigTest {
         mockMvc.perform(post("/auth/reset-password")
                         .contentType("application/json")
                         .content("{}"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
+    }
+
+    // ── GET em rota de auth é bloqueado (apenas POST é público) ──
+
+    @Test
+    void getAuthLogin_isBlocked() throws Exception {
+        mockMvc.perform(get("/auth/login"))
+                .andExpect(status().isUnauthorized());
     }
 
     // ── Rota protegida sem token → 401 ───────────────────────
@@ -78,6 +83,16 @@ class SecurityConfigTest {
     void protectedEndpoint_withoutToken_returns401() throws Exception {
         mockMvc.perform(get("/protected"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    // ── 401 retorna application/problem+json ─────────────────
+
+    @Test
+    void unauthorized_returnsProblemJsonContentType() throws Exception {
+        mockMvc.perform(get("/protected"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(
+                        "application/problem+json"));
     }
 
     // ── Rota protegida com token válido → 200 ────────────────
@@ -91,7 +106,7 @@ class SecurityConfigTest {
                 .andExpect(status().isOk());
     }
 
-    // ── Rota protegida com token inválido → 401 ──────────────
+    // ── Rota protegida com token malformado → 401 ────────────
 
     @Test
     void protectedEndpoint_withInvalidToken_returns401() throws Exception {
@@ -100,25 +115,33 @@ class SecurityConfigTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // ── 401 retorna JSON (não redirect HTML) ─────────────────
+    // ── Rota protegida com token expirado → 401 ──────────────
 
     @Test
-    void unauthorized_returnsJsonContentType() throws Exception {
-        mockMvc.perform(get("/protected"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(result ->
-                        assertThat(result.getResponse().getContentType())
-                                .contains("application/json"));
+    void protectedEndpoint_withExpiredToken_returns401() throws Exception {
+        JwtProperties shortProps = new JwtProperties();
+        shortProps.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
+        shortProps.setAccessExpiration(Duration.ofMillis(1));
+        shortProps.setRefreshExpiration(Duration.ofDays(30));
+        JwtTokenProvider shortProvider = new JwtTokenProvider(shortProps);
+
+        String expired = shortProvider.generateAccessToken(UUID.randomUUID());
+        try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+
+        mockMvc.perform(get("/protected")
+                        .header("Authorization", "Bearer " + expired))
+                .andExpect(status().isUnauthorized());
     }
 
-    // ── PasswordEncoder está disponível como bean ─────────────
+    // ── Authorization sem prefixo Bearer → 401 ───────────────
 
     @Test
-    void passwordEncoder_isAvailable() {
-        assertThat(passwordEncoder).isNotNull();
-        String hash = passwordEncoder.encode("senha123");
-        assertThat(passwordEncoder.matches("senha123", hash)).isTrue();
-        assertThat(passwordEncoder.matches("errada", hash)).isFalse();
+    void protectedEndpoint_withoutBearerPrefix_returns401() throws Exception {
+        String token = jwtTokenProvider.generateAccessToken(UUID.randomUUID());
+
+        mockMvc.perform(get("/protected")
+                        .header("Authorization", token)) // sem "Bearer "
+                .andExpect(status().isUnauthorized());
     }
 
     // ── Fixtures compartilhadas ───────────────────────────────
@@ -128,8 +151,7 @@ class SecurityConfigTest {
 
         @Bean
         JwtTokenProvider jwtTokenProvider() {
-            com.ffxiv.planner.auth.jwt.JwtProperties props =
-                    new com.ffxiv.planner.auth.jwt.JwtProperties();
+            JwtProperties props = new JwtProperties();
             props.setSecret("test-jwt-secret-key-minimum-32-characters-long-for-hs256");
             props.setAccessExpiration(Duration.ofMinutes(15));
             props.setRefreshExpiration(Duration.ofDays(30));
