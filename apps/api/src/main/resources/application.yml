@@ -41,6 +41,7 @@ logging:
     com.ffxiv.planner: DEBUG
 
 app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
   jwt:
     secret: ${JWT_SECRET}
     access-expiration: 15m
