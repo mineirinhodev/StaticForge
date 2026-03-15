@@ -50,6 +50,7 @@ public class SecurityConfig {
                             "/auth/forgot-password",
                             "/auth/reset-password"
                     ).permitAll()
+                    .requestMatchers(HttpMethod.GET, "/users/*/profile").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter,
