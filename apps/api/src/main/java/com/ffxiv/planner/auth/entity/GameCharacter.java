@@ -16,7 +16,7 @@ import java.util.UUID;
 @Table(name = "characters")
 @Getter
 @Setter
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class GameCharacter extends AuditableEntity {
 
     @Id
