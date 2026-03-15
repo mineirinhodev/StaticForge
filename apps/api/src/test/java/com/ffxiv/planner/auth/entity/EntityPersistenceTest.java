@@ -45,9 +45,7 @@ class EntityPersistenceTest {
 
     @Test
     void userAuditFieldsArePopulatedOnPersist() {
-        User user = minimalUser("audit@test.com");
-
-        User saved = em.persistFlushFind(user);
+        User saved = em.persistFlushFind(minimalUser("audit@test.com"));
 
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isNotNull();
@@ -57,9 +55,7 @@ class EntityPersistenceTest {
 
     @Test
     void userCanBePersistedAndRetrieved() {
-        User user = minimalUser("user@test.com");
-
-        User saved = em.persistFlushFind(user);
+        User saved = em.persistFlushFind(minimalUser("user@test.com"));
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getEmail()).isEqualTo("user@test.com");
@@ -82,23 +78,17 @@ class EntityPersistenceTest {
 
     @Test
     void userSoftDeleteFieldIsNullByDefault() {
-        User user = minimalUser("soft@test.com");
-
-        User saved = em.persistFlushFind(user);
+        User saved = em.persistFlushFind(minimalUser("soft@test.com"));
 
         assertThat(saved.getDeletedAt()).isNull();
     }
 
-    // ── Character ─────────────────────────────────────────────
+    // ── GameCharacter ─────────────────────────────────────────
 
     @Test
     void characterCanBePersistedWithUser() {
         User user = em.persist(minimalUser("char@test.com"));
-        em.flush();
-
-        com.ffxiv.planner.auth.entity.Character character = minimalCharacter(user, "Thancred");
-
-        com.ffxiv.planner.auth.entity.Character saved = em.persistFlushFind(character);
+        GameCharacter saved = em.persistFlushFind(minimalCharacter(user, "Thancred"));
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getName()).isEqualTo("Thancred");
@@ -111,11 +101,7 @@ class EntityPersistenceTest {
     @Test
     void characterAuditFieldsArePopulated() {
         User user = em.persist(minimalUser("charaudit@test.com"));
-        em.flush();
-
-        com.ffxiv.planner.auth.entity.Character character = minimalCharacter(user, "Y'shtola");
-
-        com.ffxiv.planner.auth.entity.Character saved = em.persistFlushFind(character);
+        GameCharacter saved = em.persistFlushFind(minimalCharacter(user, "Y'shtola"));
 
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isNotNull();
@@ -126,16 +112,9 @@ class EntityPersistenceTest {
     @Test
     void characterJobCanBePersistedWithRoleEnum() {
         User user = em.persist(minimalUser("job@test.com"));
-        com.ffxiv.planner.auth.entity.Character character =
-                em.persist(minimalCharacter(user, "Alphinaud"));
-        em.flush();
+        GameCharacter character = em.persist(minimalCharacter(user, "Alphinaud"));
 
-        CharacterJob job = new CharacterJob();
-        job.setCharacter(character);
-        job.setJobName("SCH");
-        job.setRole(Role.HEALER);
-
-        CharacterJob saved = em.persistFlushFind(job);
+        CharacterJob saved = em.persistFlushFind(minimalCharacterJob(character, "SCH", Role.HEALER));
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getJobName()).isEqualTo("SCH");
@@ -146,26 +125,15 @@ class EntityPersistenceTest {
     @Test
     void roleEnumIsPersistedAsString() {
         User user = em.persist(minimalUser("role@test.com"));
-        com.ffxiv.planner.auth.entity.Character character =
-                em.persist(minimalCharacter(user, "Alisaie"));
+        GameCharacter character = em.persist(minimalCharacter(user, "Alisaie"));
+
+        CharacterJob tank = em.persist(minimalCharacterJob(character, "PLD", Role.TANK));
+        CharacterJob dps = em.persist(minimalCharacterJob(character, "SAM", Role.DPS));
         em.flush();
+        em.clear();
 
-        CharacterJob tank = new CharacterJob();
-        tank.setCharacter(character);
-        tank.setJobName("PLD");
-        tank.setRole(Role.TANK);
-
-        CharacterJob dps = new CharacterJob();
-        dps.setCharacter(character);
-        dps.setJobName("SAM");
-        dps.setRole(Role.DPS);
-
-        em.persist(tank);
-        em.persist(dps);
-        em.flush();
-
-        assertThat(em.persistFlushFind(tank).getRole()).isEqualTo(Role.TANK);
-        assertThat(em.persistFlushFind(dps).getRole()).isEqualTo(Role.DPS);
+        assertThat(em.find(CharacterJob.class, tank.getId()).getRole()).isEqualTo(Role.TANK);
+        assertThat(em.find(CharacterJob.class, dps.getId()).getRole()).isEqualTo(Role.DPS);
     }
 
     // ── RefreshToken ──────────────────────────────────────────
@@ -173,15 +141,8 @@ class EntityPersistenceTest {
     @Test
     void refreshTokenCanBePersistedWithUser() {
         User user = em.persist(minimalUser("token@test.com"));
-        em.flush();
 
-        RefreshToken token = new RefreshToken();
-        token.setUser(user);
-        token.setTokenHash("abc123hash");
-        token.setExpiresAt(Instant.now().plusSeconds(3600));
-        token.setCreatedAt(Instant.now());
-
-        RefreshToken saved = em.persistFlushFind(token);
+        RefreshToken saved = em.persistFlushFind(minimalRefreshToken(user, "abc123hash"));
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getTokenHash()).isEqualTo("abc123hash");
@@ -208,12 +169,7 @@ class EntityPersistenceTest {
     @Test
     void userHasRefreshTokensCollection() {
         User user = em.persist(minimalUser("tokens@test.com"));
-        RefreshToken t1 = new RefreshToken();
-        t1.setUser(user);
-        t1.setTokenHash("hash-one");
-        t1.setExpiresAt(Instant.now().plusSeconds(3600));
-        t1.setCreatedAt(Instant.now());
-        em.persist(t1);
+        em.persist(minimalRefreshToken(user, "hash-one"));
         em.flush();
         em.clear();
 
@@ -225,18 +181,12 @@ class EntityPersistenceTest {
     @Test
     void characterHasJobsCollection() {
         User user = em.persist(minimalUser("jobs@test.com"));
-        com.ffxiv.planner.auth.entity.Character character =
-                em.persist(minimalCharacter(user, "G'raha Tia"));
-        CharacterJob job1 = new CharacterJob();
-        job1.setCharacter(character);
-        job1.setJobName("RDM");
-        job1.setRole(Role.DPS);
-        em.persist(job1);
+        GameCharacter character = em.persist(minimalCharacter(user, "G'raha Tia"));
+        em.persist(minimalCharacterJob(character, "RDM", Role.DPS));
         em.flush();
         em.clear();
 
-        com.ffxiv.planner.auth.entity.Character found =
-                em.find(com.ffxiv.planner.auth.entity.Character.class, character.getId());
+        GameCharacter found = em.find(GameCharacter.class, character.getId());
 
         assertThat(found.getJobs()).hasSize(1);
     }
@@ -249,13 +199,29 @@ class EntityPersistenceTest {
         return user;
     }
 
-    private com.ffxiv.planner.auth.entity.Character minimalCharacter(User user, String name) {
-        com.ffxiv.planner.auth.entity.Character character =
-                new com.ffxiv.planner.auth.entity.Character();
+    private GameCharacter minimalCharacter(User user, String name) {
+        GameCharacter character = new GameCharacter();
         character.setUser(user);
         character.setName(name);
         character.setServer("Tonberry");
         character.setDataCenter("Elemental");
         return character;
+    }
+
+    private CharacterJob minimalCharacterJob(GameCharacter character, String jobName, Role role) {
+        CharacterJob job = new CharacterJob();
+        job.setCharacter(character);
+        job.setJobName(jobName);
+        job.setRole(role);
+        return job;
+    }
+
+    private RefreshToken minimalRefreshToken(User user, String hash) {
+        RefreshToken token = new RefreshToken();
+        token.setUser(user);
+        token.setTokenHash(hash);
+        token.setExpiresAt(Instant.now().plusSeconds(3600));
+        token.setCreatedAt(Instant.now());
+        return token;
     }
 }

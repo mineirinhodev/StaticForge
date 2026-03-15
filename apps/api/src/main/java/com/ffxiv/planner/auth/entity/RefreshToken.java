@@ -2,6 +2,7 @@ package com.ffxiv.planner.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Table(name = "refresh_tokens")
 @Getter
 @Setter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class RefreshToken {
 
     @Id

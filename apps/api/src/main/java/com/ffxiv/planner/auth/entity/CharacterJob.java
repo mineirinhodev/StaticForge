@@ -1,7 +1,9 @@
 package com.ffxiv.planner.auth.entity;
 
+import com.ffxiv.planner.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -10,6 +12,7 @@ import java.util.UUID;
 @Table(name = "character_jobs")
 @Getter
 @Setter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class CharacterJob extends AuditableEntity {
 
     @Id
@@ -18,7 +21,7 @@ public class CharacterJob extends AuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "character_id", nullable = false)
-    private Character character;
+    private GameCharacter character;
 
     @Column(name = "job_name", nullable = false, length = 3)
     private String jobName;

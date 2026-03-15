@@ -1,7 +1,9 @@
 package com.ffxiv.planner.auth.entity;
 
+import com.ffxiv.planner.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -14,7 +16,8 @@ import java.util.UUID;
 @Table(name = "characters")
 @Getter
 @Setter
-public class Character extends AuditableEntity {
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+public class GameCharacter extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

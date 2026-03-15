@@ -1,7 +1,9 @@
 package com.ffxiv.planner.auth.entity;
 
+import com.ffxiv.planner.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class User extends AuditableEntity {
 
     @Id
@@ -53,7 +56,7 @@ public class User extends AuditableEntity {
     private Instant deletedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Character> characters = new ArrayList<>();
+    private List<GameCharacter> characters = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();

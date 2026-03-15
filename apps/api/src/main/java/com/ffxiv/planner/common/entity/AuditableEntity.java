@@ -1,4 +1,4 @@
-package com.ffxiv.planner.auth.entity;
+package com.ffxiv.planner.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
