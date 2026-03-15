@@ -2,6 +2,7 @@ package com.ffxiv.planner.common.web;
 
 import com.ffxiv.planner.common.exception.EmailAlreadyExistsException;
 import com.ffxiv.planner.common.exception.InvalidCredentialsException;
+import com.ffxiv.planner.common.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,6 +49,15 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED, ex.getMessage());
         problem.setType(URI.create("https://httpstatuses.com/401"));
+        return problem;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setType(URI.create("https://httpstatuses.com/404"));
         return problem;
     }
 }
