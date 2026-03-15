@@ -44,6 +44,11 @@ app:
   frontend-url: http://localhost:3000
   jwt:
     secret: test-jwt-secret-key-minimum-32-characters-long-for-hs256
+  stripe:
+    secret-key: sk_test_placeholder
+    webhook-secret: whsec_test_placeholder
+    price-monthly: price_monthly_test
+    price-annual: price_annual_test
 
 logging:
   level:
