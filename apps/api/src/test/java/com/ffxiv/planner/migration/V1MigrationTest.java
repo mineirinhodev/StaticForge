@@ -2,6 +2,9 @@ package com.ffxiv.planner.migration;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,55 +14,37 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Validates that Flyway migration V1 creates all expected tables,
- * columns, constraints, and indexes on a real PostgreSQL instance.
+ * columns, constraints, and indexes against a real PostgreSQL instance
+ * provisioned automatically via Testcontainers.
  *
- * Requires PostgreSQL running on localhost:5432 (docker compose up -d).
- * Uses a dedicated test database created/dropped per test run.
+ * No external Docker Compose or running database required — the container
+ * is started and stopped by the test lifecycle.
  */
+@Testcontainers
 class V1MigrationTest {
 
-    private static final String PG_HOST = System.getenv().getOrDefault("DATABASE_TEST_HOST", "localhost");
-    private static final String PG_PORT = System.getenv().getOrDefault("DATABASE_TEST_PORT", "5432");
-    private static final String PG_USER = System.getenv().getOrDefault("DATABASE_TEST_USER", "postgres");
-    private static final String PG_PASS = System.getenv().getOrDefault("DATABASE_TEST_PASS", "postgres");
-    private static final String TEST_DB = "ffxiv_migration_test";
-
-    private static final String ADMIN_URL = String.format(
-            "jdbc:postgresql://%s:%s/postgres", PG_HOST, PG_PORT);
-    private static final String TEST_URL = String.format(
-            "jdbc:postgresql://%s:%s/%s", PG_HOST, PG_PORT, TEST_DB);
+    @Container
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine");
 
     private static Connection connection;
 
     @BeforeAll
     static void setUp() throws Exception {
-        // Create a fresh test database
-        try (Connection admin = DriverManager.getConnection(ADMIN_URL, PG_USER, PG_PASS);
-             Statement stmt = admin.createStatement()) {
-            stmt.execute("DROP DATABASE IF EXISTS " + TEST_DB);
-            stmt.execute("CREATE DATABASE " + TEST_DB);
-        }
-
-        // Run Flyway migrations against the test database
         Flyway flyway = Flyway.configure()
-                .dataSource(TEST_URL, PG_USER, PG_PASS)
+                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
                 .locations("classpath:db/migration")
                 .load();
         flyway.migrate();
 
-        // Open connection for assertions
-        connection = DriverManager.getConnection(TEST_URL, PG_USER, PG_PASS);
+        connection = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
     }
 
     @AfterAll
     static void tearDown() throws Exception {
         if (connection != null && !connection.isClosed()) {
             connection.close();
-        }
-        // Drop the test database
-        try (Connection admin = DriverManager.getConnection(ADMIN_URL, PG_USER, PG_PASS);
-             Statement stmt = admin.createStatement()) {
-            stmt.execute("DROP DATABASE IF EXISTS " + TEST_DB);
         }
     }
 
