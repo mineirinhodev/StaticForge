@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "refresh_tokens")
 @Getter
 @Setter
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class RefreshToken {
 
     @Id

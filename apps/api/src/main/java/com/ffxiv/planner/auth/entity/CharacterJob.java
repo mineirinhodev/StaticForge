@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "character_jobs")
 @Getter
 @Setter
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class CharacterJob extends AuditableEntity {
 
     @Id
