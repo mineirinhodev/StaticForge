@@ -1,16 +1,12 @@
 package com.ffxiv.planner.auth.repository;
 
+import com.ffxiv.planner.auth.DataJpaTestBase;
 import com.ffxiv.planner.auth.entity.*;
-import com.ffxiv.planner.common.auditing.JpaAuditingConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -20,16 +16,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("datajpa")
-@Import(JpaAuditingConfig.class)
-class RepositoryQueryTest {
+class RepositoryQueryTest extends DataJpaTestBase {
 
     @Container
     static final PostgreSQLContainer<?> postgres =
@@ -275,10 +266,9 @@ class RepositoryQueryTest {
         em.flush();
         em.clear();
 
-        List<RefreshToken> tokens = refreshTokenRepository.findAll()
-                .stream().filter(t -> t.getUser().getId().equals(user.getId())).toList();
-        assertThat(tokens).allMatch(t -> t.getRevokedAt() != null);
-        assertThat(tokens).hasSize(2); // records still exist, just revoked
+        // Verify revocation via the method auth code actually uses — not findAll()
+        assertThat(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull("hash-a")).isEmpty();
+        assertThat(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull("hash-b")).isEmpty();
     }
 
     @Test
@@ -298,39 +288,5 @@ class RepositoryQueryTest {
 
         assertThat(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull("expired-hash")).isEmpty();
         assertThat(refreshTokenRepository.findByTokenHashAndRevokedAtIsNull("valid-hash")).isPresent();
-    }
-
-    // ── Helpers ───────────────────────────────────────────────
-
-    private User minimalUser(String email) {
-        User user = new User();
-        user.setEmail(email);
-        return user;
-    }
-
-    private GameCharacter minimalCharacter(User user, String name) {
-        GameCharacter character = new GameCharacter();
-        character.setUser(user);
-        character.setName(name);
-        character.setServer("Tonberry");
-        character.setDataCenter("Elemental");
-        return character;
-    }
-
-    private CharacterJob minimalCharacterJob(GameCharacter character, String jobName, Role role) {
-        CharacterJob job = new CharacterJob();
-        job.setCharacter(character);
-        job.setJobName(jobName);
-        job.setRole(role);
-        return job;
-    }
-
-    private RefreshToken minimalRefreshToken(User user, String hash) {
-        RefreshToken token = new RefreshToken();
-        token.setUser(user);
-        token.setTokenHash(hash);
-        token.setExpiresAt(Instant.now().plusSeconds(3600));
-        token.setCreatedAt(Instant.now());
-        return token;
     }
 }

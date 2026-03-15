@@ -1,29 +1,19 @@
 package com.ffxiv.planner.auth.entity;
 
-import com.ffxiv.planner.common.auditing.JpaAuditingConfig;
+import com.ffxiv.planner.auth.DataJpaTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.Instant;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("datajpa")
-@Import(JpaAuditingConfig.class)
-class EntityPersistenceTest {
+class EntityPersistenceTest extends DataJpaTestBase {
 
     @Container
     static final PostgreSQLContainer<?> postgres =
@@ -189,39 +179,5 @@ class EntityPersistenceTest {
         GameCharacter found = em.find(GameCharacter.class, character.getId());
 
         assertThat(found.getJobs()).hasSize(1);
-    }
-
-    // ── Helpers ───────────────────────────────────────────────
-
-    private User minimalUser(String email) {
-        User user = new User();
-        user.setEmail(email);
-        return user;
-    }
-
-    private GameCharacter minimalCharacter(User user, String name) {
-        GameCharacter character = new GameCharacter();
-        character.setUser(user);
-        character.setName(name);
-        character.setServer("Tonberry");
-        character.setDataCenter("Elemental");
-        return character;
-    }
-
-    private CharacterJob minimalCharacterJob(GameCharacter character, String jobName, Role role) {
-        CharacterJob job = new CharacterJob();
-        job.setCharacter(character);
-        job.setJobName(jobName);
-        job.setRole(role);
-        return job;
-    }
-
-    private RefreshToken minimalRefreshToken(User user, String hash) {
-        RefreshToken token = new RefreshToken();
-        token.setUser(user);
-        token.setTokenHash(hash);
-        token.setExpiresAt(Instant.now().plusSeconds(3600));
-        token.setCreatedAt(Instant.now());
-        return token;
     }
 }

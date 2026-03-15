@@ -22,6 +22,7 @@ public interface CharacterRepository extends JpaRepository<GameCharacter, UUID> 
     @Query("SELECT c FROM GameCharacter c WHERE c.user.id = :userId AND c.isMain = true")
     Optional<GameCharacter> findMainByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT c FROM GameCharacter c WHERE c.dataCenter = :dataCenter AND c.lookingForStatic = true AND c.isVerified = true")
+    @Query(value = "SELECT c FROM GameCharacter c WHERE c.dataCenter = :dataCenter AND c.lookingForStatic = true AND c.isVerified = true",
+           countQuery = "SELECT COUNT(c) FROM GameCharacter c WHERE c.dataCenter = :dataCenter AND c.lookingForStatic = true AND c.isVerified = true")
     Page<GameCharacter> findLFSByDataCenter(@Param("dataCenter") String dataCenter, Pageable pageable);
 }
