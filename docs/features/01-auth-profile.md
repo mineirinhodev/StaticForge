@@ -62,7 +62,7 @@ public class User extends AuditableEntity {
     private Instant deletedAt; // soft delete
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Character> characters = new ArrayList<>();
+    private List<GameCharacter> characters = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
@@ -74,7 +74,7 @@ public class User extends AuditableEntity {
 ```java
 @Entity
 @Table(name = "characters")
-public class Character extends AuditableEntity {
+public class GameCharacter extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -469,7 +469,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 public interface CharacterRepository extends JpaRepository<Character, UUID> {
 
-    List<Character> findByUserIdOrderByIsMainDesc(UUID userId);
+    List<GameCharacter> findByUserIdOrderByIsMainDesc(UUID userId);
 
     Optional<Character> findByLodestoneId(Long lodestoneId);
 

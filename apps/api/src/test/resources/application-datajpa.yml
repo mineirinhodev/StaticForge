@@ -1,0 +1,39 @@
+# =============================================================
+# Spring Profile: DataJPA Test with Testcontainers
+# =============================================================
+# Used by @DataJpaTest + Testcontainers tests.
+# DataSource is overridden via @DynamicPropertySource.
+# Flyway runs migrations against the real PostgreSQL container.
+# Redis and mail are disabled.
+# =============================================================
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ""
+      port: 0
+
+  cache:
+    type: simple
+
+  mail:
+    host: ""
+
+app:
+  jwt:
+    secret: test-jwt-secret-key-minimum-32-characters-long-for-hs256
+
+logging:
+  level:
+    root: WARN
+    com.ffxiv.planner: DEBUG
+    org.flywaydb: INFO
