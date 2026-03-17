@@ -51,7 +51,10 @@ public class SecurityConfig {
                             "/auth/reset-password",
                             "/webhooks/stripe"
                     ).permitAll()
-                    .requestMatchers(HttpMethod.GET, "/users/*/profile").permitAll()
+                    .requestMatchers(HttpMethod.GET,
+                            "/users/*/profile",
+                            "/subscriptions/plans"
+                    ).permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter,
