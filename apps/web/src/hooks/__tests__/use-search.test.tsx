@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import React from "react";
 import { useSearchStatics, useSearchPlayers } from "@/hooks/use-search";
+import { createTestWrapper } from "@/test/helpers";
 import type {
   StaticSummaryResponse,
   CharacterSummaryResponse,
@@ -75,23 +73,6 @@ afterEach(() => server.close());
 // Helpers
 // ---------------------------------------------------------------------------
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(
-      NuqsTestingAdapter,
-      null,
-      React.createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        children,
-      ),
-    );
-  };
-}
-
 // ---------------------------------------------------------------------------
 // useSearchStatics
 // ---------------------------------------------------------------------------
@@ -99,7 +80,7 @@ function createWrapper() {
 describe("useSearchStatics", () => {
   it("fetches statics and returns paginated data", async () => {
     const { result } = renderHook(() => useSearchStatics(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -111,7 +92,7 @@ describe("useSearchStatics", () => {
 
   it("exposes filters object derived from URL params", () => {
     const { result } = renderHook(() => useSearchStatics(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     expect(result.current.filters).toBeDefined();
@@ -120,7 +101,7 @@ describe("useSearchStatics", () => {
 
   it("exposes setFilters function", () => {
     const { result } = renderHook(() => useSearchStatics(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     expect(typeof result.current.setFilters).toBe("function");
@@ -134,7 +115,7 @@ describe("useSearchStatics", () => {
 describe("useSearchPlayers", () => {
   it("fetches players and returns paginated data", async () => {
     const { result } = renderHook(() => useSearchPlayers(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -146,7 +127,7 @@ describe("useSearchPlayers", () => {
 
   it("exposes filters object derived from URL params", () => {
     const { result } = renderHook(() => useSearchPlayers(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     expect(result.current.filters).toBeDefined();
@@ -155,7 +136,7 @@ describe("useSearchPlayers", () => {
 
   it("exposes setFilters function", () => {
     const { result } = renderHook(() => useSearchPlayers(), {
-      wrapper: createWrapper(),
+      wrapper: createTestWrapper(),
     });
 
     expect(typeof result.current.setFilters).toBe("function");
