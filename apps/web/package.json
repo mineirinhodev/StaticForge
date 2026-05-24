@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
-    "axios": "^1.13.6",
-    "next": "^15.1.0",
+    "axios": "^1.15.2",
+    "next": "^15.5.18",
     "nuqs": "^2.8.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
